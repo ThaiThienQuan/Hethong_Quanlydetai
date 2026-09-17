@@ -11,10 +11,11 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "danh_gia", uniqueConstraints = @UniqueConstraint(name = "uk_evaluation_topic_teacher", columnNames = {"topic_id", "teacher_id"}))
+@Table(name = "evaluations")
 @Getter @Setter @NoArgsConstructor
 public class Evaluation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "evaluation_id")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

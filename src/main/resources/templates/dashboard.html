@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Điều phối đề tài</title>
+    <style>
+        :root {
+            --navy: #142b3a;
+            --teal: #087f75;
+            --teal-soft: #dcefeb;
+            --orange: #e26d45;
+            --yellow: #f5c85b;
+            --paper: #fffdf8;
+            --sand: #f3eee4;
+            --line: #d9ded9;
+            --muted: #68757a;
+            --shadow: 0 18px 45px rgba(20, 43, 58, .08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--navy);
+            background: var(--sand);
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 244px 1fr;
+        }
+
+        .sidebar {
+            color: #ecf8f5;
+            background: var(--navy);
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 54px;
+        }
+
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            background: var(--yellow);
+            color: var(--navy);
+            font-weight: 900;
+            border-radius: 10px;
+            letter-spacing: -.04em;
+        }
+
+        .logo strong {
+            display: block;
+            font-size: 14px;
+            letter-spacing: .08em;
+        }
+
+        .logo small {
+            color: #a9c6c4;
+            font-size: 10px;
+            letter-spacing: .14em;
+        }
+
+        .nav-label {
+            color: #87aaa9;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .16em;
+            margin: 0 12px 12px;
+        }
+
+        nav {
+            display: grid;
+            gap: 5px;
+        }
+
+        nav a {
+            color: #c1d8d5;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background: #1d4350;
+            color: white;
+        }
+
+        .side-note {
+            margin-top: auto;
+            padding: 15px;
+            border: 1px solid #315465;
+            border-radius: 8px;
+            color: #b5ceca;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .side-note b {
+            display: block;
+            color: var(--yellow);
+            margin-bottom: 6px;
+        }
+
+        main {
+            min-width: 0;
+            padding: 30px clamp(20px, 4vw, 58px) 55px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 36px;
+        }
+
+        .crumb {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .topbar h1 {
+            margin: 7px 0 0;
+            font: 500 clamp(28px, 3vw, 44px)/1.05 Georgia, serif;
+            letter-spacing: -.02em;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 9px;
+            align-items: center;
+        }
+
+        .pill {
+            border: 1px solid var(--line);
+            background: var(--paper);
+            padding: 10px 13px;
+            border-radius: 7px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .pill strong {
+            color: var(--teal);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(250px, .55fr);
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .hero-card {
+            background: var(--teal);
+            color: white;
+            padding: 25px 28px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card:after {
+            content: "";
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            border: 30px solid rgba(255, 255, 255, .08);
+            border-radius: 50%;
+            right: -70px;
+            bottom: -90px;
+        }
+
+        .hero-card small {
+            color: #a7ded7;
+            font-weight: 800;
+            letter-spacing: .13em;
+        }
+
+        .hero-card h2 {
+            max-width: 580px;
+            margin: 18px 0 10px;
+            font: 500 clamp(22px, 2.5vw, 34px)/1.12 Georgia, serif;
+        }
+
+        .hero-card p {
+            max-width: 600px;
+            margin: 0;
+            color: #d8f0ed;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .hero-metric {
+            background: var(--orange);
+            color: white;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hero-metric span {
+            font-size: 12px;
+            color: #ffe2d8;
+        }
+
+        .hero-metric strong {
+            font: 500 44px Georgia, serif;
+        }
+
+        .hero-metric small {
+            color: #ffe2d8;
+            font-size: 11px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .stat {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 0;
+        }
+
+        .stat span {
+            display: block;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 11px;
+        }
+
+        .stat strong {
+            display: block;
+            margin-top: 7px;
+            font: 500 27px Georgia, serif;
+        }
+
+        .stat em {
+            display: block;
+            color: var(--teal);
+            font-size: 10px;
+            font-style: normal;
+            margin-top: 4px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            margin: 28px 0 12px;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font: 500 23px Georgia, serif;
+        }
+
+        .section-head span {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+            gap: 18px;
+        }
+
+        .panel {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 14px 16px;
+            border-bottom: 1px solid #e8ebe6;
+            font-size: 12px;
+        }
+
+        th {
+            color: var(--muted);
+            background: #faf9f4;
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        td strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        td small {
+            display: block;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: var(--teal-soft);
+            color: var(--teal);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .badge.orange {
+            background: #ffeadf;
+            color: #b84b2d;
+        }
+
+        .empty {
+            color: var(--muted);
+            padding: 25px 16px;
+            font-size: 13px;
+        }
+
+        .stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .notice,
+        .result {
+            padding: 16px;
+            border-bottom: 1px solid #e8ebe6;
+        }
+
+        .notice:last-child,
+        .result:last-child {
+            border-bottom: 0;
+        }
+
+        .notice h3 {
+            margin: 0 0 7px;
+            font: 600 14px Georgia, serif;
+        }
+
+        .notice p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .result {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .result strong {
+            display: block;
+            font: 600 17px Georgia, serif;
+        }
+
+        .result small {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .result b {
+            color: var(--teal);
+            font: 600 20px Georgia, serif;
+        }
+
+        .footer {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 1100px) {
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .app {
+                display: block;
+            }
+
+            .sidebar {
+                padding: 18px 20px;
+            }
+
+            .logo {
+                margin-bottom: 18px;
+            }
+
+            nav {
+                display: flex;
+                overflow-x: auto;
+            }
+
+            .side-note {
+                display: none;
+            }
+
+            main {
+                padding: 24px 18px 42px;
+            }
+
+            .hero,
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                display: none;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                display: none;
+            }
+
+            .footer {
+                display: block;
+                line-height: 1.8;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <a class="logo" href="/">
+                <span class="logo-mark">ĐT</span>
+                <span><strong>ĐIỀU PHỐI</strong><small>HỌC THUẬT SỐ</small></span>
+            </a>
+            <p class="nav-label">KHÔNG GIAN LÀM VIỆC</p>
+            <nav>
+                <a class="active" href="/">Tổng quan</a>
+                <a href="#periods">Đợt đăng ký</a>
+                <a href="#topics">Kho đề tài</a>
+                <a href="#groups">Nhóm sinh viên</a>
+                <a href="#review">Hội đồng & phản biện</a>
+            </nav>
+            <div class="side-note"><b>DATABASE LIVE</b>Dữ liệu được tổng hợp trực tiếp từ student_topic_management.
+            </div>
+        </aside>
+
+        <main>
+            <div class="topbar">
+                <div>
+                    <div class="crumb">Khoa Công nghệ thông tin / Tổng quan</div>
+                    <h1>Trung tâm điều phối</h1>
+                </div>
+                <div class="top-actions">
+                    <div class="pill">Hệ thống <strong>● đang hoạt động</strong></div>
+                    <div class="pill">Spring Boot + Thymeleaf</div>
+                </div>
+            </div>
+
+            <section class="hero">
+                <div class="hero-card"><small>NHỊP VẬN HÀNH</small>
+                    <h2>Một nơi nhìn thấy toàn bộ hành trình của đề tài.</h2>
+                    <p>Từ mở đợt, công bố, ghép nhóm đến nộp báo cáo, phản biện và công bố kết quả. Các chỉ số dưới đây
+                        lấy từ dữ liệu thật trong hệ thống.</p>
+                </div>
+                <div class="hero-metric"><span>Kết quả đã công bố</span><strong
+                        th:text="${dashboard.results}">0</strong><small>phiếu kết quả trong hệ thống</small></div>
+            </section>
+
+            <section class="stats" aria-label="Tổng quan dữ liệu">
+                <div class="stat"><span>Người dùng</span><strong th:text="${dashboard.users}">0</strong><em>users</em>
+                </div>
+                <div class="stat"><span>Sinh viên</span><strong
+                        th:text="${dashboard.students}">0</strong><em>students</em></div>
+                <div class="stat"><span>Giảng viên</span><strong
+                        th:text="${dashboard.lecturers}">0</strong><em>lecturers</em></div>
+                <div class="stat"><span>Đề tài</span><strong th:text="${dashboard.topics}">0</strong><em>topics</em>
+                </div>
+                <div class="stat"><span>Nhóm</span><strong
+                        th:text="${dashboard.groups}">0</strong><em>student_groups</em></div>
+                <div class="stat"><span>Báo cáo</span><strong th:text="${dashboard.reports}">0</strong><em>reports</em>
+                </div>
+            </section>
+
+            <div class="section-head">
+                <h2>Nhịp đăng ký</h2><span
+                    th:text="${dashboard.periods + ' đợt · ' + dashboard.registrations + ' lượt đăng ký'}">0 đợt · 0
+                    lượt đăng ký</span>
+            </div>
+            <section class="workspace" id="periods">
+                <div class="panel">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Đợt đăng ký</th>
+                                <th>Thời gian sinh viên</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="period : ${dashboard.periodRows}">
+                                <td><strong th:text="${period.name}">Tên đợt</strong><small
+                                        th:text="${period.type}">TLCN</small></td>
+                                <td th:text="${period.start + ' → ' + period.end}">-</td>
+                                <td><span class="badge" th:text="${period.status}">DRAFT</span></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(dashboard.periodRows)}">
+                                <td class="empty" colspan="3">Chưa có đợt đăng ký.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel" id="groups">
+                    <div class="notice">
+                        <h3>Nhóm & thành viên</h3>
+                        <p><b th:text="${dashboard.groups}">0</b> nhóm đang được quản lý với <b
+                                th:text="${dashboard.members}">0</b> thành viên.</p>
+                    </div>
+                    <div class="notice">
+                        <h3>Hướng dẫn đề tài</h3>
+                        <p><b th:text="${dashboard.supervisors}">0</b> phân công giảng viên hướng dẫn đã được ghi nhận.
+                        </p>
+                    </div>
+                    <div class="notice">
+                        <h3>Nộp và duyệt</h3>
+                        <p><b th:text="${dashboard.reports}">0</b> báo cáo, <b
+                                th:text="${dashboard.registrations}">0</b> đăng ký đề tài.</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-head">
+                <h2>Kho đề tài</h2><span
+                    th:text="${dashboard.topics + ' đề tài · ' + dashboard.departments + ' bộ môn'}">0 đề tài · 0 bộ
+                    môn</span>
+            </div>
+            <section class="panel" id="topics">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã đề tài</th>
+                            <th>Tên đề tài</th>
+                            <th>Bộ môn</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="topic : ${dashboard.topicRows}">
+                            <td><span class="badge orange" th:text="${topic.code}">DT-001</span></td>
+                            <td><strong th:text="${topic.name}">Tên đề tài</strong></td>
+                            <td th:text="${topic.department}">Bộ môn</td>
+                            <td><span class="badge" th:text="${topic.status}">PENDING</span></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(dashboard.topicRows)}">
+                            <td class="empty" colspan="4">Chưa có đề tài để hiển thị.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="section-head" id="review">
+                <h2>Phản biện & công bố</h2><span
+                    th:text="${dashboard.councils + ' hội đồng · ' + dashboard.assignments + ' phân công · ' + dashboard.evaluations + ' đánh giá'}">0
+                    hội đồng</span>
+            </div>
+            <section class="workspace">
+                <div class="panel stack">
+                    <div class="result" th:each="result : ${dashboard.resultRows}">
+                        <div><strong th:text="${result.result}">PASSED</strong><small
+                                th:text="${result.published ? 'Đã công bố' : 'Bản nháp'}">Đã công bố</small></div><b
+                            th:text="${result.score}">8.50</b>
+                    </div>
+                    <div class="empty" th:if="${#lists.isEmpty(dashboard.resultRows)}">Chưa có kết quả phản biện.</div>
+                </div>
+                <div class="panel">
+                    <div class="notice" th:each="notice : ${dashboard.notificationRows}">
+                        <h3 th:text="${notice.title}">Thông báo</h3>
+                        <p th:text="${notice.content}">Nội dung thông báo</p>
+                    </div>
+                    <div class="empty" th:if="${#lists.isEmpty(dashboard.notificationRows)}">Chưa có thông báo.</div>
+                </div>
+            </section>
+            <div class="footer"><span>STUDENT TOPIC MANAGEMENT</span><span
+                    th:text="${dashboard.notifications + ' thông báo · ' + dashboard.councilMembers + ' thành viên hội đồng'}">0
+                    thông báo</span></div>
+        </main>
+    </div>
+</body>
+
+</html>

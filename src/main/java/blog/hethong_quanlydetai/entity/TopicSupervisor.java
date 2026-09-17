@@ -6,10 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "giang_vien_huong_dan", uniqueConstraints = @UniqueConstraint(name = "uk_topic_supervisor", columnNames = {"topic_id", "teacher_id"}))
+@Table(name = "topic_supervisors")
 @Getter @Setter @NoArgsConstructor
 public class TopicSupervisor {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "topic_supervisor_id")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -17,6 +18,6 @@ public class TopicSupervisor {
     private Topic topic;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "teacher_id", nullable = false)
+    @JoinColumn(name = "lecturer_id", nullable = false)
     private AppUser teacher;
 }

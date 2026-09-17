@@ -8,10 +8,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "nguoi_dung", uniqueConstraints = @UniqueConstraint(name = "uk_nguoi_dung_username", columnNames = "username"))
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "uk_users_username", columnNames = "username"))
 @Getter @Setter @NoArgsConstructor
 public class AppUser {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
     @NotBlank
@@ -23,7 +24,7 @@ public class AppUser {
     private String password;
 
     @NotBlank
-    @Column(nullable = false, length = 120)
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
     @Email

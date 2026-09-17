@@ -7,15 +7,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "bo_mon", uniqueConstraints = @UniqueConstraint(name = "uk_bo_mon_code", columnNames = "code"))
+@Table(name = "departments", uniqueConstraints = @UniqueConstraint(name = "uk_departments_code", columnNames = "department_code"))
 @Getter @Setter @NoArgsConstructor
 public class Department {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "department_id")
     private Long id;
 
-    @NotBlank @Column(nullable = false, length = 20)
+    @NotBlank @Column(name = "department_code", nullable = false, length = 20)
     private String code;
 
-    @NotBlank @Column(nullable = false, length = 150)
+    @NotBlank @Column(name = "department_name", nullable = false, length = 100)
     private String name;
 }

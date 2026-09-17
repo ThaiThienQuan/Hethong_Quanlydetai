@@ -6,10 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "thanh_vien_nhom", uniqueConstraints = @UniqueConstraint(name = "uk_student_one_group", columnNames = "student_id"))
+@Table(name = "group_members")
 @Getter @Setter @NoArgsConstructor
 public class GroupMember {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_member_id")
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

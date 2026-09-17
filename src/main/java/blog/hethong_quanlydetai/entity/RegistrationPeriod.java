@@ -11,29 +11,36 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "dot_dang_ky")
+@Table(name = "registration_periods")
 @Getter @Setter @NoArgsConstructor
 public class RegistrationPeriod {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "period_id")
     private Long id;
 
-    @NotBlank @Column(nullable = false, length = 200)
+    @NotBlank @Column(name = "period_name", nullable = false, length = 150)
     private String name;
 
-    @NotNull @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20)
+    @NotNull @Enumerated(EnumType.STRING) @Column(name = "period_type", nullable = false, length = 20)
     private RegistrationType type;
 
-    @NotNull @Column(nullable = false)
+    @NotNull @Column(name = "lecturer_start_at", nullable = false)
     private LocalDateTime teacherStart;
-    @NotNull @Column(nullable = false)
+    @NotNull @Column(name = "lecturer_end_at", nullable = false)
     private LocalDateTime teacherEnd;
-    @NotNull @Column(nullable = false)
+    @NotNull @Column(name = "student_start_at", nullable = false)
     private LocalDateTime studentStart;
-    @NotNull @Column(nullable = false)
+    @NotNull @Column(name = "student_end_at", nullable = false)
     private LocalDateTime studentEnd;
 
+    @Column(name = "review_deadline")
     private LocalDateTime reviewerDeadline;
+
+    @Column(name = "council_report_date")
     private LocalDateTime defenseDate;
+
+    @Column(nullable = false, length = 20)
+    private String status = "DRAFT";
 
     @AssertTrue(message = "Thời gian đăng ký phải hợp lệ")
     public boolean isScheduleValid() {
