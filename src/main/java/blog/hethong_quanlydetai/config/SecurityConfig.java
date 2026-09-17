@@ -17,9 +17,9 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/css/**", "/js/**", "/h2-console/**").permitAll()
+                .requestMatchers("/", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated())
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**").disable())
+            .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .httpBasic(basic -> {});
         return http.build();
