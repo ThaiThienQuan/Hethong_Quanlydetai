@@ -42,10 +42,14 @@ public class RegistrationPeriod {
     @Column(nullable = false, length = 20)
     private String status = "DRAFT";
 
+    @Column(name = "created_by", nullable = false)
+    private Long createdBy;
+
     @AssertTrue(message = "Thời gian đăng ký phải hợp lệ")
     public boolean isScheduleValid() {
         return teacherStart == null || teacherEnd == null || studentStart == null || studentEnd == null
-                || !teacherStart.isAfter(teacherEnd) && !studentStart.isAfter(studentEnd);
+                || (!teacherStart.isAfter(teacherEnd) && !studentStart.isAfter(studentEnd)
+                    && !studentStart.isBefore(teacherEnd));
     }
 
     @AssertTrue(message = "Hạn phản biện chỉ áp dụng cho TLCN hoặc KLTN")

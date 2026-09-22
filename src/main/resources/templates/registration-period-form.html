@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${period.id == null ? 'Tạo đợt đăng ký' : 'Chỉnh sửa đợt đăng ký'}">Đợt đăng ký</title>
+    <style>
+        :root {
+            --navy: #142b3a;
+            --teal: #087f75;
+            --paper: #fffdf8;
+            --sand: #f3eee4;
+            --line: #d9ded9;
+            --muted: #68757a;
+            --orange: #e26d45;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--navy);
+            background: var(--sand);
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        }
+
+        main {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 34px 22px 60px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .back {
+            color: var(--teal);
+            font-size: 13px;
+        }
+
+        h1 {
+            margin: 18px 0 8px;
+            font: 500 38px Georgia, serif;
+        }
+
+        .lead {
+            color: var(--muted);
+            margin: 0 0 27px;
+            font-size: 13px;
+        }
+
+        form {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 25px;
+        }
+
+        fieldset {
+            border: 0;
+            padding: 0;
+            margin: 0 0 26px;
+        }
+
+        legend {
+            font: 600 20px Georgia, serif;
+            margin-bottom: 15px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        label {
+            display: grid;
+            gap: 7px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 11px 12px;
+            color: var(--navy);
+            background: white;
+            font: inherit;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 2px solid #a7ded7;
+            border-color: var(--teal);
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .errors {
+            color: #b84b2d;
+            font-size: 12px;
+            margin: 0 0 16px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 7px;
+        }
+
+        button,
+        .button {
+            border: 0;
+            border-radius: 6px;
+            padding: 11px 16px;
+            font: 700 12px inherit;
+            cursor: pointer;
+        }
+
+        button {
+            color: white;
+            background: var(--teal);
+        }
+
+        .button {
+            border: 1px solid var(--line);
+            background: white;
+        }
+
+        @media(max-width:650px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            form {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <a class="back" href="/registration-periods">← Quản lý đợt đăng ký</a>
+        <h1 th:text="${period.id == null ? 'Tạo đợt đăng ký đề tài' : 'Chỉnh sửa đợt đăng ký'}">Tạo đợt đăng ký đề tài
+        </h1>
+        <p class="lead">Thiết lập hai giai đoạn: giảng viên xây dựng và công bố danh sách đề tài, sau đó nhóm sinh viên
+            đăng ký đề tài.</p>
+        <form th:action="@{/registration-periods/save}" th:object="${period}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="errors" th:if="${#fields.hasErrors('*')}">
+                <div th:each="error : ${#fields.errors('*')}" th:text="${error}">Dữ liệu chưa hợp lệ.</div>
+            </div>
+            <fieldset>
+                <legend>Thông tin chung</legend>
+                <div class="grid">
+                    <label>Tên đợt đăng ký<input type="text" th:field="*{name}"
+                            placeholder="Ví dụ: KLTN học kỳ 1 năm 2026" required></label>
+                    <label>Loại đợt<select th:field="*{type}" required>
+                            <option value="">-- Chọn loại --</option>
+                            <option th:each="type : ${periodTypes}" th:value="${type}" th:text="${type}">KLTN</option>
+                        </select></label>
+                    <label>Trạng thái<select th:field="*{status}">
+                            <option value="DRAFT">Bản nháp</option>
+                            <option value="PUBLISHED">Đang mở</option>
+                            <option value="CLOSED">Đã đóng</option>
+                        </select></label>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Giai đoạn 1 · Xây dựng và công bố danh sách đề tài</legend>
+                <div class="grid">
+                    <label>Bắt đầu cho giảng viên<input type="datetime-local" th:field="*{teacherStart}" required><span
+                            class="hint">Giảng viên tạo, cập nhật và gửi đề tài.</span></label>
+                    <label>Kết thúc cho giảng viên<input type="datetime-local" th:field="*{teacherEnd}" required><span
+                            class="hint">Hết thời điểm này, danh sách đề tài được chốt/công bố.</span></label>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Giai đoạn 2 · Nhóm sinh viên đăng ký đề tài</legend>
+                <div class="grid">
+                    <label>Bắt đầu cho sinh viên<input type="datetime-local" th:field="*{studentStart}"
+                            required></label>
+                    <label>Kết thúc cho sinh viên<input type="datetime-local" th:field="*{studentEnd}" required></label>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Mốc chuyên môn</legend>
+                <div class="grid">
+                    <label>Hạn GVPB nộp điểm <span class="hint">Chỉ dùng cho TLCN/KLTN.</span><input
+                            type="datetime-local" th:field="*{reviewerDeadline}"></label>
+                    <label>Ngày báo cáo hội đồng <span class="hint">Chỉ dùng cho KLTN.</span><input
+                            type="datetime-local" th:field="*{defenseDate}"></label>
+                </div>
+            </fieldset>
+            <div class="actions"><a class="button" href="/registration-periods">Hủy</a><button type="submit">Lưu đợt
+                    đăng ký</button></div>
+        </form>
+    </main>
+</body>
+
+</html>

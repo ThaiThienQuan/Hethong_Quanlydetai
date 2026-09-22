@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý đợt đăng ký</title>
+    <style>
+        :root {
+            --navy: #142b3a;
+            --teal: #087f75;
+            --teal-soft: #dcefeb;
+            --orange: #e26d45;
+            --paper: #fffdf8;
+            --sand: #f3eee4;
+            --line: #d9ded9;
+            --muted: #68757a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--sand);
+            color: var(--navy);
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        }
+
+        main {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 32px 22px 60px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .crumb {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        h1 {
+            margin: 10px 0 7px;
+            font: 500 39px Georgia, serif;
+        }
+
+        .lead {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .button {
+            display: inline-block;
+            border-radius: 6px;
+            padding: 12px 15px;
+            color: white;
+            background: var(--teal);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .message {
+            background: var(--teal-soft);
+            border: 1px solid #b5ddd6;
+            color: var(--teal);
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 18px;
+        }
+
+        .panel {
+            overflow: auto;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 9px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e8ebe6;
+            font-size: 12px;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--muted);
+            background: #faf9f4;
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        td strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        td small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: var(--teal-soft);
+            color: var(--teal);
+            font-size: 10px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .badge.orange {
+            background: #ffeadf;
+            color: #b84b2d;
+        }
+
+        .phase {
+            max-width: 220px;
+            line-height: 1.45;
+        }
+
+        .dates {
+            line-height: 1.7;
+            white-space: nowrap;
+            color: var(--muted);
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .edit {
+            color: var(--teal);
+            font-weight: 700;
+        }
+
+        .delete {
+            border: 0;
+            padding: 0;
+            color: #b84b2d;
+            background: none;
+            font: 700 12px inherit;
+            cursor: pointer;
+        }
+
+        .empty {
+            color: var(--muted);
+            padding: 30px 16px;
+            text-align: center;
+        }
+
+        .footer {
+            margin-top: 17px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        @media(max-width:700px) {
+            .top {
+                display: block;
+            }
+
+            .button {
+                margin-top: 18px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="top">
+            <div><a class="crumb" href="/">Tổng quan / Đợt đăng ký</a>
+                <h1>Quản lý đợt đăng ký</h1>
+                <p class="lead">Tổ chức thời gian công bố đề tài, đăng ký nhóm và các mốc phản biện, hội đồng.</p>
+            </div><a class="button" href="/registration-periods/new">+ Tạo đợt đăng ký</a>
+        </div>
+        <div class="message" th:if="${success}" th:text="${success}">Đã lưu.</div>
+        <section class="panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Đợt đăng ký</th>
+                        <th>Loại</th>
+                        <th>Giai đoạn hiện tại</th>
+                        <th>Thời gian giảng viên</th>
+                        <th>Thời gian sinh viên</th>
+                        <th>Mốc chuyên môn</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="period : ${periods}">
+                        <td><strong th:text="${period.name}">Tên đợt</strong><small
+                                th:text="${period.status}">DRAFT</small></td>
+                        <td><span class="badge orange" th:text="${period.type}">KLTN</span></td>
+                        <td><span class="badge phase"
+                                th:text="${@registrationPeriodService.currentPhase(period, now)}">Giai đoạn 1</span>
+                        </td>
+                        <td class="dates"><span
+                                th:text="${#temporals.format(period.teacherStart, 'dd/MM/yyyy HH:mm')}">01/01/2026
+                                08:00</span><br>đến <span
+                                th:text="${#temporals.format(period.teacherEnd, 'dd/MM/yyyy HH:mm')}">10/01/2026
+                                17:00</span></td>
+                        <td class="dates"><span
+                                th:text="${#temporals.format(period.studentStart, 'dd/MM/yyyy HH:mm')}">11/01/2026
+                                08:00</span><br>đến <span
+                                th:text="${#temporals.format(period.studentEnd, 'dd/MM/yyyy HH:mm')}">20/01/2026
+                                17:00</span></td>
+                        <td class="dates"><span th:if="${period.reviewerDeadline != null}"
+                                th:text="'GVPB: ' + #temporals.format(period.reviewerDeadline, 'dd/MM/yyyy HH:mm')">GVPB</span><br
+                                th:if="${period.reviewerDeadline != null}"><span th:if="${period.defenseDate != null}"
+                                th:text="'Hội đồng: ' + #temporals.format(period.defenseDate, 'dd/MM/yyyy HH:mm')">Hội
+                                đồng</span><span
+                                th:if="${period.reviewerDeadline == null and period.defenseDate == null}">-</span></td>
+                        <td>
+                            <div class="actions"><a class="edit"
+                                    th:href="@{/registration-periods/{id}/edit(id=${period.id})}">Sửa</a>
+                                <form th:if="${period.status == 'DRAFT'}"
+                                    th:action="@{/registration-periods/{id}/publish(id=${period.id})}" method="post">
+                                    <button class="edit" type="submit">Công bố</button>
+                                </form>
+                                <form th:action="@{/registration-periods/{id}/delete(id=${period.id})}" method="post">
+                                    <button class="delete" type="submit"
+                                        onclick="return confirm('Xóa đợt đăng ký này?')">Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(periods)}">
+                        <td class="empty" colspan="7">Chưa có đợt đăng ký. Hãy tạo đợt đầu tiên.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <div class="footer"><a href="/">← Về trang tổng quan</a></div>
+    </main>
+</body>
+
+</html>

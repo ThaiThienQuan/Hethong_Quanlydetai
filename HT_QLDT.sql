@@ -80,7 +80,7 @@ CREATE TABLE registration_periods (
         REFERENCES users(user_id),
 
     CONSTRAINT chk_period_type
-        CHECK (period_type IN ('COURSE', 'RESEARCH', 'TLCN', 'KLTN'))
+        CHECK (period_type IN ('MON_HOC', 'NCKH', 'TLCN', 'KLTN'))
 );
 
 CREATE TABLE topics (
