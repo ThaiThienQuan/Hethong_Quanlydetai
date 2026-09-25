@@ -443,3 +443,53 @@ td small {
         line-height: 1.8;
     }
 }
+.module-section {
+    margin-top: 28px;
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.module-card {
+    display: block;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: #1f2937;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.module-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.module-card h3 {
+    margin: 0 0 8px;
+    color: #2563eb;
+    font-size: 18px;
+}
+
+.module-card p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+    .module-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .module-grid {
+        grid-template-columns: 1fr;
+    }
+}

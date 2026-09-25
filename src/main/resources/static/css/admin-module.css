@@ -1,0 +1,200 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--sand);
+    color: var(--navy);
+    font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: var(--navy);
+    color: #ecf8f5;
+    padding: 28px 20px;
+}
+
+.sidebar h2 {
+    font-size: 20px;
+    margin: 0 0 24px;
+}
+
+.sidebar a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: #1d4350;
+    color: var(--paper)
+}
+
+.main-content {
+    flex: 1;
+    padding: 28px;
+}
+
+.topbar {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.topbar p {
+    margin: 8px 0 0;
+    color: #64748b;
+}
+
+.card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.actions {
+    margin-bottom: 16px;
+}
+
+.btn {
+    display: inline-block;
+    border: none;
+    background: var(--teal);
+    color: var(--paper);
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-danger {
+    background: var(--orange);
+}
+
+.btn-danger:hover {
+    background: #c75a35;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.btn-secondary {
+    background: #475569;
+}
+
+.btn-secondary:hover {
+    background: #334155;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+}
+
+th {
+    background: #faf9f4;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: .08em;
+}
+
+th, td {
+    border-bottom: 1px solid #e8ebe6;
+}
+
+tr:hover td {
+    background: #f8fafc;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-warning {
+    background: #ffeadf;
+    color: #b84b2d;
+}
+
+.badge-success,
+.badge-blue {
+    background: var(--teal-soft);
+    color: var(--teal);
+}
+
+.message-success {
+    background: #dcfce7;
+    color: #166534;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.message-error {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+textarea {
+    min-height: 100px;
+}
+
+.form-actions {
+    margin-top: 20px;
+}

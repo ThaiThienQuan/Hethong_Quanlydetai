@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Phân công giảng viên</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports">Báo cáo đề tài</a>
+        <a href="/councils">Hội đồng phản biện</a>
+        <a href="/review-assignments" class="active">Phân công chấm</a>
+        <a href="/evaluations">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Phân công giảng viên</h1>
+            <p>Chọn hội đồng, đề tài và giảng viên được phân công chấm.</p>
+        </section>
+
+        <section class="card">
+            <div th:if="${error}" class="message-error" th:text="${error}"></div>
+
+            <form th:action="@{/review-assignments/save}" method="post">
+                <div class="form-group">
+                    <label>Mã hội đồng council_id</label>
+                    <input type="number" name="councilId" placeholder="Ví dụ: 1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mã đề tài topic_id</label>
+                    <input type="number" name="topicId" placeholder="Ví dụ: 1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mã giảng viên lecturer_id</label>
+                    <input type="number" name="lecturerId" placeholder="Ví dụ: 2" required>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn" type="submit">Lưu phân công</button>
+                    <a class="btn btn-secondary" href="/review-assignments">Quay lại</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

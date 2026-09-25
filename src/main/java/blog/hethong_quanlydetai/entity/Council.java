@@ -1,7 +1,6 @@
 package blog.hethong_quanlydetai.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,6 +33,5 @@ public class Council {
     private RegistrationPeriod period;
 
     @OneToMany(mappedBy = "council", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Size(min = 3, max = 5, message = "Hội đồng phải có từ 03 đến 05 giảng viên")
     private List<CouncilMember> members = new ArrayList<>();
 }

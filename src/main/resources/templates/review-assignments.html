@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Phân công chấm đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports">Báo cáo đề tài</a>
+        <a href="/councils">Hội đồng phản biện</a>
+        <a href="/review-assignments" class="active">Phân công chấm</a>
+        <a href="/evaluations">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Phân công giảng viên chấm đề tài</h1>
+            <p>Quản lý việc phân công giảng viên phản biện hoặc chấm điểm cho từng đề tài.</p>
+        </section>
+
+        <div th:if="${success}" class="message-success" th:text="${success}"></div>
+        <div th:if="${error}" class="message-error" th:text="${error}"></div>
+
+        <section class="card">
+            <div class="actions">
+                <a class="btn" href="/review-assignments/new">+ Phân công mới</a>
+            </div>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Hội đồng</th>
+                    <th>Đề tài</th>
+                    <th>Giảng viên</th>
+                    <th>Ngày phân công</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="a : ${assignments}">
+                    <td th:text="${a.id}"></td>
+                    <td th:text="${a.councilId}"></td>
+                    <td th:text="${a.topicId}"></td>
+                    <td th:text="${a.lecturerId}"></td>
+                    <td th:text="${#temporals.format(a.assignedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <span class="badge badge-success" th:text="${a.status}"></span>
+                    </td>
+                    <td>
+                        <form th:action="@{/review-assignments/{id}/delete(id=${a.id})}" method="post">
+                            <button class="btn btn-danger" type="submit">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(assignments)}">
+                    <td colspan="7">Chưa có phân công nào.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

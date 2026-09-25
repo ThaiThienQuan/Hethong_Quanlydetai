@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhập điểm</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports">Báo cáo đề tài</a>
+        <a href="/councils">Hội đồng phản biện</a>
+        <a href="/review-assignments">Phân công chấm</a>
+        <a href="/evaluations" class="active">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Nhập điểm cho phân công chấm</h1>
+            <p>Giảng viên nhập điểm và nhận xét cho đề tài đã được phân công.</p>
+        </section>
+
+        <section class="card">
+            <div th:if="${error}" class="message-error" th:text="${error}"></div>
+
+            <form th:action="@{/evaluations/save}" method="post">
+                <div class="form-group">
+                    <label>Mã phân công assignment_id</label>
+                    <input type="number" name="assignmentId" placeholder="Ví dụ: 1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Điểm</label>
+                    <input type="number" name="score" step="0.01" min="0" max="10" placeholder="Ví dụ: 8.5" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nhận xét</label>
+                    <textarea name="comment" placeholder="Nhập nhận xét của giảng viên"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn" type="submit">Lưu điểm</button>
+                    <a class="btn btn-secondary" href="/evaluations">Quay lại</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

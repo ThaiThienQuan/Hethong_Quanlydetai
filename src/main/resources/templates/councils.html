@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý hội đồng phản biện</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports">Báo cáo đề tài</a>
+        <a href="/councils" class="active">Hội đồng phản biện</a>
+        <a href="/review-assignments">Phân công chấm</a>
+        <a href="/evaluations">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Quản lý hội đồng phản biện</h1>
+            <p>Tạo hội đồng, quản lý lịch báo cáo và danh sách giảng viên tham gia phản biện.</p>
+        </section>
+
+        <div th:if="${success}" class="message-success" th:text="${success}"></div>
+
+        <section class="card">
+            <div class="actions">
+                <a class="btn" href="/councils/new">+ Tạo hội đồng mới</a>
+            </div>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Mã hội đồng</th>
+                    <th>Tên hội đồng</th>
+                    <th>Ngày báo cáo</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="council : ${councils}">
+                    <td th:text="${council.id}"></td>
+                    <td th:text="${council.code}"></td>
+                    <td th:text="${council.name}"></td>
+                    <td th:text="${#temporals.format(council.reportDate, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <span class="badge badge-blue" th:text="${council.status}"></span>
+                    </td>
+                    <td>
+                        <a class="btn btn-secondary" th:href="@{/councils/{id}(id=${council.id})}">Chi tiết</a>
+
+                        <form th:action="@{/councils/{id}/delete(id=${council.id})}" method="post" style="display:inline-block;">
+                            <button class="btn btn-danger" type="submit">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(councils)}">
+                    <td colspan="6">Chưa có hội đồng nào.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

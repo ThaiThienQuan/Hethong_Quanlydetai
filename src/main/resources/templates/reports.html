@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý báo cáo đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports" class="active">Báo cáo đề tài</a>
+        <a href="/councils">Hội đồng phản biện</a>
+        <a href="/review-assignments">Phân công chấm</a>
+        <a href="/evaluations">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Quản lý báo cáo đề tài</h1>
+            <p>Theo dõi các báo cáo đã được nhóm sinh viên nộp lên hệ thống.</p>
+        </section>
+
+        <div th:if="${success}" class="message-success" th:text="${success}"></div>
+
+        <section class="card">
+            <div class="actions">
+                <a class="btn" href="/reports/new">+ Nộp báo cáo mới</a>
+            </div>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Mã nhóm</th>
+                    <th>Người nộp</th>
+                    <th>Tiêu đề</th>
+                    <th>File</th>
+                    <th>Phiên bản</th>
+                    <th>Ngày nộp</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="report : ${reports}">
+                    <td th:text="${report.id}"></td>
+                    <td th:text="${report.groupId}"></td>
+                    <td th:text="${report.submittedBy}"></td>
+                    <td th:text="${report.title}"></td>
+                    <td>
+                        <a th:href="${report.fileUrl}" target="_blank">Xem file</a>
+                    </td>
+                    <td th:text="${report.version}"></td>
+                    <td th:text="${#temporals.format(report.submittedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <span class="badge badge-success" th:text="${report.status}"></span>
+                    </td>
+                    <td>
+                        <form th:action="@{/reports/{id}/delete(id=${report.id})}" method="post">
+                            <button class="btn btn-danger" type="submit">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(reports)}">
+                    <td colspan="9">Chưa có báo cáo nào.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

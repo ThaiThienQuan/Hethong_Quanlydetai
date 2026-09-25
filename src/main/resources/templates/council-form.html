@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo hội đồng phản biện</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports">Báo cáo đề tài</a>
+        <a href="/councils" class="active">Hội đồng phản biện</a>
+        <a href="/review-assignments">Phân công chấm</a>
+        <a href="/evaluations">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Tạo hội đồng phản biện</h1>
+            <p>Thiết lập hội đồng, thời gian báo cáo và trạng thái xử lý.</p>
+        </section>
+
+        <section class="card">
+            <form th:action="@{/councils/save}" th:object="${council}" method="post">
+                <div class="form-group">
+                    <label>Đợt đăng ký</label>
+                    <select th:field="*{period}" required>
+                        <option value="">-- Chọn đợt đăng ký --</option>
+                        <option th:each="period : ${periods}"
+                                th:value="${period.id}"
+                                th:text="${period.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Mã hội đồng</label>
+                    <input type="text" th:field="*{code}" placeholder="Ví dụ: HD01" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Tên hội đồng</label>
+                    <input type="text" th:field="*{name}" placeholder="Ví dụ: Hội đồng phản biện 01" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Ngày báo cáo</label>
+                    <input type="datetime-local" th:field="*{reportDate}" required>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn" type="submit">Lưu hội đồng</button>
+                    <a class="btn btn-secondary" href="/councils">Quay lại</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package blog.hethong_quanlydetai.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +22,6 @@ public class GroupMember {
     @JoinColumn(name = "student_id", nullable = false)
     private AppUser student;
 
-    @Column(nullable = false)
+   @Column(name = "is_leader", nullable = false)
     private boolean leader;
 }

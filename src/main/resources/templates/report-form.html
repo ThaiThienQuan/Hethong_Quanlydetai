@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nộp báo cáo đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports" class="active">Báo cáo đề tài</a>
+        <a href="/councils">Hội đồng phản biện</a>
+        <a href="/review-assignments">Phân công chấm</a>
+        <a href="/evaluations">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Nộp báo cáo đề tài</h1>
+            <p>Nhóm trưởng thực hiện nộp báo cáo sau khi đề tài đã được chấp thuận.</p>
+        </section>
+
+        <section class="card">
+            <div th:if="${error}" class="message-error" th:text="${error}"></div>
+
+            <form th:action="@{/reports/save}" th:object="${report}" method="post">
+                <div class="form-group">
+                    <label>Mã nhóm</label>
+                    <input type="number" th:field="*{groupId}" placeholder="Ví dụ: 1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mã sinh viên người nộp</label>
+                    <input type="number" th:field="*{submittedBy}" placeholder="Ví dụ: 1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Tiêu đề báo cáo</label>
+                    <input type="text" th:field="*{title}" placeholder="Nhập tiêu đề báo cáo" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Link file báo cáo</label>
+                    <input type="text" th:field="*{fileUrl}" placeholder="Dán link Google Drive hoặc file báo cáo" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea th:field="*{description}" placeholder="Nhập ghi chú hoặc mô tả ngắn"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn" type="submit">Nộp báo cáo</button>
+                    <a class="btn btn-secondary" href="/reports">Quay lại</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

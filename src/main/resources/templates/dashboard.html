@@ -23,6 +23,10 @@
                 <a href="#topics">Kho đề tài</a>
                 <a href="#groups">Nhóm sinh viên</a>
                 <a href="#review">Hội đồng & phản biện</a>
+                <a href="/reports">Báo cáo đề tài</a>
+                <a href="/councils">Quản lý hội đồng</a>
+                <a href="/review-assignments">Phân công chấm</a>
+                <a href="/evaluations">Nhập điểm</a>
             </nav>
             <div class="side-note"><b>DATABASE LIVE</b>Dữ liệu được tổng hợp trực tiếp từ student_topic_management.
             </div>
@@ -48,6 +52,35 @@
                 </div>
                 <div class="hero-metric"><span>Kết quả đã công bố</span><strong
                         th:text="${dashboard.results}">0</strong><small>phiếu kết quả trong hệ thống</small></div>
+            </section>
+
+            <section class="module-section">
+                <div class="section-head">
+                    <h2>Chức năng phần phụ trách</h2>
+                    <span>Quản lý thực hiện, báo cáo và phản biện</span>
+                </div>
+
+                <div class="module-grid">
+                    <a class="module-card" href="/reports">
+                        <h3>Báo cáo đề tài</h3>
+                        <p>Quản lý việc nhóm sinh viên nộp báo cáo đề tài.</p>
+                    </a>
+
+                    <a class="module-card" href="/councils">
+                        <h3>Hội đồng phản biện</h3>
+                        <p>Tạo hội đồng, thêm giảng viên, chọn chủ tịch và thư ký.</p>
+                    </a>
+
+                    <a class="module-card" href="/review-assignments">
+                        <h3>Phân công chấm</h3>
+                        <p>Phân công giảng viên phản biện hoặc chấm điểm đề tài.</p>
+                    </a>
+
+                    <a class="module-card" href="/evaluations">
+                        <h3>Nhập điểm</h3>
+                        <p>Nhập điểm, nhận xét và tính điểm cuối cùng cho đề tài.</p>
+                    </a>
+                </div>
             </section>
 
             <section class="stats" aria-label="Tổng quan dữ liệu">

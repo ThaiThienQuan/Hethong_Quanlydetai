@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết hội đồng</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports">Báo cáo đề tài</a>
+        <a href="/councils" class="active">Hội đồng phản biện</a>
+        <a href="/review-assignments">Phân công chấm</a>
+        <a href="/evaluations">Nhập điểm</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Chi tiết hội đồng</h1>
+            <p>Quản lý giảng viên trong hội đồng và hoàn tất hội đồng phản biện.</p>
+        </section>
+
+        <div th:if="${success}" class="message-success" th:text="${success}"></div>
+        <div th:if="${error}" class="message-error" th:text="${error}"></div>
+
+        <section class="card">
+            <h2>Thông tin hội đồng</h2>
+
+            <table>
+                <tr>
+                    <th>Mã hội đồng</th>
+                    <td th:text="${council.code}"></td>
+                </tr>
+                <tr>
+                    <th>Tên hội đồng</th>
+                    <td th:text="${council.name}"></td>
+                </tr>
+                <tr>
+                    <th>Trạng thái</th>
+                    <td>
+                        <span class="badge badge-blue" th:text="${council.status}"></span>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="form-actions">
+                <form th:action="@{/councils/{id}/complete(id=${council.id})}" method="post">
+                    <button class="btn" type="submit">Hoàn tất hội đồng</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Thêm giảng viên vào hội đồng</h2>
+
+            <form th:action="@{/councils/{id}/members/add(id=${council.id})}" method="post">
+                <div class="form-group">
+                    <label>Mã giảng viên lecturer_id</label>
+                    <input type="number" name="lecturerId" placeholder="Ví dụ: 1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Vai trò</label>
+                    <select name="role" required>
+                        <option value="CHAIRMAN">Chủ tịch</option>
+                        <option value="SECRETARY">Thư ký</option>
+                        <option value="MEMBER">Thành viên</option>
+                    </select>
+                </div>
+
+                <button class="btn" type="submit">Thêm giảng viên</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Danh sách giảng viên trong hội đồng</h2>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Lecturer ID</th>
+                    <th>Vai trò</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="member : ${members}">
+                    <td th:text="${member.id}"></td>
+                    <td th:text="${member.lecturerId}"></td>
+                    <td>
+                        <span class="badge badge-warning" th:text="${member.role}"></span>
+                    </td>
+                    <td>
+                        <form th:action="@{/councils/{councilId}/members/{memberId}/delete(councilId=${council.id}, memberId=${member.id})}" method="post">
+                            <button class="btn btn-danger" type="submit">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(members)}">
+                    <td colspan="4">Chưa có giảng viên trong hội đồng.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <p>
+            <a class="btn btn-secondary" href="/councils">Quay lại danh sách hội đồng</a>
+        </p>
+    </main>
+</div>
+</body>
+</html>
