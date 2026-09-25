@@ -34,6 +34,7 @@
                 <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Đợt đăng ký</th>
                     <th>Mã hội đồng</th>
                     <th>Tên hội đồng</th>
                     <th>Ngày báo cáo</th>
@@ -45,6 +46,7 @@
                 <tbody>
                 <tr th:each="council : ${councils}">
                     <td th:text="${council.id}"></td>
+                    <td th:text="${council.period.name}"></td>
                     <td th:text="${council.code}"></td>
                     <td th:text="${council.name}"></td>
                     <td th:text="${#temporals.format(council.reportDate, 'dd/MM/yyyy HH:mm')}"></td>
@@ -61,7 +63,7 @@
                 </tr>
 
                 <tr th:if="${#lists.isEmpty(councils)}">
-                    <td colspan="6">Chưa có hội đồng nào.</td>
+                    <td colspan="7">Chưa có hội đồng nào.</td>
                 </tr>
                 </tbody>
             </table>
