@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Controller
 @RequestMapping("/review-assignments")
@@ -44,9 +45,14 @@ public class ReviewAssignmentController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id,
-                         RedirectAttributes redirectAttributes) {
+                     RedirectAttributes redirectAttributes) {
+    try {
         reviewAssignmentService.delete(id);
         redirectAttributes.addFlashAttribute("success", "Đã xóa phân công.");
-        return "redirect:/review-assignments";
+    } catch (DataIntegrityViolationException e) {
+        redirectAttributes.addFlashAttribute("error", "Không thể xóa phân công vì đã có điểm đánh giá liên quan.");
     }
+
+    return "redirect:/review-assignments";
+}
 }

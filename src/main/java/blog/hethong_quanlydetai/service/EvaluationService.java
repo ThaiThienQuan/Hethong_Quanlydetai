@@ -35,6 +35,9 @@ public class EvaluationService {
     }
 
     public void save(Long assignmentId, BigDecimal score, String comment) {
+        if (!assignmentRepository.existsById(assignmentId)) {
+        throw new IllegalArgumentException("Mã phân công không tồn tại.");
+}
         if (score.compareTo(BigDecimal.ZERO) < 0 || score.compareTo(BigDecimal.TEN) > 0) {
             throw new IllegalArgumentException("Điểm phải nằm trong khoảng từ 0 đến 10.");
         }

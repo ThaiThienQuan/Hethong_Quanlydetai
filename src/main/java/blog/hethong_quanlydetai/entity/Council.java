@@ -28,7 +28,7 @@ public class Council {
     @Column(nullable = false, length = 20)
     private String status = "PLANNED";
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "period_id", nullable = false)
     private RegistrationPeriod period;
 

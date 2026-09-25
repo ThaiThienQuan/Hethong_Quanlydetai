@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import blog.hethong_quanlydetai.service.CouncilMemberService;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Controller
 @RequestMapping("/councils")
@@ -40,19 +41,32 @@ public class CouncilController {
 
     @PostMapping("/save")
     public String save(@ModelAttribute("council") Council council,
-                       RedirectAttributes redirectAttributes) {
+                   Model model,
+                   RedirectAttributes redirectAttributes) {
+    try {
         councilService.save(council);
         redirectAttributes.addFlashAttribute("success", "Đã tạo hội đồng phản biện.");
         return "redirect:/councils";
+    } catch (DataIntegrityViolationException e) {
+        model.addAttribute("error", "Mã hội đồng đã tồn tại hoặc dữ liệu không hợp lệ.");
+        model.addAttribute("council", council);
+        model.addAttribute("periods", periodService.findAll());
+        return "council-form";
     }
+}
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id,
-                         RedirectAttributes redirectAttributes) {
+                     RedirectAttributes redirectAttributes) {
+    try {
         councilService.delete(id);
         redirectAttributes.addFlashAttribute("success", "Đã xóa hội đồng.");
-        return "redirect:/councils";
+    } catch (DataIntegrityViolationException e) {
+        redirectAttributes.addFlashAttribute("error", "Không thể xóa hội đồng vì đã có giảng viên, phân công chấm hoặc kết quả liên quan.");
     }
+
+    return "redirect:/councils";
+}
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
     model.addAttribute("council", councilService.findById(id));
