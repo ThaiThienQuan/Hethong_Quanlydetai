@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kết quả đánh giá</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/results" class="active">Kết quả đã công bố</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Kết quả đề tài của bạn</h1>
+            <p>Chỉ hiển thị kết quả đã được hội đồng công bố cho nhóm của bạn.</p>
+        </section>
+
+        <section class="card">
+            <table>
+                <thead>
+                <tr>
+                    <th>Nhóm</th>
+                    <th>Đề tài</th>
+                    <th>Điểm cuối cùng</th>
+                    <th>Kết quả</th>
+                    <th>Ngày công bố</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="result : ${results}">
+                    <td th:text="${result.groupName}"></td>
+                    <td th:text="${result.topicName}"></td>
+                    <td th:text="${result.finalScore}"></td>
+                    <td th:text="${result.result == 'PASS' ? 'Đạt' : 'Chưa đạt'}"></td>
+                    <td th:text="${#temporals.format(result.publishedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(results)}">
+                    <td colspan="5">Nhóm của bạn chưa có kết quả được công bố.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>
