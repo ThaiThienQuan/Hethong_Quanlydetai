@@ -9,15 +9,16 @@
 </head>
 
 <body>
-    <div class="admin-layout">
-        <aside class="sidebar">
-            <h2>Quản lý đề tài sinh viên</h2>
-            <a href="/">Tổng quan</a>
-            <a href="/reports">Báo cáo đề tài</a>
-            <a href="/councils">Hội đồng phản biện</a>
-            <a href="/review-assignments">Phân công chấm</a>
-            <a href="/evaluations" class="active">Nhập điểm</a>
-        </aside>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/reports">Báo cáo đề tài</a>
+        <a href="/councils">Hội đồng phản biện</a>
+        <a href="/review-assignments">Phân công chấm</a>
+        <a href="/evaluations" class="active">Nhập điểm</a>
+        <a href="/results">Kết quả công bố</a>
+    </aside>
 
         <main class="main-content">
             <section class="topbar">
@@ -27,24 +28,34 @@
 
             <div th:if="${success}" class="message-success" th:text="${success}"></div>
             <div th:if="${error}" class="message-error" th:text="${error}"></div>
+        <section class="card">
+            <div class="actions">
+                <a class="btn" href="/evaluations/new">+ Nhập điểm mới</a>
+            </div>
 
-            <section class="card">
-                <div class="actions">
-                    <a class="btn" href="/evaluations/new">+ Nhập điểm mới</a>
+            <h2>Tính điểm cuối cùng</h2>
+
+            <form th:action="@{/evaluations/calculate}" method="post">
+                <div class="form-group">
+                    <label>Nhóm, đề tài và hội đồng đã đủ điểm</label>
+                    <select name="selection" required th:disabled="${#lists.isEmpty(calculationOptions)}">
+                        <option value="" disabled selected>Chọn nội dung cần tổng hợp</option>
+                        <option th:each="option : ${calculationOptions}"
+                                th:value="|${option.groupId}:${option.topicId}:${option.councilId}|"
+                                th:text="|Nhóm ${option.groupName} · ${option.topicName} · ${option.councilName}|">
+                        </option>
+                    </select>
                 </div>
 
-                <h2>Tính điểm cuối cùng</h2>
-
-                <form th:action="@{/evaluations/calculate}" method="post">
-                    <div class="form-group">
-                        <label>Mã nhóm group_id</label>
-                        <input type="number" name="groupId" placeholder="Ví dụ: 1" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Mã đề tài topic_id</label>
-                        <input type="number" name="topicId" placeholder="Ví dụ: 1" required>
-                    </div>
+                <button class="btn" type="submit" th:disabled="${#lists.isEmpty(calculationOptions)}">
+                    Tính điểm cuối cùng
+                </button>
+            </form>
+            <p th:if="${#lists.isEmpty(calculationOptions)}">
+                Chưa có mục đủ điểm để tổng hợp, hoặc tài khoản của bạn không phải chủ tịch hội đồng.
+            </p>
+        </section>
+>>>>>>> 9667e8d41d2ac0e0f672a05d9bdec904ba37992c
 
                     <div class="form-group">
                         <label>Mã hội đồng council_id</label>
@@ -58,38 +69,53 @@
             <section class="card">
                 <h2>Danh sách điểm đã nhập</h2>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Assignment ID</th>
-                            <th>Điểm</th>
-                            <th>Nhận xét</th>
-                            <th>Ngày chấm</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        <tr th:each="e : ${evaluations}">
-                            <td th:text="${e.id}"></td>
-                            <td th:text="${e.assignmentId}"></td>
-                            <td th:text="${e.score}"></td>
-                            <td th:text="${e.comment}"></td>
-                            <td th:text="${#temporals.format(e.evaluatedAt, 'dd/MM/yyyy HH:mm')}"></td>
-                            <td>
-                                <span class="badge badge-success" th:text="${e.status}"></span>
-                            </td>
-                        </tr>
+                <tr th:if="${#lists.isEmpty(evaluations)}">
+                    <td colspan="6">Chưa có điểm nào được nhập.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
 
-                        <tr th:if="${#lists.isEmpty(evaluations)}">
-                            <td colspan="6">Chưa có điểm nào được nhập.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </main>
-    </div>
+        <section class="card">
+            <h2>Tổng hợp và công bố kết quả</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>Mã kết quả</th>
+                    <th>Nhóm</th>
+                    <th>Đề tài</th>
+                    <th>Hội đồng</th>
+                    <th>Điểm trung bình</th>
+                    <th>Kết quả</th>
+                    <th>Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="result : ${results}">
+                    <td th:text="${result.id}"></td>
+                    <td th:text="${result.groupId}"></td>
+                    <td th:text="${result.topicId}"></td>
+                    <td th:text="${result.councilId}"></td>
+                    <td th:text="${result.finalScore}"></td>
+                    <td th:text="${result.result}"></td>
+                    <td>
+                        <form th:if="${!result.published}"
+                              th:action="@{/evaluations/results/{id}/publish(id=${result.id})}" method="post">
+                            <button class="btn" type="submit">Công bố</button>
+                        </form>
+                        <span th:if="${result.published}">Đã công bố</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(results)}">
+                    <td colspan="7">Chưa có kết quả được tổng hợp.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+>>>>>>> 9667e8d41d2ac0e0f672a05d9bdec904ba37992c
 </body>
 
 </html>

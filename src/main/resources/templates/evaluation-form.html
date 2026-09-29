@@ -27,12 +27,17 @@
 
             <section class="card">
                 <div th:if="${error}" class="message-error" th:text="${error}"></div>
-
-                <form th:action="@{/evaluations/save}" method="post">
-                    <div class="form-group">
-                        <label>Mã phân công assignment_id</label>
-                        <input type="number" name="assignmentId" placeholder="Ví dụ: 1" required>
-                    </div>
+            <form th:action="@{/evaluations/save}" method="post">
+                <div class="form-group">
+                    <label>Phân công chấm</label>
+                    <select name="assignmentId" required>
+                        <option value="" disabled selected>Chọn đề tài được phân công</option>
+                        <option th:each="assignment : ${assignments}"
+                                th:value="${assignment.id}"
+                                th:text="|${assignment.topicName} · ${assignment.councilName} · mã ${assignment.id}|">
+                        </option>
+                    </select>
+                </div>
 
                     <div class="form-group">
                         <label>Điểm</label>
