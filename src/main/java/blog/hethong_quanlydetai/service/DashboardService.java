@@ -1,8 +1,10 @@
 package blog.hethong_quanlydetai.service;
 
+import blog.hethong_quanlydetai.entity.RegistrationType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +52,7 @@ public class DashboardService {
                 ORDER BY student_start_at DESC
                 LIMIT 5
                 """).getResultList()).stream()
-                .map(row -> new PeriodView(text(row[0]), text(row[1]), text(row[2]), text(row[3]), text(row[4])))
+                .map(row -> new PeriodView(text(row[0]), parseType(row[1]), text(row[2]), text(row[3]), text(row[4])))
                 .toList();
     }
 
@@ -91,6 +93,17 @@ public class DashboardService {
                 .toList();
     }
 
+    private RegistrationType parseType(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String raw = value.toString().trim();
+        if (raw.isEmpty()) {
+            return null;
+        }
+        return RegistrationType.valueOf(raw.toUpperCase(Locale.ROOT));
+    }
+
     private String text(Object value) {
         return value == null ? "-" : value.toString();
     }
@@ -119,7 +132,7 @@ public class DashboardService {
             List<ResultView> resultRows) {
     }
 
-    public record PeriodView(String name, String type, String status, String start, String end) {
+    public record PeriodView(String name, RegistrationType type, String status, String start, String end) {
     }
 
     public record TopicView(String code, String name, String status, String department) {

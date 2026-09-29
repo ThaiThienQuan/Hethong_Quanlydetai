@@ -34,10 +34,9 @@
                     <tr th:each="period : ${periods}">
                         <td><strong th:text="${period.name}">Tên đợt</strong><small th:text="${period.statusLabel}">Bản
                                 nháp</small></td>
-                        <td><span class="badge orange" th:text="${period.type.displayName}">Khóa luận
+                        <td><span class="badge orange" th:text="${period.type != null ? period.type.displayName : '-'}">Khóa luận
                                 tốt nghiệp</span></td>
-                        <td><span class="badge phase"
-                                th:text="${@registrationPeriodService.currentPhase(period, now)}">Giai đoạn 1</span>
+                        <td><span class="badge phase" th:text="${phaseById[period.id]}">Giai đoạn 1</span>
                         </td>
                         <td class="dates"><span
                                 th:text="${#temporals.format(period.teacherStart, 'dd/MM/yyyy HH:mm')}">01/01/2026
@@ -50,10 +49,10 @@
                                 th:text="${#temporals.format(period.studentEnd, 'dd/MM/yyyy HH:mm')}">20/01/2026
                                 17:00</span></td>
                         <td class="dates"><span th:if="${period.reviewerDeadline != null}"
-                                th:text="'Giảng viên phản biện: ' + #temporals.format(period.reviewerDeadline, 'dd/MM/yyyy HH:mm')">Giảng
+                                th:text="|Giảng viên phản biện: ${#temporals.format(period.reviewerDeadline, 'dd/MM/yyyy HH:mm')}|">Giảng
                                 viên phản biện</span><br th:if="${period.reviewerDeadline != null}"><span
                                 th:if="${period.defenseDate != null}"
-                                th:text="'Hội đồng: ' + #temporals.format(period.defenseDate, 'dd/MM/yyyy HH:mm')">Hội
+                                th:text="|Hội đồng: ${#temporals.format(period.defenseDate, 'dd/MM/yyyy HH:mm')}|">Hội
                                 đồng</span><span
                                 th:if="${period.reviewerDeadline == null and period.defenseDate == null}">-</span></td>
                         <td>
