@@ -116,7 +116,7 @@
                         <tbody>
                             <tr th:each="period : ${dashboard.periodRows}">
                                 <td><strong th:text="${period.name}">Tên đợt</strong><small
-                                        th:text="${period.type}">TLCN</small></td>
+                                        th:text="${period.type.displayName}">Tiểu luận chuyên ngành</small></td>
                                 <td th:text="${period.start + ' → ' + period.end}">-</td>
                                 <td><span class="badge" th:text="${period.status}">DRAFT</span></td>
                             </tr>
