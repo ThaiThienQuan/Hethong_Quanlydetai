@@ -15,7 +15,37 @@ CREATE TABLE users (
     phone VARCHAR(20),
     role VARCHAR(20) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE roles (
+    role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description VARCHAR(255)
+);
+
+CREATE TABLE permissions (
+    permission_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255)
+);
+
+CREATE TABLE user_roles (
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
+);
+
+CREATE TABLE role_permissions (
+    role_id BIGINT NOT NULL,
+    permission_id BIGINT NOT NULL,
+    PRIMARY KEY (role_id, permission_id),
+    CONSTRAINT fk_role_permissions_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE,
+    CONSTRAINT fk_role_permissions_permission FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) ON DELETE CASCADE
 );
 
 CREATE TABLE departments (
@@ -95,6 +125,7 @@ CREATE TABLE topics (
     description TEXT,
 
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    published BOOLEAN NOT NULL DEFAULT FALSE,
 
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     approved_at DATETIME,
@@ -358,7 +389,7 @@ CREATE TABLE review_results (
 CREATE TABLE notifications (
     notification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
-    title VARCHAR(200) NOT NULL,
+    title VARCHAR(250) NOT NULL,
     content TEXT NOT NULL,
 
     type VARCHAR(20) NOT NULL,
@@ -369,10 +400,21 @@ CREATE TABLE notifications (
     published_at DATETIME,
 
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+    updated_at DATETIME,
 
     CONSTRAINT fk_notifications_users
         FOREIGN KEY (created_by)
         REFERENCES users(user_id)
+);
+
+CREATE TABLE notification_target_roles (
+    notification_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    PRIMARY KEY (notification_id, role_id),
+    CONSTRAINT fk_notification_target_roles_notification
+        FOREIGN KEY (notification_id) REFERENCES notifications(notification_id) ON DELETE CASCADE,
+    CONSTRAINT fk_notification_target_roles_role
+        FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
 );
 
 SHOW TABLES;

@@ -20,7 +20,7 @@ public class GroupMember {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
-    private AppUser student;
+    private Student student;
 
    @Column(name = "is_leader", nullable = false)
     private boolean leader;

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý tài khoản</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="topbar-card">
+        <div>
+            <div class="crumb">Quản trị hệ thống / tài khoản</div>
+            <h1>Quản lý người dùng</h1>
+        </div>
+        <div class="topbar-actions">
+            <a th:href="@{/users/new}">Thêm tài khoản</a>
+            <a th:href="@{/}">Dashboard</a>
+        </div>
+    </div>
+
+    <section class="table-card panel">
+        <div th:if="${message}" class="notice" th:text="${message}"></div>
+        <div class="table-header">
+            <div>
+                <h2>Danh sách tài khoản</h2>
+                <p class="section-description">Vai trò chính nhận diện nhóm công việc; các vai trò bổ sung cấp thêm quyền.</p>
+            </div>
+            <span class="table-count" th:text="${users.size() + ' tài khoản'}">0 tài khoản</span>
+        </div>
+        <div class="table-scroll user-table-wrap"><table class="data-table user-table">
+            <thead>
+            <tr>
+                <th>Họ tên</th>
+                <th>Tên đăng nhập</th>
+                <th>Email</th>
+                <th>Nhóm quyền</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td data-label="Họ tên" th:text="${user.fullName}">Tên</td>
+                <td data-label="Tên đăng nhập" th:text="${user.username}">username</td>
+                <td data-label="Email" th:text="${user.email}">email</td>
+                <td data-label="Nhóm quyền">
+                    <div class="user-role-cell">
+                        <span class="role-chip primary-role" th:text="${user.role}">SINH_VIEN</span>
+                        <div class="role-list">
+                            <span class="role-chip" th:each="role : ${user.roles}"
+                                  th:if="${role.name != user.role.name()}" th:text="${role.name}">Vai trò bổ sung</span>
+                        </div>
+                    </div>
+                </td>
+                <td data-label="Trạng thái">
+                    <span class="status-badge" th:classappend="${user.status == 'ACTIVE' ? 'status-active' : 'status-locked'}" th:text="${user.status}">ACTIVE</span>
+                </td>
+                <td data-label="Thao tác" class="user-action-cell">
+                    <div class="user-actions">
+                    <form class="status-form" th:action="@{/users/{id}/status(id=${user.id})}" method="post">
+                        <label class="sr-only" th:for="${'status-' + user.id}">Trạng thái tài khoản</label>
+                        <select name="status" th:id="${'status-' + user.id}">
+                            <option value="ACTIVE" th:selected="${user.status == 'ACTIVE'}">ACTIVE</option>
+                            <option value="LOCKED" th:selected="${user.status == 'LOCKED'}">LOCKED</option>
+                        </select>
+                        <button class="ghost-btn" type="submit">Cập nhật</button>
+                    </form>
+                    <a class="secondary-btn" th:href="@{/users/{id}/edit(id=${user.id})}">Sửa</a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(users)}">
+                <td class="empty-state" colspan="6">Chưa có tài khoản nào.</td>
+            </tr>
+            </tbody>
+        </table></div>
+    </section>
+</div>
+</body>
+</html>

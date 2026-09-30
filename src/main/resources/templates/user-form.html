@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tài khoản | Khoa CNTT</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <header class="topbar-card">
+        <div>
+            <div class="crumb">Tài khoản / thiết lập</div>
+            <h1 th:text="${user.id == null ? 'Tạo tài khoản' : 'Cập nhật tài khoản'}">Tạo tài khoản</h1>
+            <p class="form-intro">Thông tin đăng nhập, trạng thái và quyền truy cập được quản lý tại đây.</p>
+        </div>
+        <div class="topbar-actions"><a th:href="@{/users}">Danh sách tài khoản</a></div>
+    </header>
+    <div class="panel form-card">
+        <div class="alert error" th:if="${error}" th:text="${error}"></div>
+        <form th:action="@{/users/save}" method="post" th:object="${user}">
+            <input type="hidden" th:field="*{id}">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="username">Tên đăng nhập</label>
+                    <input id="username" type="text" th:field="*{username}" required maxlength="50" autocomplete="username">
+                </div>
+                <div class="field">
+                    <label for="password">Mật khẩu <span th:if="${user.id != null}">(để trống nếu giữ nguyên)</span></label>
+                    <input id="password" type="password" th:field="*{password}" th:required="${user.id == null}" minlength="8" autocomplete="new-password">
+                </div>
+                <div class="field">
+                    <label for="fullName">Họ và tên</label>
+                    <input id="fullName" type="text" th:field="*{fullName}" required maxlength="100">
+                </div>
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" th:field="*{email}" required maxlength="120" autocomplete="email">
+                </div>
+                <div class="field">
+                    <label for="phone">Số điện thoại</label>
+                    <input id="phone" type="tel" th:field="*{phone}" maxlength="20" autocomplete="tel">
+                </div>
+                <div class="field">
+                    <label for="status">Trạng thái</label>
+                    <select id="status" th:field="*{status}">
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="LOCKED">LOCKED</option>
+                    </select>
+                </div>
+                <div class="field full primary-role-field">
+                    <label for="role">Vai trò chính</label>
+                    <select id="role" th:field="*{role}" required>
+                        <option th:each="userRole : ${userRoles}" th:value="${userRole}" th:text="${userRole}">SINH_VIEN</option>
+                    </select>
+                    <small class="field-hint">Vai trò chính được lưu cố định trên hồ sơ tài khoản.</small>
+                </div>
+                <fieldset class="field full role-fieldset">
+                    <legend>Nhóm người dùng</legend>
+                    <p class="role-guidance">Mỗi nhóm là một vai trò có bộ quyền riêng. Có thể cấp thêm vai trò; quyền truy cập sẽ được cộng dồn. Phải chọn vai trò chính ở danh sách bên trên và trong các nhóm dưới đây. Chỉ cấp ADMIN cho tài khoản quản trị.</p>
+                    <div class="permission-list">
+                        <label class="permission-item" th:each="role : ${roles}">
+                            <input type="checkbox" name="roleIds" th:value="${role.id}"
+                                   th:checked="${selectedRoleIds.contains(role.id)}">
+                            <span class="permission-meta"><strong th:text="${role.name}">SINH_VIEN</strong>
+                                <small th:text="${role.description}">Vai trò</small></span>
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-actions">
+                <button class="primary-btn" type="submit">Lưu tài khoản</button>
+                <a class="secondary-btn" th:href="@{/users}">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

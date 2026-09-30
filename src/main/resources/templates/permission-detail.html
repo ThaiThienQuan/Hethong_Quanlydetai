@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chi tiết quyền</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="topbar-card">
+        <div>
+            <div class="crumb">Quyền / chi tiết</div>
+            <h1 th:text="${permission.name}">USER_MANAGE</h1>
+        </div>
+        <div class="topbar-actions">
+            <a th:href="@{/permissions/{id}/edit(id=${permission.id})}">Sửa quyền</a>
+            <a th:href="@{/permissions}">Quay lại</a>
+            <a th:href="@{/}">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="detail-layout">
+        <section class="panel detail-panel">
+            <h2>Thông tin quyền</h2>
+            <p><strong>Mã quyền:</strong> <span th:text="${permission.code}">-</span></p>
+            <p><strong>Tên quyền:</strong> <span th:text="${permission.name}">-</span></p>
+            <p><strong>Mô tả:</strong> <span th:text="${permission.description != null ? permission.description : 'Chưa cập nhật'}">-</span></p>
+        </section>
+
+        <aside class="panel detail-panel">
+            <h2>Vai trò đang sử dụng</h2>
+            <div class="notice" th:if="${#lists.isEmpty(roles)}">
+                Chưa có vai trò nào gán quyền này.
+            </div>
+            <div class="permission-list" th:unless="${#lists.isEmpty(roles)}">
+                <div class="permission-item" th:each="role : ${roles}">
+                    <span class="role-chip" th:text="${role.name}">TRUONG_KHOA</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+</body>
+</html>

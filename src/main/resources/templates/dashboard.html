@@ -19,15 +19,18 @@
             <p class="nav-label">KHÔNG GIAN LÀM VIỆC</p>
             <nav>
                 <a class="active" href="/">Tổng quan</a>
-                <a href="/registration-periods">Đợt đăng ký</a>
-                <a href="#topics">Kho đề tài</a>
-                <a href="#groups">Nhóm sinh viên</a>
-                <a href="#review">Hội đồng & phản biện</a>
-                <a href="/reports">Báo cáo đề tài</a>
-                <a href="/councils">Quản lý hội đồng</a>
-                <a href="/review-assignments">Phân công chấm</a>
-                <a href="/evaluations">Nhập điểm</a>
-                <a href="/results">Kết quả đã công bố</a>
+                <a th:if="${canManagePeriods}" href="/registration-periods">Đợt đăng ký</a>
+                <a th:if="${canManageTopics}" href="/topics">Kho đề tài</a>
+                <a th:if="${canRegister}" href="/registrations">Nhóm và đăng ký</a>
+                <a th:if="${canViewReports}" href="/reports">Báo cáo đề tài</a>
+                <a th:if="${canManageCouncils}" href="/councils">Quản lý hội đồng</a>
+                <a th:if="${canAssignReviews}" href="/review-assignments">Phân công chấm</a>
+                <a th:if="${canEvaluate}" href="/evaluations">Nhập điểm / tổng hợp</a>
+                <a th:if="${canViewResults}" href="/results">Kết quả đã công bố</a>
+                <a th:if="${canViewNotifications}" href="/notifications">Thông báo</a>
+                <a th:if="${canManageUsers}" href="/users">Tài khoản</a>
+                <a th:if="${canManageRoles}" href="/roles">Vai trò</a>
+                <a th:if="${canManagePermissions}" href="/permissions">Phân quyền</a>
             </nav>
             <div class="side-note"><b>DATABASE LIVE</b>Dữ liệu được tổng hợp trực tiếp từ student_topic_management.
             </div>
@@ -40,51 +43,63 @@
                     <h1>Trung tâm điều phối</h1>
                 </div>
                 <div class="top-actions">
+                    <div class="pill" th:text="${username}">Tài khoản</div>
+                    <form th:action="@{/logout}" method="post"><button class="pill" type="submit">Đăng xuất</button></form>
                     <div class="pill">Hệ thống <strong>● đang hoạt động</strong></div>
-                    <div class="pill">Spring Boot + Thymeleaf</div>
                 </div>
             </div>
 
             <section class="hero">
                 <div class="hero-card"><small>NHỊP VẬN HÀNH</small>
-                    <h2>Một nơi nhìn thấy toàn bộ hành trình của đề tài.</h2>
-                    <p>Từ mở đợt, công bố, ghép nhóm đến nộp báo cáo, phản biện và công bố kết quả. Các chỉ số dưới đây
-                        lấy từ dữ liệu thật trong hệ thống.</p>
+                    <h2 th:text="${canViewOverview ? 'Một nơi nhìn thấy toàn bộ hành trình của đề tài.' : 'Không gian làm việc của bạn'}">Không gian làm việc của bạn</h2>
+                    <p th:text="${canViewOverview ? 'Từ mở đợt, công bố, ghép nhóm đến nộp báo cáo, phản biện và công bố kết quả.' : 'Thông tin và chức năng được hiển thị theo vai trò của bạn.'}">Thông tin theo vai trò.</p>
                 </div>
-                <div class="hero-metric"><span>Kết quả đã công bố</span><strong
+                <div class="hero-metric" th:if="${canViewOverview}"><span>Kết quả đã công bố</span><strong
                         th:text="${dashboard.results}">0</strong><small>phiếu kết quả trong hệ thống</small></div>
             </section>
 
-            <section class="module-section">
+            <section class="panel" th:if="${canViewNotifications}">
+                <div class="section-head">
+                    <h2>Thông báo mới</h2>
+                    <a href="/notifications">Tất cả thông báo</a>
+                </div>
+                <article class="notice" th:each="notice : ${dashboard.notificationRows}">
+                    <h3 th:text="${notice.title}">Thông báo</h3>
+                    <p th:text="${notice.content}">Nội dung thông báo</p>
+                </article>
+                <div class="empty" th:if="${#lists.isEmpty(dashboard.notificationRows)}">Chưa có thông báo dành cho vai trò của bạn.</div>
+            </section>
+
+            <section class="module-section" th:if="${canViewOverview}">
                 <div class="section-head">
                     <h2>Chức năng phần phụ trách</h2>
                     <span>Quản lý thực hiện, báo cáo và phản biện</span>
                 </div>
 
                 <div class="module-grid">
-                    <a class="module-card" href="/reports">
+                    <a class="module-card" href="/reports" th:if="${canViewReports}">
                         <h3>Báo cáo đề tài</h3>
                         <p>Quản lý việc nhóm sinh viên nộp báo cáo đề tài.</p>
                     </a>
 
-                    <a class="module-card" href="/councils">
+                    <a class="module-card" href="/councils" th:if="${canManageCouncils}">
                         <h3>Hội đồng phản biện</h3>
                         <p>Tạo hội đồng, thêm giảng viên, chọn chủ tịch và thư ký.</p>
                     </a>
 
-                    <a class="module-card" href="/review-assignments">
+                    <a class="module-card" href="/review-assignments" th:if="${canAssignReviews}">
                         <h3>Phân công chấm</h3>
                         <p>Phân công giảng viên phản biện hoặc chấm điểm đề tài.</p>
                     </a>
 
-                    <a class="module-card" href="/evaluations">
+                    <a class="module-card" href="/evaluations" th:if="${canEvaluate}">
                         <h3>Nhập điểm</h3>
                         <p>Nhập điểm, nhận xét và tính điểm cuối cùng cho đề tài.</p>
                     </a>
                 </div>
             </section>
 
-            <section class="stats" aria-label="Tổng quan dữ liệu">
+            <section class="stats" aria-label="Tổng quan dữ liệu" th:if="${canViewOverview}">
                 <div class="stat"><span>Người dùng</span><strong th:text="${dashboard.users}">0</strong><em>users</em>
                 </div>
                 <div class="stat"><span>Sinh viên</span><strong
@@ -99,12 +114,12 @@
                 </div>
             </section>
 
-            <div class="section-head">
-                <h2>Nhịp đăng ký</h2><a class="pill" href="/registration-periods">Quản lý đợt đăng ký</a><span
+            <div class="section-head" th:if="${canViewOverview}">
+                <h2>Nhịp đăng ký</h2><a class="pill" href="/registration-periods" th:if="${canManagePeriods}">Quản lý đợt đăng ký</a><span
                     th:text="${dashboard.periods + ' đợt · ' + dashboard.registrations + ' lượt đăng ký'}">0 đợt · 0
                     lượt đăng ký</span>
             </div>
-            <section class="workspace" id="periods">
+            <section class="workspace" id="periods" th:if="${canViewOverview}">
                 <div class="panel">
                     <table>
                         <thead>
@@ -117,7 +132,7 @@
                         <tbody>
                             <tr th:each="period : ${dashboard.periodRows}">
                                 <td><strong th:text="${period.name}">Tên đợt</strong><small
-                                        th:text="${period.type.displayName}">Tiểu luận chuyên ngành</small></td>
+                                        th:text="${period.type}">TLCN</small></td>
                                 <td th:text="${period.start + ' → ' + period.end}">-</td>
                                 <td><span class="badge" th:text="${period.status}">DRAFT</span></td>
                             </tr>
@@ -146,12 +161,12 @@
                 </div>
             </section>
 
-            <div class="section-head">
+            <div class="section-head" th:if="${canViewOverview}">
                 <h2>Kho đề tài</h2><span
                     th:text="${dashboard.topics + ' đề tài · ' + dashboard.departments + ' bộ môn'}">0 đề tài · 0 bộ
                     môn</span>
             </div>
-            <section class="panel" id="topics">
+            <section class="panel" id="topics" th:if="${canViewOverview}">
                 <table>
                     <thead>
                         <tr>
@@ -175,12 +190,12 @@
                 </table>
             </section>
 
-            <div class="section-head" id="review">
+            <div class="section-head" id="review" th:if="${canViewOverview and canEvaluate}">
                 <h2>Phản biện & công bố</h2><span
                     th:text="${dashboard.councils + ' hội đồng · ' + dashboard.assignments + ' phân công · ' + dashboard.evaluations + ' đánh giá'}">0
                     hội đồng</span>
             </div>
-            <section class="workspace">
+            <section class="workspace" th:if="${canViewOverview and canEvaluate}">
                 <div class="panel stack">
                     <div class="result" th:each="result : ${dashboard.resultRows}">
                         <div><strong th:text="${result.result}">PASSED</strong><small
@@ -189,17 +204,9 @@
                     </div>
                     <div class="empty" th:if="${#lists.isEmpty(dashboard.resultRows)}">Chưa có kết quả phản biện.</div>
                 </div>
-                <div class="panel">
-                    <div class="notice" th:each="notice : ${dashboard.notificationRows}">
-                        <h3 th:text="${notice.title}">Thông báo</h3>
-                        <p th:text="${notice.content}">Nội dung thông báo</p>
-                    </div>
-                    <div class="empty" th:if="${#lists.isEmpty(dashboard.notificationRows)}">Chưa có thông báo.</div>
-                </div>
             </section>
-            <div class="footer"><span>STUDENT TOPIC MANAGEMENT</span><span
-                    th:text="${dashboard.notifications + ' thông báo · ' + dashboard.councilMembers + ' thành viên hội đồng'}">0
-                    thông báo</span></div>
+            <div class="footer"><span>STUDENT TOPIC MANAGEMENT</span><span th:if="${canViewOverview}"
+                    th:text="${dashboard.notifications + ' thông báo · ' + dashboard.councilMembers + ' thành viên hội đồng'}">0 thông báo</span></div>
         </main>
     </div>
 </body>

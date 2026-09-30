@@ -1,7 +1,7 @@
 .app {
     min-height: 100vh;
     display: grid;
-    grid-template-columns: 244px 1fr;
+    grid-template-columns: minmax(210px, 244px) minmax(0, 1fr);
 }
 
 .sidebar {
@@ -28,7 +28,7 @@
     color: var(--navy);
     font-weight: 900;
     border-radius: 10px;
-    letter-spacing: -.04em;
+    letter-spacing: 0;
 }
 
 .logo strong {
@@ -105,16 +105,24 @@ main {
 
 .topbar h1 {
     margin: 7px 0 0;
-    letter-spacing: -.02em;
-    font: 500 clamp(28px, 3vw, 44px)/1.05 Arial, sans-serif;
-    font-size: xxx-large;
+    font: 600 40px/1.1 var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
+    letter-spacing: 0;
 }
-
 
 .top-actions {
     display: flex;
     gap: 9px;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+.top-actions form {
+    margin: 0;
+}
+
+.top-actions button {
+    font: inherit;
+    cursor: pointer;
 }
 
 .pill {
@@ -166,7 +174,7 @@ main {
 .hero-card h2 {
     max-width: 580px;
     margin: 18px 0 10px;
-    font: 500 clamp(28px, 3vw, 44px)/1.05 Arial, sans-serif;
+    font: 600 30px/1.2 var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .hero-card p {
@@ -193,7 +201,7 @@ main {
 }
 
 .hero-metric strong {
-    font: 500 44px Arial, sans-serif;
+    font: 600 44px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .hero-metric small {
@@ -228,7 +236,7 @@ main {
 .stat strong {
     display: block;
     margin-top: 7px;
-    font: 500 27px Arial, sans-serif;
+    font: 600 27px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .stat em {
@@ -248,7 +256,7 @@ main {
 
 .section-head h2 {
     margin: 0;
-    font: 500 23px Arial, sans-serif;
+    font: 600 23px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .section-head span {
@@ -266,7 +274,7 @@ main {
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 8px;
-    overflow: hidden;
+    overflow-x: auto;
 }
 
 table {
@@ -286,7 +294,7 @@ th {
     color: var(--muted);
     background: #faf9f4;
     font-size: 10px;
-    letter-spacing: .08em;
+    letter-spacing: 0;
     text-transform: uppercase;
 }
 
@@ -344,7 +352,7 @@ td small {
 
 .notice h3 {
     margin: 0 0 7px;
-    font: 600 14px Arial, sans-serif;
+    font: 600 14px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .notice p {
@@ -363,7 +371,7 @@ td small {
 
 .result strong {
     display: block;
-    font: 600 17px Arial, sans-serif;
+    font: 600 17px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .result small {
@@ -373,7 +381,7 @@ td small {
 
 .result b {
     color: var(--teal);
-    font: 600 20px Arial, sans-serif;
+    font: 600 20px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .footer {
@@ -422,18 +430,35 @@ td small {
     }
 
     .topbar {
-        align-items: flex-start;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+        margin-bottom: 22px;
     }
 
     .top-actions {
-        display: none;
+        display: flex;
+        align-items: stretch;
     }
+
+    .top-actions .pill { padding: 8px 10px; }
+    .section-head { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+    .hero-card { padding: 20px; }
+    .hero-card h2 { margin-top: 12px; font-size: 25px; }
 }
 
 @media (max-width: 520px) {
     .stats {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .sidebar { padding: 16px 14px; }
+    .nav-label { margin-left: 2px; }
+    nav a { flex: 0 0 auto; white-space: nowrap; padding: 10px; }
+    main { padding: 20px 14px 32px; }
+    .topbar h1 { font-size: 31px; }
+    .hero-metric { min-height: 130px; }
+    table { min-width: 520px; }
 
     th:nth-child(3),
     td:nth-child(3) {

@@ -1,6 +1,7 @@
 package blog.hethong_quanlydetai.controller;
 
 import blog.hethong_quanlydetai.service.ReviewAssignmentService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 @Controller
 @RequestMapping("/review-assignments")
+@PreAuthorize("hasAuthority('ASSIGNMENT_MANAGE')")
 public class ReviewAssignmentController {
 
     private final ReviewAssignmentService reviewAssignmentService;
