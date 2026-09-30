@@ -30,7 +30,7 @@ main {
 
 h1 {
     margin: 10px 0 7px;
-    font: 600 39px "Cormorant Garamond", Georgia, serif;
+    font: 600 39px "Cormorant Garamond", Arial, sans-serif;
     letter-spacing: -0.02em;
 }
 
