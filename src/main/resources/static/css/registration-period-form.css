@@ -11,7 +11,7 @@ main {
 
 h1 {
     margin: 18px 0 8px;
-    font: 500 38px Georgia, serif;
+    font: 500 38px Arial, sans-serif;
 }
 
 .lead {
@@ -34,7 +34,7 @@ fieldset {
 }
 
 legend {
-    font: 600 20px Georgia, serif;
+    font: 600 20px Arial, sans-serif;
     margin-bottom: 15px;
 }
 
