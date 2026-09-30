@@ -105,9 +105,11 @@ main {
 
 .topbar h1 {
     margin: 7px 0 0;
-    font: 500 clamp(28px, 3vw, 44px)/1.05 Georgia, serif;
     letter-spacing: -.02em;
+    font: 500 clamp(28px, 3vw, 44px)/1.05 Arial, sans-serif;
+    font-size: xxx-large;
 }
+
 
 .top-actions {
     display: flex;
@@ -164,7 +166,7 @@ main {
 .hero-card h2 {
     max-width: 580px;
     margin: 18px 0 10px;
-    font: 500 clamp(22px, 2.5vw, 34px)/1.12 Georgia, serif;
+    font: 500 clamp(28px, 3vw, 44px)/1.05 Arial, sans-serif;
 }
 
 .hero-card p {
@@ -191,7 +193,7 @@ main {
 }
 
 .hero-metric strong {
-    font: 500 44px Georgia, serif;
+    font: 500 44px Arial, sans-serif;
 }
 
 .hero-metric small {
@@ -226,7 +228,7 @@ main {
 .stat strong {
     display: block;
     margin-top: 7px;
-    font: 500 27px Georgia, serif;
+    font: 500 27px Arial, sans-serif;
 }
 
 .stat em {
@@ -246,7 +248,7 @@ main {
 
 .section-head h2 {
     margin: 0;
-    font: 500 23px Georgia, serif;
+    font: 500 23px Arial, sans-serif;
 }
 
 .section-head span {
@@ -342,7 +344,7 @@ td small {
 
 .notice h3 {
     margin: 0 0 7px;
-    font: 600 14px Georgia, serif;
+    font: 600 14px Arial, sans-serif;
 }
 
 .notice p {
@@ -361,7 +363,7 @@ td small {
 
 .result strong {
     display: block;
-    font: 600 17px Georgia, serif;
+    font: 600 17px Arial, sans-serif;
 }
 
 .result small {
@@ -371,7 +373,7 @@ td small {
 
 .result b {
     color: var(--teal);
-    font: 600 20px Georgia, serif;
+    font: 600 20px Arial, sans-serif;
 }
 
 .footer {
