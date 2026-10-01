@@ -49,9 +49,9 @@
                                 th:text="${#temporals.format(period.studentEnd, 'dd/MM/yyyy HH:mm')}">20/01/2026
                                 17:00</span></td>
                         <td class="dates"><span th:if="${period.reviewerDeadline != null}"
-                                th:text="'GVPB: ' + #temporals.format(period.reviewerDeadline, 'dd/MM/yyyy HH:mm')">GVPB</span><br
+                                th:text="${'GVPB: ' + #temporals.format(period.reviewerDeadline, 'dd/MM/yyyy HH:mm')}">GVPB</span><br
                                 th:if="${period.reviewerDeadline != null}"><span th:if="${period.defenseDate != null}"
-                                th:text="'Hội đồng: ' + #temporals.format(period.defenseDate, 'dd/MM/yyyy HH:mm')">Hội
+                                th:text="${'Hội đồng: ' + #temporals.format(period.defenseDate, 'dd/MM/yyyy HH:mm')}">Hội
                                 đồng</span><span
                                 th:if="${period.reviewerDeadline == null and period.defenseDate == null}">-</span></td>
                         <td>
