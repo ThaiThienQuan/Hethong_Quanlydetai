@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý quyền</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="topbar-card">
+        <div>
+            <div class="crumb">Quản trị hệ thống / quyền</div>
+            <h1>Phân quyền chức năng</h1>
+        </div>
+        <div class="topbar-actions">
+            <a th:href="@{/permissions/new}">Thêm quyền</a>
+            <a th:href="@{/}">Dashboard</a>
+        </div>
+    </div>
+
+    <section class="table-card panel">
+        <div class="table-header">
+            <h2>Danh sách quyền</h2>
+        </div>
+        <div class="table-scroll"><table class="data-table">
+            <thead>
+            <tr>
+                <th>Mã quyền</th>
+                <th>Tên quyền</th>
+                <th>Mô tả</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="permission : ${permissions}">
+                <td><span class="role-chip" th:text="${permission.code}">USER_MANAGE</span></td>
+                <td th:text="${permission.name}">Quản lý tài khoản</td>
+                <td th:text="${permission.description != null ? permission.description : 'Chưa cập nhật'}">Mô tả</td>
+                <td>
+                    <a class="secondary-btn" th:href="@{/permissions/{id}(id=${permission.id})}">Chi tiết</a>
+                    <a class="ghost-btn" th:href="@{/permissions/{id}/edit(id=${permission.id})}">Sửa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table></div>
+    </section>
+</div>
+</body>
+</html>

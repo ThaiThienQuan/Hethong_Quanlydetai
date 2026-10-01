@@ -5,9 +5,7 @@ import blog.hethong_quanlydetai.entity.RegistrationType;
 import blog.hethong_quanlydetai.service.RegistrationPeriodService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/registration-periods")
+@PreAuthorize("hasAnyAuthority('PERIOD_MANAGE', 'ROLE_ADMIN')")
 public class RegistrationPeriodController {
     private final RegistrationPeriodService service;
 
@@ -29,16 +28,8 @@ public class RegistrationPeriodController {
 
     @GetMapping
     public String index(Model model) {
-        List<RegistrationPeriod> periods = service.findAll();
-        LocalDateTime now = LocalDateTime.now();
-        Map<Long, String> phaseById = new LinkedHashMap<>();
-        for (RegistrationPeriod period : periods) {
-            phaseById.put(period.getId(), service.currentPhase(period, now));
-        }
-
-        model.addAttribute("periods", periods);
-        model.addAttribute("phaseById", phaseById);
-        model.addAttribute("now", now);
+        model.addAttribute("periods", service.findAll());
+        model.addAttribute("now", LocalDateTime.now());
         model.addAttribute("periodTypes", RegistrationType.values());
         return "registration-periods";
     }

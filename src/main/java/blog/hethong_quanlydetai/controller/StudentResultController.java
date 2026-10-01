@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
+@PreAuthorize("hasAnyAuthority('RESULT_VIEW', 'ROLE_ADMIN')")
 public class StudentResultController {
 
     private final EvaluationService evaluationService;

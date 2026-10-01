@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chi tiết vai trò</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="topbar-card">
+        <div>
+            <div class="crumb">Vai trò / chi tiết</div>
+            <h1 th:text="${role.name}">TRUONG_KHOA</h1>
+        </div>
+        <div class="topbar-actions">
+            <a th:href="@{/roles/{id}/edit(id=${role.id})}">Sửa vai trò</a>
+            <a th:href="@{/roles}">Quay lại</a>
+            <a th:href="@{/}">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="detail-layout">
+        <section class="panel detail-panel">
+            <h2>Thông tin vai trò</h2>
+            <p><strong>Mã vai trò:</strong> <span th:text="${role.name}">-</span></p>
+            <p><strong>Mô tả:</strong> <span th:text="${role.description != null ? role.description : 'Chưa cập nhật'}">-</span></p>
+
+            <form th:action="@{/roles/{id}/permissions(id=${role.id})}" method="post">
+                <div class="permission-list">
+                    <div class="permission-item" th:each="permission : ${permissions}">
+                        <input type="checkbox" name="permissionIds" th:value="${permission.id}"
+                               th:checked="${assignedPermissionIds.contains(permission.id)}">
+                        <div class="permission-meta">
+                            <strong th:text="${permission.name}">Tên quyền</strong>
+                            <small th:text="${permission.code}">CODE</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">Lưu quyền</button>
+                    <a class="secondary-btn" th:href="@{/roles}">Hủy</a>
+                </div>
+            </form>
+        </section>
+
+        <aside class="panel detail-panel">
+            <h2>Quyền được cấp</h2>
+            <div class="notice" th:if="${#lists.isEmpty(role.permissions)}">
+                Vai trò này chưa được gán quyền nào.
+            </div>
+            <div class="permission-list" th:unless="${#lists.isEmpty(role.permissions)}">
+                <div class="permission-item" th:each="permission : ${role.permissions}">
+                    <span class="role-chip" th:text="${permission.code}">CODE</span>
+                    <div class="permission-meta">
+                        <strong th:text="${permission.name}">Tên quyền</strong>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+</body>
+</html>

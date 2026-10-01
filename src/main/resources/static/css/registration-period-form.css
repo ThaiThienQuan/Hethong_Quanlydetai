@@ -11,7 +11,7 @@ main {
 
 h1 {
     margin: 18px 0 8px;
-    font: 500 38px Arial, sans-serif;
+    font: 600 38px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
 }
 
 .lead {
@@ -34,7 +34,7 @@ fieldset {
 }
 
 legend {
-    font: 600 20px Arial, sans-serif;
+    font: 600 20px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
     margin-bottom: 15px;
 }
 
@@ -93,7 +93,7 @@ button,
     border: 0;
     border-radius: 6px;
     padding: 11px 16px;
-    font: 700 12px inherit;
+    font: 700 12px var(--font-sans, "Segoe UI", Arial, sans-serif);
     cursor: pointer;
 }
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thông báo</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="topbar-card">
+        <div>
+            <div class="crumb">Khoa CNTT / thông báo</div>
+            <h1>Thông báo nội bộ</h1>
+        </div>
+        <div class="topbar-actions">
+            <a th:if="${canManageNotifications}" th:href="@{/notifications/new}">Tạo thông báo</a>
+            <a th:href="@{/}">Dashboard</a>
+        </div>
+    </div>
+
+    <section class="table-card panel">
+        <div th:if="${message}" class="notice">[[${message}]]</div>
+        <article class="notification-item" th:each="notification : ${notifications}">
+            <h3 th:text="${notification.title}">Tiêu đề</h3>
+            <p th:text="${notification.content}">Nội dung</p>
+            <div class="notification-meta">
+                <span>Trạng thái: </span><strong th:text="${notification.status}">DRAFT</strong>
+                <span> · Đăng bởi: </span><strong th:text="${notification.author != null ? notification.author.fullName : 'Hệ thống'}">Hệ thống</strong>
+                <span> · Đối tượng: </span>
+                <span class="role-list"><span class="role-chip" th:each="role : ${notification.targetRoles}" th:text="${role.name}">SINH_VIEN</span></span>
+            </div>
+            <div class="notification-actions" th:if="${canManageNotifications}">
+                <a class="secondary-btn" th:href="@{/notifications/{id}/edit(id=${notification.id})}">Sửa</a>
+                <form th:if="${notification.status != 'PUBLISHED'}" th:action="@{/notifications/{id}/publish(id=${notification.id})}" method="post">
+                    <button class="primary-btn" type="submit">Đăng thông báo</button>
+                </form>
+            </div>
+        </article>
+        <div class="empty-state" th:if="${#lists.isEmpty(notifications)}">Chưa có thông báo dành cho nhóm của bạn.</div>
+    </section>
+</div>
+</body>
+</html>
