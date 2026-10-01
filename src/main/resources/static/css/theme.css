@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap');
-
 :root {
+    --font-sans: "Segoe UI", Arial, sans-serif;
+    --font-heading: "Segoe UI Semibold", "Segoe UI", Arial, sans-serif;
     --navy: #142b3a;
     --teal: #087f75;
     --teal-soft: #dcefeb;
@@ -25,7 +25,7 @@ html, body {
 body {
     background: var(--sand);
     color: var(--navy);
-    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-family: var(--font-sans);
 }
 
 a {
@@ -45,6 +45,6 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Cormorant Garamond", Arial, sans-serif;
-    letter-spacing: -0.02em;
+    font-family: var(--font-heading);
+    letter-spacing: 0;
 }

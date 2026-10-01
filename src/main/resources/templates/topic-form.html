@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đề xuất đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/topics" class="active">Đề tài</a>
+        <a href="/registrations">Đăng ký đề tài</a>
+    </aside>
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Đề xuất đề tài</h1>
+        </section>
+        <section class="card">
+            <div th:if="${error}" class="message-error" th:text="${error}"></div>
+            <form th:action="@{/topics/save}" method="post">
+                <div class="form-group">
+                    <label for="code">Mã đề tài</label>
+                    <input id="code" name="code" maxlength="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="title">Tên đề tài</label>
+                    <input id="title" name="title" maxlength="200" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">Nội dung</label>
+                    <textarea id="content" name="content" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="periodId">Đợt đăng ký</label>
+                    <select id="periodId" name="periodId" required>
+                        <option value="">Chọn đợt đang mở</option>
+                        <option th:each="period : ${periods}" th:value="${period.id}" th:text="${period.name}"></option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button class="btn" type="submit" th:disabled="${#lists.isEmpty(periods)}">Gửi duyệt</button>
+                    <a class="btn btn-secondary" href="/topics">Quay lại</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

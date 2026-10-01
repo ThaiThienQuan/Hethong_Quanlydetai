@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import blog.hethong_quanlydetai.service.CouncilMemberService;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @Controller
 @RequestMapping("/councils")
+@PreAuthorize("hasAnyAuthority('COUNCIL_MANAGE', 'ROLE_ADMIN')")
 public class CouncilController {
 
     private final CouncilService councilService;

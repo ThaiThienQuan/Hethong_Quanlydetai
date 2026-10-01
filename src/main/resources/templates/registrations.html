@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/topics">Đề tài</a>
+        <a href="/registrations" class="active">Đăng ký đề tài</a>
+        <a href="/reports">Báo cáo đề tài</a>
+    </aside>
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Đăng ký và xác nhận đề tài</h1>
+        </section>
+        <div th:if="${success}" class="message-success" th:text="${success}"></div>
+        <div th:if="${error}" class="message-error" th:text="${error}"></div>
+        <p th:if="${info}" th:text="${info}"></p>
+
+        <section class="card" th:if="${canRegister}">
+            <h2>Tạo nhóm sinh viên</h2>
+            <form th:action="@{/registrations/groups}" method="post">
+                <div class="form-group">
+                    <label for="periodId">Đợt đăng ký</label>
+                    <select id="periodId" name="periodId" required>
+                        <option value="">Chọn đợt đang mở</option>
+                        <option th:each="period : ${periods}" th:value="${period.id}" th:text="${period.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="name">Tên nhóm</label>
+                    <input id="name" name="name" maxlength="100" required>
+                </div>
+                <div class="form-group">
+                    <label for="code">Mã nhóm</label>
+                    <input id="code" name="code" maxlength="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="memberIds">Thành viên (không gồm nhóm trưởng)</label>
+                    <select id="memberIds" name="memberIds" multiple size="5">
+                        <option th:each="student : ${students}" th:value="${student.id}"
+                                th:text="|${student.code} - ${student.fullName}|"></option>
+                    </select>
+                </div>
+                <button class="btn" type="submit" th:disabled="${#lists.isEmpty(periods)}">Tạo nhóm</button>
+            </form>
+        </section>
+
+        <section class="card" th:if="${canRegister}">
+            <h2>Đăng ký đề tài</h2>
+            <form th:action="@{/registrations/apply}" method="post">
+                <div class="form-group">
+                    <label for="groupId">Nhóm trưởng</label>
+                    <select id="groupId" name="groupId" required>
+                        <option value="">Chọn nhóm của bạn</option>
+                        <option th:each="group : ${groups}" th:value="${group.id}"
+                                th:text="|${group.code} - ${group.name}|"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="topicId">Đề tài đã duyệt</label>
+                    <select id="topicId" name="topicId" required>
+                        <option value="">Chọn đề tài</option>
+                        <option th:each="topic : ${topics}" th:value="${topic.id}"
+                                th:text="|${topic.code} - ${topic.title}|"></option>
+                    </select>
+                </div>
+                <button class="btn" type="submit" th:disabled="${#lists.isEmpty(groups) or #lists.isEmpty(topics)}">
+                    Gửi đăng ký
+                </button>
+            </form>
+        </section>
+
+        <section class="card" th:if="${canConfirm}">
+            <h2>Đăng ký chờ xác nhận</h2>
+            <table>
+                <thead>
+                <tr><th>Nhóm</th><th>Đề tài</th><th>Ngày đăng ký</th><th>Thao tác</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="registration : ${confirmations}">
+                    <td th:text="${registration.groupName}"></td>
+                    <td th:text="${registration.topicTitle}"></td>
+                    <td th:text="${#temporals.format(registration.registeredAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <div class="actions">
+                            <form th:action="@{/registrations/{id}/confirm(id=${registration.id})}" method="post">
+                                <input type="hidden" name="approved" value="true">
+                                <button class="btn" type="submit">Xác nhận</button>
+                            </form>
+                            <form th:action="@{/registrations/{id}/confirm(id=${registration.id})}" method="post">
+                                <input type="hidden" name="approved" value="false">
+                                <button class="btn btn-danger" type="submit">Từ chối</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(confirmations)}"><td colspan="4">Không có đăng ký chờ xử lý.</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -7,4 +7,8 @@ import java.util.Optional;
 
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
     Optional<GroupMember> findByGroupIdAndStudentId(Long groupId, Long studentId);
+
+    java.util.List<GroupMember> findByStudentId(Long studentId);
+
+    boolean existsByStudentId(Long studentId);
 }

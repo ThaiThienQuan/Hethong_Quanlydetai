@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap');
-
 :root {
     --navy: #142b3a;
     --teal: #087f75;
@@ -19,7 +17,7 @@ body {
     margin: 0;
     background: var(--sand);
     color: var(--navy);
-    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-family: var(--font-sans, "Segoe UI", Arial, sans-serif);
 }
 
 main {
@@ -30,8 +28,8 @@ main {
 
 h1 {
     margin: 10px 0 7px;
-    font: 600 39px "Cormorant Garamond", Arial, sans-serif;
-    letter-spacing: -0.02em;
+    font: 600 39px var(--font-heading, "Segoe UI Semibold", "Segoe UI", Arial, sans-serif);
+    letter-spacing: 0;
 }
 
 .top {
@@ -163,7 +161,7 @@ td small {
     padding: 0;
     color: #b84b2d;
     background: none;
-    font: 700 12px inherit;
+    font: 700 12px var(--font-sans, "Segoe UI", Arial, sans-serif);
     cursor: pointer;
 }
 

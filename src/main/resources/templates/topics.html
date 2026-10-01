@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-module.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>QL Đề tài SV</h2>
+        <a href="/">Tổng quan</a>
+        <a href="/topics" class="active">Đề tài</a>
+        <a href="/registrations">Đăng ký đề tài</a>
+        <a href="/reports">Báo cáo đề tài</a>
+    </aside>
+
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Danh sách đề tài</h1>
+            <p>Đề tài đã duyệt được mở cho nhóm sinh viên đăng ký.</p>
+        </section>
+        <div th:if="${success}" class="message-success" th:text="${success}"></div>
+        <div th:if="${error}" class="message-error" th:text="${error}"></div>
+        <section class="card">
+            <div class="actions" th:if="${canCreateTopics}">
+                <a class="btn" href="/topics/new">Đề xuất đề tài</a>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Tên đề tài</th>
+                    <th>Bộ môn</th>
+                    <th>Đợt</th>
+                    <th>Trạng thái</th>
+                    <th th:if="${canApproveTopics}">Duyệt</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="topic : ${topics}">
+                    <td th:text="${topic.code}"></td>
+                    <td>
+                        <strong th:text="${topic.title}"></strong>
+                        <div th:text="${topic.content}"></div>
+                    </td>
+                    <td th:text="${topic.department.name}"></td>
+                    <td th:text="${topic.period.name}"></td>
+                    <td th:text="${topic.status}"></td>
+                    <td th:if="${canApproveTopics}">
+                        <div class="actions" th:if="${topic.status == 'PENDING'}">
+                            <form th:action="@{/topics/{id}/review(id=${topic.id})}" method="post">
+                                <input type="hidden" name="approved" value="true">
+                                <button class="btn" type="submit">Duyệt</button>
+                            </form>
+                            <form th:action="@{/topics/{id}/review(id=${topic.id})}" method="post">
+                                <input type="hidden" name="approved" value="false">
+                                <button class="btn btn-danger" type="submit">Từ chối</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(topics)}">
+                    <td colspan="6">Chưa có đề tài phù hợp.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

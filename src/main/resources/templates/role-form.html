@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nhóm người dùng | Khoa CNTT</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="panel form-card">
+        <div class="table-header">
+            <h2 th:text="${role.id == null ? 'Tạo nhóm người dùng' : 'Sửa nhóm người dùng'}">Tạo nhóm người dùng</h2>
+        </div>
+        <form th:action="@{/roles/save}" method="post" th:object="${role}">
+            <input type="hidden" th:field="*{id}">
+            <div class="field full">
+                <label for="name">Tên vai trò</label>
+                <input id="name" type="text" th:field="*{name}" required maxlength="50">
+            </div>
+            <div class="field full">
+                <label for="description">Mô tả</label>
+                <textarea id="description" th:field="*{description}" rows="4" maxlength="255"></textarea>
+            </div>
+            <div class="form-actions">
+                <button class="primary-btn" type="submit">Lưu</button>
+                <a class="secondary-btn" th:href="@{/roles}">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

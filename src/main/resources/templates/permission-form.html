@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quyền chức năng | Khoa CNTT</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/security-module.css}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="panel form-card">
+        <div class="table-header">
+            <h2 th:text="${permission.id == null ? 'Tạo quyền chức năng' : 'Sửa quyền chức năng'}">Tạo quyền chức năng</h2>
+        </div>
+        <form th:action="@{/permissions/save}" method="post" th:object="${permission}">
+            <input type="hidden" th:field="*{id}">
+            <div class="field full">
+                <label for="code">Mã quyền</label>
+                <input id="code" type="text" th:field="*{code}" required maxlength="100">
+            </div>
+            <div class="field full">
+                <label for="name">Tên quyền</label>
+                <input id="name" type="text" th:field="*{name}" required maxlength="100">
+            </div>
+            <div class="field full">
+                <label for="description">Mô tả</label>
+                <textarea id="description" th:field="*{description}" rows="4" maxlength="255"></textarea>
+            </div>
+            <div class="form-actions">
+                <button class="primary-btn" type="submit">Lưu</button>
+                <a class="secondary-btn" th:href="@{/permissions}">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
