@@ -5,6 +5,7 @@ import blog.hethong_quanlydetai.entity.RegistrationType;
 import blog.hethong_quanlydetai.service.RegistrationPeriodService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/registration-periods")
+@PreAuthorize("hasAnyAuthority('PERIOD_MANAGE', 'ROLE_ADMIN')")
 public class RegistrationPeriodController {
     private final RegistrationPeriodService service;
 

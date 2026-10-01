@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <title>Nhập điểm phản biện</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin-module.css}">
 </head>
-
 <body>
 <div class="admin-layout">
     <aside class="sidebar">
@@ -20,14 +18,15 @@
         <a href="/results">Kết quả công bố</a>
     </aside>
 
-        <main class="main-content">
-            <section class="topbar">
-                <h1>Nhập điểm phản biện</h1>
-                <p>Quản lý điểm đánh giá của giảng viên và tính điểm cuối cùng cho đề tài.</p>
-            </section>
+    <main class="main-content">
+        <section class="topbar">
+            <h1>Nhập điểm phản biện</h1>
+            <p>Quản lý điểm đánh giá của giảng viên và tính điểm cuối cùng cho đề tài.</p>
+        </section>
 
-            <div th:if="${success}" class="message-success" th:text="${success}"></div>
-            <div th:if="${error}" class="message-error" th:text="${error}"></div>
+        <div th:if="${success}" class="message-success" th:text="${success}"></div>
+        <div th:if="${error}" class="message-error" th:text="${error}"></div>
+
         <section class="card">
             <div class="actions">
                 <a class="btn" href="/evaluations/new">+ Nhập điểm mới</a>
@@ -55,20 +54,33 @@
                 Chưa có mục đủ điểm để tổng hợp, hoặc tài khoản của bạn không phải chủ tịch hội đồng.
             </p>
         </section>
->>>>>>> 9667e8d41d2ac0e0f672a05d9bdec904ba37992c
 
-                    <div class="form-group">
-                        <label>Mã hội đồng council_id</label>
-                        <input type="number" name="councilId" placeholder="Ví dụ: 1" required>
-                    </div>
+        <section class="card">
+            <h2>Danh sách điểm đã nhập</h2>
 
-                    <button class="btn" type="submit">Tính điểm cuối cùng</button>
-                </form>
-            </section>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Assignment ID</th>
+                    <th>Điểm</th>
+                    <th>Nhận xét</th>
+                    <th>Ngày chấm</th>
+                    <th>Trạng thái</th>
+                </tr>
+                </thead>
 
-            <section class="card">
-                <h2>Danh sách điểm đã nhập</h2>
-
+                <tbody>
+                <tr th:each="e : ${evaluations}">
+                    <td th:text="${e.id}"></td>
+                    <td th:text="${e.assignmentId}"></td>
+                    <td th:text="${e.score}"></td>
+                    <td th:text="${e.comment}"></td>
+                    <td th:text="${#temporals.format(e.evaluatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <span class="badge badge-success" th:text="${e.status}"></span>
+                    </td>
+                </tr>
 
                 <tr th:if="${#lists.isEmpty(evaluations)}">
                     <td colspan="6">Chưa có điểm nào được nhập.</td>
@@ -115,7 +127,5 @@
         </section>
     </main>
 </div>
->>>>>>> 9667e8d41d2ac0e0f672a05d9bdec904ba37992c
 </body>
-
 </html>

@@ -25,13 +25,10 @@
                 <legend>Thông tin chung</legend>
                 <div class="grid">
                     <label>Tên đợt đăng ký<input type="text" th:field="*{name}"
-                            placeholder="Khóa luận tốt nghiêp học kỳ 1 năm 2026" required></label>
+                            placeholder="Ví dụ: KLTN học kỳ 1 năm 2026" required></label>
                     <label>Loại đợt<select th:field="*{type}" required>
                             <option value="">-- Chọn loại --</option>
-                            <option th:each="type : ${periodTypes}" th:value="${type}" th:text="${type.displayName}">
-                                Khóa
-                                luận tốt nghiệp
-                            </option>
+                            <option th:each="type : ${periodTypes}" th:value="${type}" th:text="${type}">KLTN</option>
                         </select></label>
                     <label>Trạng thái<select th:field="*{status}">
                             <option value="DRAFT">Bản nháp</option>
@@ -60,14 +57,10 @@
             <fieldset>
                 <legend>Mốc chuyên môn</legend>
                 <div class="grid">
-                    <label>Hạn giáo viên phản biện nộp điểm <span class="hint">Chỉ
-                            dùng
-                            cho
-                            tiểu luận chuyên ngành hoặc khóa luận tốt nghiệp.</span><input type="datetime-local"
-                            th:field="*{reviewerDeadline}"></label>
-                    <label>Ngày báo cáo hội đồng <span class="hint">Chỉ dùng
-                            cho khóa luận tốt nghiệp.</span><input type="datetime-local"
-                            th:field="*{defenseDate}"></label>
+                    <label>Hạn GVPB nộp điểm <span class="hint">Chỉ dùng cho TLCN/KLTN.</span><input
+                            type="datetime-local" th:field="*{reviewerDeadline}"></label>
+                    <label>Ngày báo cáo hội đồng <span class="hint">Chỉ dùng cho KLTN.</span><input
+                            type="datetime-local" th:field="*{defenseDate}"></label>
                 </div>
             </fieldset>
             <div class="actions"><a class="button" href="/registration-periods">Hủy</a><button type="submit">Lưu đợt

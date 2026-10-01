@@ -21,7 +21,7 @@ public class EvaluationController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('EVALUATION_CREATE', 'RESULT_CALCULATE', 'RESULT_PUBLISH', 'ROLE_ADMIN')")
     public String index(Authentication authentication, Model model) {
         boolean admin = isAdmin(authentication);
         model.addAttribute("evaluations", evaluationService.findAll());
@@ -32,7 +32,7 @@ public class EvaluationController {
     }
 
     @GetMapping("/new")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('EVALUATION_CREATE', 'ROLE_ADMIN')")
     public String createForm(Authentication authentication, Model model) {
         model.addAttribute("assignments", evaluationService.findPendingAssignments(
                 authentication.getName(), isAdmin(authentication)));
@@ -40,7 +40,7 @@ public class EvaluationController {
     }
 
     @PostMapping("/save")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('EVALUATION_CREATE', 'ROLE_ADMIN')")
     public String save(@RequestParam Long assignmentId,
                        @RequestParam BigDecimal score,
                        @RequestParam String comment,
@@ -57,7 +57,7 @@ public class EvaluationController {
     }
 
     @PostMapping("/calculate")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('RESULT_CALCULATE', 'ROLE_ADMIN')")
         public String calculate(@RequestParam String selection,
                             Authentication authentication,
                             RedirectAttributes redirectAttributes) {
@@ -87,7 +87,7 @@ public class EvaluationController {
     }
 
     @PostMapping("/results/{id}/publish")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('RESULT_PUBLISH', 'ROLE_ADMIN')")
     public String publish(@PathVariable Long id,
                           Authentication authentication,
                           RedirectAttributes redirectAttributes) {

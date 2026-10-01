@@ -1,5 +1,6 @@
 package blog.hethong_quanlydetai.service;
 
+import blog.hethong_quanlydetai.entity.Announcement;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
@@ -12,7 +13,16 @@ public class DashboardService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public DashboardData load() {
+    public DashboardData load(List<Announcement> visibleAnnouncements, boolean canViewReviewResults,
+                              boolean canViewOverview) {
+        List<NoticeView> notices = visibleAnnouncements.stream()
+                .map(notice -> new NoticeView(notice.getTitle(), notice.getContent(), notice.getStatus()))
+                .toList();
+        if (!canViewOverview) {
+            return new DashboardData(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    notices.size(), List.of(), List.of(), notices, List.of());
+        }
+
         return new DashboardData(
                 count("users"),
                 count("departments"),
@@ -29,12 +39,12 @@ public class DashboardService {
                 count("council_members"),
                 count("review_assignments"),
                 count("evaluations"),
-                count("review_results"),
-                count("notifications"),
+                canViewReviewResults ? count("review_results") : 0,
+                notices.size(),
                 periods(),
                 topics(),
-                notifications(),
-                results());
+                notices,
+                canViewReviewResults ? results() : List.of());
     }
 
     private long count(String table) {
@@ -60,22 +70,11 @@ public class DashboardService {
                 SELECT t.topic_code, t.topic_name, t.status, d.department_name
                 FROM topics t
                 JOIN departments d ON d.department_id = t.department_id
+                WHERE t.status = 'APPROVED'
                 ORDER BY t.created_at DESC
                 LIMIT 6
                 """).getResultList()).stream()
                 .map(row -> new TopicView(text(row[0]), text(row[1]), text(row[2]), text(row[3])))
-                .toList();
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<NoticeView> notifications() {
-        return ((List<Object[]>) entityManager.createNativeQuery("""
-                SELECT title, content, status
-                FROM notifications
-                ORDER BY created_at DESC
-                LIMIT 4
-                """).getResultList()).stream()
-                .map(row -> new NoticeView(text(row[0]), text(row[1]), text(row[2])))
                 .toList();
     }
 

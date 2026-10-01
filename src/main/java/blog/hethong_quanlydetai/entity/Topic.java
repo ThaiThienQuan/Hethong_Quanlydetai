@@ -33,6 +33,9 @@ public class Topic {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
@@ -42,6 +45,6 @@ public class Topic {
     private RegistrationPeriod period;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private AppUser createdBy;
+    @JoinColumn(name = "created_by_lecturer_id")
+    private Lecturer createdBy;
 }
