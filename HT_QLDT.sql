@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS student_topic_management
+CREATE DATABASE student_topic_management
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
@@ -6,7 +6,7 @@ USE student_topic_management;
 
 SELECT DATABASE();
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -19,20 +19,20 @@ CREATE TABLE IF NOT EXISTS users (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS roles (
+CREATE TABLE roles (
     role_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS permissions (
+CREATE TABLE permissions (
     permission_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(100) NOT NULL UNIQUE,
     name VARCHAR(150) NOT NULL,
     description VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS user_roles (
+CREATE TABLE user_roles (
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
     PRIMARY KEY (user_id, role_id),
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
     CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS role_permissions (
+CREATE TABLE role_permissions (
     role_id BIGINT NOT NULL,
     permission_id BIGINT NOT NULL,
     PRIMARY KEY (role_id, permission_id),
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     CONSTRAINT fk_role_permissions_permission FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS departments (
+CREATE TABLE departments (
     department_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     department_code VARCHAR(20) NOT NULL UNIQUE,
     department_name VARCHAR(100) NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS departments (
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'
 );
 
-CREATE TABLE IF NOT EXISTS students (
+CREATE TABLE students (
     student_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE,
     student_code VARCHAR(20) NOT NULL UNIQUE,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS students (
         REFERENCES users(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS lecturers (
+CREATE TABLE lecturers (
     lecturer_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE,
     lecturer_code VARCHAR(20) NOT NULL UNIQUE,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS lecturers (
         REFERENCES departments(department_id)
 );
 
-CREATE TABLE IF NOT EXISTS registration_periods (
+CREATE TABLE registration_periods (
     period_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     period_name VARCHAR(150) NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS registration_periods (
         CHECK (period_type IN ('MON_HOC', 'NCKH', 'TLCN', 'KLTN'))
 );
 
-CREATE TABLE IF NOT EXISTS topics (
+CREATE TABLE topics (
     topic_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     period_id BIGINT NOT NULL,
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS topics (
         REFERENCES lecturers(lecturer_id)
 );
 
-CREATE TABLE IF NOT EXISTS topic_supervisors (
+CREATE TABLE topic_supervisors (
     topic_supervisor_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     topic_id BIGINT NOT NULL,
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS topic_supervisors (
         CHECK (supervisor_order IN (1, 2))
 );
 
-CREATE TABLE IF NOT EXISTS student_groups (
+CREATE TABLE student_groups (
     group_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     period_id BIGINT NOT NULL,
@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS student_groups (
         REFERENCES registration_periods(period_id)
 );
 
-CREATE TABLE IF NOT EXISTS group_members (
+CREATE TABLE group_members (
     group_member_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     group_id BIGINT NOT NULL,
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS group_members (
         UNIQUE (group_id, student_id)
 );
 
-CREATE TABLE IF NOT EXISTS topic_registrations (
+CREATE TABLE topic_registrations (
     registration_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     group_id BIGINT NOT NULL,
@@ -235,7 +235,7 @@ CREATE TABLE IF NOT EXISTS topic_registrations (
         REFERENCES users(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS reports (
+CREATE TABLE reports (
     report_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     group_id BIGINT NOT NULL,
@@ -264,7 +264,7 @@ CREATE TABLE IF NOT EXISTS reports (
         CHECK (version > 0)
 );
 
-CREATE TABLE IF NOT EXISTS councils (
+CREATE TABLE councils (
     council_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     period_id BIGINT NOT NULL,
@@ -281,7 +281,7 @@ CREATE TABLE IF NOT EXISTS councils (
         REFERENCES registration_periods(period_id)
 );
 
-CREATE TABLE IF NOT EXISTS council_members (
+CREATE TABLE council_members (
     council_member_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     council_id BIGINT NOT NULL,
@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS council_members (
         CHECK (role IN ('CHAIRMAN', 'SECRETARY', 'MEMBER'))
 );
 
-CREATE TABLE IF NOT EXISTS review_assignments (
+CREATE TABLE review_assignments (
     assignment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     council_id BIGINT NOT NULL,
@@ -333,7 +333,7 @@ CREATE TABLE IF NOT EXISTS review_assignments (
         UNIQUE (council_id, topic_id, lecturer_id)
 );
 
-CREATE TABLE IF NOT EXISTS evaluations (
+CREATE TABLE evaluations (
     evaluation_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     assignment_id BIGINT NOT NULL,
@@ -356,7 +356,7 @@ CREATE TABLE IF NOT EXISTS evaluations (
         UNIQUE (assignment_id)
 );
 
-CREATE TABLE IF NOT EXISTS review_results (
+CREATE TABLE review_results (
     result_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     group_id BIGINT NOT NULL,
@@ -386,7 +386,7 @@ CREATE TABLE IF NOT EXISTS review_results (
         CHECK (final_score >= 0 AND final_score <= 10)
 );
 
-CREATE TABLE IF NOT EXISTS notifications (
+CREATE TABLE notifications (
     notification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     title VARCHAR(250) NOT NULL,
@@ -407,7 +407,7 @@ CREATE TABLE IF NOT EXISTS notifications (
         REFERENCES users(user_id)
 );
 
-CREATE TABLE IF NOT EXISTS notification_target_roles (
+CREATE TABLE notification_target_roles (
     notification_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
     PRIMARY KEY (notification_id, role_id),
