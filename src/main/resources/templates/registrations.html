@@ -21,6 +21,7 @@
         </section>
         <div th:if="${success}" class="message-success" th:text="${success}"></div>
         <div th:if="${error}" class="message-error" th:text="${error}"></div>
+        <p th:if="${info}" th:text="${info}"></p>
 
         <section class="card" th:if="${canRegister}">
             <h2>Tạo nhóm sinh viên</h2>

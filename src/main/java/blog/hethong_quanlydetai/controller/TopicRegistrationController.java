@@ -26,10 +26,15 @@ public class TopicRegistrationController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('REGISTRATION_CREATE', 'REGISTRATION_CONFIRM')")
     public String index(Authentication authentication, Model model) {
-        boolean canRegister = hasAuthority(authentication, "REGISTRATION_CREATE");
-        boolean canConfirm = hasAuthority(authentication, "REGISTRATION_CONFIRM");
+        boolean canRegister = hasAuthority(authentication, "REGISTRATION_CREATE")
+            && hasAuthority(authentication, "ROLE_SINH_VIEN");
+        boolean canConfirm = hasAuthority(authentication, "REGISTRATION_CONFIRM")
+            && hasAuthority(authentication, "ROLE_GIANG_VIEN");
         model.addAttribute("canRegister", canRegister);
         model.addAttribute("canConfirm", canConfirm);
+        if (!canRegister && !canConfirm) {
+            model.addAttribute("info", "Chức năng đăng ký dành cho sinh viên và giảng viên.");
+        }
         if (canRegister) {
             model.addAttribute("periods", workflowService.findStudentPeriods());
             model.addAttribute("topics", workflowService.findAvailableTopics());

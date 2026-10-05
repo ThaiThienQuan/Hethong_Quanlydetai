@@ -1,6 +1,7 @@
 package blog.hethong_quanlydetai.repository;
 
 import blog.hethong_quanlydetai.entity.Topic;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -8,7 +9,9 @@ import java.util.List;
 public interface TopicRepository extends JpaRepository<Topic, Long> {
     boolean existsByCode(String code);
 
+    @EntityGraph(attributePaths = {"department", "period"})
     List<Topic> findAllByOrderByCreatedAtDesc();
 
+    @EntityGraph(attributePaths = {"department", "period"})
     List<Topic> findByStatusOrderByCreatedAtDesc(String status);
 }
