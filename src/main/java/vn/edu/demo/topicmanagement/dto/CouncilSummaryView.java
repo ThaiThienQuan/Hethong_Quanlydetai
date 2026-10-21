@@ -7,6 +7,7 @@ import vn.edu.demo.topicmanagement.entity.CouncilStatus;
 /** Bản trình bày hội đồng với danh sách thành viên/đề tài đã chuyển thành chuỗi. */
 public class CouncilSummaryView {
     private final Long id;
+    private final String councilCode;
     private final String name;
     private final String periodName;
     private final LocalDateTime reportDate;
@@ -17,13 +18,22 @@ public class CouncilSummaryView {
 
     public CouncilSummaryView(Long id, String name, String periodName, LocalDateTime reportDate, String room,
                               CouncilStatus status, List<String> members, List<String> topics) {
-        this.id = id; this.name = name; this.periodName = periodName; this.reportDate = reportDate;
+        this(id, null, name, periodName, reportDate, room, status, members, topics);
+    }
+
+    public CouncilSummaryView(Long id, String councilCode, String name, String periodName,
+                              LocalDateTime reportDate, String room, CouncilStatus status,
+                              List<String> members, List<String> topics) {
+        this.id = id; this.councilCode = councilCode; this.name = name;
+        this.periodName = periodName; this.reportDate = reportDate;
         this.room = room; this.status = status;
         this.members = members == null ? List.of() : List.copyOf(members);
         this.topics = topics == null ? List.of() : List.copyOf(topics);
     }
 
     public Long getId() { return id; }
+    public Long getCouncilId() { return id; }
+    public String getCouncilCode() { return councilCode == null ? "" : councilCode; }
     public String getName() { return name; }
     public String getPeriodName() { return periodName; }
     public LocalDateTime getReportDate() { return reportDate; }

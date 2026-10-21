@@ -1,6 +1,7 @@
 package vn.edu.demo.topicmanagement.controller;
 
 import java.security.Principal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import vn.edu.demo.topicmanagement.service.StudentPortalService;
 
 @Controller
 @RequestMapping("/student/groups")
+@PreAuthorize("hasAuthority('REGISTRATION_CREATE')")
 public class StudentGroupController {
     private final StudentPortalService studentService;
 

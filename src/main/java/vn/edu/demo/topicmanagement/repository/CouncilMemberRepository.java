@@ -54,5 +54,13 @@ public interface CouncilMemberRepository extends JpaRepository<CouncilMember, Lo
             """)
     List<Council> findCouncilsOfLecturer(@Param("lecturerUserId") Long lecturerUserId);
 
+    /** Các đề tài mà giảng viên này tham gia hội đồng phản biện (tra theo username). */
+    @Query("""
+            select ct.topic.id from CouncilTopic ct
+            where ct.council in (select cm.council from CouncilMember cm
+                                 where cm.lecturer.user.username = :username)
+            """)
+    List<Long> findTopicIdsByLecturerUsername(@Param("username") String username);
+
     long countByCouncil(Council council);
 }

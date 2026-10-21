@@ -37,4 +37,6 @@ build/
 .env.*
 
 # Báo cáo được người dùng tải lên khi chạy ứng dụng
+# Thư mục lưu tệp thật ngoài static (đặc tả 5.5), sinh ra khi chạy/demo
+storage/
 uploads/

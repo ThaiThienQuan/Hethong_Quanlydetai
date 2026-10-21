@@ -3,29 +3,59 @@
 <head><meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"><title>Công bố kết quả</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
 <body class="app-page">
-<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
     <h2>Kết quả đang chờ Khoa công bố</h2>
-    <a th:href="@{/}">← Trang chủ</a>
+    <a th:href="@{/}">&larr; Trang chủ</a>
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
-    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
-        <thead><tr><th>Hội đồng</th><th>Nhóm</th><th>Đề tài</th><th>Điểm TB</th><th>Kết quả</th><th>Nhận xét</th><th>Thao tác</th></tr></thead>
-        <tbody>
-        <tr th:each="row : ${results}">
-            <td th:text="${row.councilName}"></td>
-            <td th:text="${row.groupName}"></td>
-            <td th:text="${row.topicTitle}"></td>
-            <td th:text="${row.finalScore}"></td>
-            <td th:text="${row.result}"></td>
-            <td th:text="${row.councilComment}"></td>
-            <td>
-                <form th:action="@{/head/results/{id}/publish(id=${row.councilTopicId})}" method="post"
-                      onsubmit="return confirm('Công bố kết quả này cho sinh viên?');">
-                    <button type="submit">Công bố</button>
-                </form>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(results)}"><td colspan="7">Không có kết quả nào đang chờ công bố.</td></tr>
-        </tbody>
-    </table></div>
-</div></body></html>
+
+    <section th:if="${!#lists.isEmpty(councils)}">
+        <h3>Công bố cả hội đồng</h3>
+        <p><small>Sau khi công bố, kết quả bị <b>khóa</b> và hệ thống gửi email riêng cho từng SV
+            trong mỗi nhóm (kể cả thành viên không phải nhóm trưởng).</small></p>
+        <table>
+            <thead><tr><th>Hội đồng</th><th>Mã</th><th>Ngày báo cáo</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            <tr th:each="c : ${councils}">
+                <td th:text="${c.councilName}"></td>
+                <td th:text="${c.councilCode}"></td>
+                <td th:text="${c.reportDate != null ? #temporals.format(c.reportDate, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                <td>
+                    <form th:action="@{/head/results/council/{id}/publish-all(id=${c.id})}" method="post"
+                          onsubmit="return confirm('Công bố toàn bộ kết quả đang chờ của hội đồng này?');">
+                        <button type="submit">Công bố cả hội đồng</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <h3>Công bố từng đề tài</h3>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
+        <table>
+            <thead><tr><th>Hội đồng</th><th>Nhóm</th><th>Đề tài</th><th>Điểm TB</th><th>Kết quả</th><th>Nhận xét</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            <tr th:each="row : ${results}">
+                <td th:text="${row.councilName}"></td>
+                <td th:text="${row.groupName}"></td>
+                <td th:text="${row.topicTitle}"></td>
+                <td th:text="${row.finalScore}"></td>
+                <td><strong th:text="${row.resultLabel}"></strong></td>
+                <td th:text="${row.councilComment}"></td>
+                <td>
+                    <form th:action="@{/head/results/{id}/publish(id=${row.councilTopicId})}" method="post"
+                          onsubmit="return confirm('Công bố kết quả này cho sinh viên?');">
+                        <button type="submit">Công bố</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(results)}"><td colspan="7">Không có kết quả nào đang chờ công bố.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p><a th:href="@{/head/emails}">&rarr; Xem nhật ký email gửi cho sinh viên</a></p>
+</div>
+</body>
+</html>

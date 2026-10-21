@@ -3,22 +3,76 @@
 <head><meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"><title>Nhiệm vụ phản biện</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
 <body class="app-page">
-<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
-    <h2>Nhiệm vụ phản biện</h2><a th:href="@{/}">&larr; Trang chủ</a>
-    <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
-    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Nhóm</th><th>Đề tài</th><th>Báo cáo</th><th>Hạn</th><th>Điểm</th><th>Nhận xét</th><th>Gửi/cập nhật</th></tr></thead>
-        <tbody><tr th:each="task : ${tasks}"><td th:text="${task.groupName}"></td><td th:text="${task.topicTitle}"></td>
-            <td>
-                <a th:if="${task.reportAvailable}" th:href="@{/lecturer/reports/{id}/download(id=${task.registrationId})}">Tải báo cáo</a>
-                <span th:if="${!task.reportAvailable}">Nhóm chưa nộp báo cáo hoặc tệp không còn trong kho lưu trữ.</span>
-            </td>
-            <td th:text="${task.deadline != null ? #temporals.format(task.deadline, 'dd/MM/yyyy HH:mm') : '—'}"></td>
-            <td th:text="${task.score != null ? task.score : 'Chưa nộp'}"></td><td th:text="${task.comment}"></td>
-            <td><form th:if="${task.canSubmit}" th:action="@{/lecturer/reviews/{id}(id=${task.assignmentId})}" method="post">
-                <label>Điểm 0–10</label><input type="number" name="score" min="0" max="10" step="0.01" required>
-                <label>Nhận xét</label><input name="comment" maxlength="5000">
-                <button type="submit" th:text="${task.submitted} ? 'Cập nhật' : 'Gửi điểm'"></button>
-            </form><span th:if="${!task.canSubmit}">Đã hết hạn.</span></td>
-        </tr><tr th:if="${#lists.isEmpty(tasks)}"><td colspan="7">Bạn chưa được phân công phản biện.</td></tr></tbody>
-    </table></div>
-</div></body></html>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Nhiệm vụ phản biện</h2>
+    <a th:href="@{/}">&larr; Trang chủ</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
+        <table>
+            <thead>
+            <tr>
+                <th>Mã đề tài</th>
+                <th>Đề tài</th>
+                <th>Nhóm</th>
+                <th>Báo cáo</th>
+                <th>Hạn chót</th>
+                <th>Còn</th>
+                <th>Điểm</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="task : ${tasks}">
+                <td th:text="${task.topicCode}"></td>
+                <td th:text="${task.topicTitle}"></td>
+                <td th:text="${task.groupName}"></td>
+                <td>
+                    <a th:if="${task.reportAvailable}" th:href="@{/lecturer/reports/{id}/download(id=${task.registrationId})}">Tải báo cáo</a>
+                    <span th:if="${!task.reportAvailable}">Nhóm chưa nộp báo cáo.</span>
+                </td>
+                <td th:text="${task.deadline != null ? #temporals.format(task.deadline, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+                <td>
+                    <span th:if="${task.deadline != null && !task.overdue}" th:text="${task.daysLeft() + ' ngày'}"></span>
+                    <span class="badge st-OVERDUE" th:if="${task.overdue}">Quá hạn</span>
+                </td>
+                <td th:text="${task.score != null ? task.score : 'Chưa nộp'}"></td>
+                <td>
+                    <span class="badge st-SCORED" th:if="${task.submitted}">Đã chấm</span>
+                    <span class="badge st-PENDING" th:if="${!task.submitted && !task.supervisor && task.canSubmit}">Chờ chấm</span>
+                    <span class="badge st-OVERDUE" th:if="${task.submitted && task.overdue}">Đã chấm (quá hạn)</span>
+                    <span class="badge" th:if="${task.supervisor}">Bạn là GVHD</span>
+                </td>
+                <td>
+                    <details th:if="${task.submitted && !task.supervisor}">
+                        <summary>Xem điểm &amp; nhận xét</summary>
+                        <p>Điểm: <strong th:text="${task.score}"></strong></p>
+                        <p>Nhận xét hiện tại: <em th:text="${task.comment}"></em></p>
+                        <p>Nộp lúc: <span th:text="${task.submittedAt != null ? #temporals.format(task.submittedAt, 'dd/MM/yyyy HH:mm') : '—'}"></span></p>
+                    </details>
+                    <form th:if="${task.canSubmit && !task.supervisor}" th:action="@{/lecturer/reviews/{id}(id=${task.assignmentId})}" method="post">
+                        <label>Điểm 0–10</label>
+                        <input type="number" name="score" min="0" max="10" step="0.01" required
+                               th:value="${task.score != null ? task.score : ''}">
+                        <label>Nhận xét (bắt buộc)</label>
+                        <textarea name="comment" maxlength="1000" required
+                                  placeholder="Nhập nhận xét cho đề tài này..."></textarea>
+                        <label>Lý do ghi đè quá hạn (chỉ admin)</label>
+                        <input name="overrideReason" maxlength="500" placeholder="Để trống nếu trong hạn">
+                        <button type="submit" th:text="${task.submitted} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
+                    </form>
+                    <p th:if="${task.supervisor}">Bạn là GVHD của đề tài này nên không thể chấm.</p>
+                    <p th:if="${task.overdue && !task.canSubmit && !task.supervisor}">Đã quá hạn (liên hệ admin nếu cần ghi đè).</p>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(tasks)}">
+                <td colspan="9">Bạn chưa được phân công phản biện.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

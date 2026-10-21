@@ -3,6 +3,7 @@ package vn.edu.demo.topicmanagement.controller;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +21,7 @@ import java.util.List;
 /** Admin quản lý thông báo toàn trường tại URL được giới hạn bởi SecurityConfig. */
 @Controller
 @RequestMapping("/admin/announcements")
+@PreAuthorize("hasAuthority('NOTICE_MANAGE')")
 public class AdminAnnouncementController {
     private final AnnouncementService announcementService;
     public AdminAnnouncementController(AnnouncementService announcementService) { this.announcementService = announcementService; }

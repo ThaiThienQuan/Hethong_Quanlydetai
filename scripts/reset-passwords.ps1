@@ -41,11 +41,14 @@ $outDir = "$toolsDir\out"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 Write-Host "[1/3] Compiling ResetPasswords..." -ForegroundColor Cyan
-javac -cp "$crypto;$mysql;$log" -d "$outDir" "$toolsDir\ResetPasswords.java"
+$env:JAVA_TOOL_OPTIONS = $null
+javac -cp "$crypto;$mysql;$log" -d "$outDir" "$toolsDir\ResetPasswords.java" 2>&1 |
+    Where-Object { $_ -notmatch "Picked up JAVA_TOOL_OPTIONS" } | Write-Host
 if ($LASTEXITCODE -ne 0) { throw "Compile that bai" }
 
 Write-Host "[2/3] Updating password_hash cho tat ca user (password = '$Password')..." -ForegroundColor Cyan
-java -cp "$crypto;$mysql;$log;$outDir" ResetPasswords "$Password"
+java -cp "$crypto;$mysql;$log;$outDir" ResetPasswords "$Password" 2>&1 |
+    Where-Object { $_ -notmatch "Picked up JAVA_TOOL_OPTIONS" } | Write-Host
 if ($LASTEXITCODE -ne 0) { throw "Run that bai" }
 
 Write-Host "[3/3] DONE - dang nhap admin / $Password" -ForegroundColor Green

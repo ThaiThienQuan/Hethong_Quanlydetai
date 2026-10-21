@@ -5,14 +5,19 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.demo.topicmanagement.dto.UserForm;
+import vn.edu.demo.topicmanagement.dto.UserRowView;
 import vn.edu.demo.topicmanagement.entity.Department;
 import vn.edu.demo.topicmanagement.entity.UserRole;
+import vn.edu.demo.topicmanagement.entity.UserStatus;
+import vn.edu.demo.topicmanagement.service.AuditLogService;
 import vn.edu.demo.topicmanagement.service.UserAccountService;
 
 /**
@@ -26,24 +31,41 @@ import vn.edu.demo.topicmanagement.service.UserAccountService;
  */
 @Controller
 @RequestMapping("/admin/users")
+@PreAuthorize("hasAuthority('USER_MANAGE')")
 public class AdminUserController {
 
     private final UserAccountService accountService;
+    private final AuditLogService auditLogService;
 
-    public AdminUserController(UserAccountService accountService) {
+    public AdminUserController(UserAccountService accountService, AuditLogService auditLogService) {
         this.accountService = accountService;
+        this.auditLogService = auditLogService;
     }
 
     // Dữ liệu cho các ô <select> trên form
     @ModelAttribute("roles")
     public UserRole[] roles() { return UserRole.values(); }
 
+    /** Số trang mỗi lần (mục 5.1 - danh sách có phân trang). */
+    private static final int pageSize = 10;
+
     @ModelAttribute("departments")
     public List<Department> departments() { return accountService.getDepartments(); }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("users", accountService.findAll());
+    public String list(@RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) String role,
+                       @RequestParam(required = false) String status,
+                       @RequestParam(defaultValue = "0") int page,
+                       Model model) {
+        Page<UserRowView> users = accountService.searchWithProfiles(keyword, role, status, page, pageSize);
+        model.addAttribute("users", users.getContent());
+        model.addAttribute("page", users);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedRole", role);
+        model.addAttribute("selectedStatus", status);
+        // Luôn gán danh sách trạng thái để template không phụ thuộc ModelAttribute.
+        model.addAttribute("statuses", UserStatus.values());
         return "admin/users/list";
     }
 
@@ -56,13 +78,15 @@ public class AdminUserController {
 
     @PostMapping("/new")
     public String create(@Valid @ModelAttribute("userForm") UserForm form, BindingResult result,
-                         Model model, RedirectAttributes redirect) {
+                         Model model, Principal principal, RedirectAttributes redirect) {
         addRuleErrors(form, null, result);
         if (result.hasErrors()) {
             setFormInfo(model, "/admin/users/new", "Tạo tài khoản mới", false);
             return "admin/users/form";
         }
         accountService.create(form);
+        auditLogService.record(principal.getName(), AuditLogService.USER_CREATE,
+                "User", null, "Tạo tài khoản " + form.getUsername().trim());
         redirect.addFlashAttribute("message", "Đã tạo tài khoản " + form.getUsername().trim() + ".");
         return "redirect:/admin/users";
     }
@@ -70,6 +94,7 @@ public class AdminUserController {
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
         model.addAttribute("userForm", accountService.getFormForEdit(id));
+        model.addAttribute("userId", id);
         setFormInfo(model, "/admin/users/" + id + "/edit", "Sửa tài khoản", true);
         return "admin/users/form";
     }
@@ -91,8 +116,48 @@ public class AdminUserController {
     public String toggle(@PathVariable Long id, Principal principal, RedirectAttributes redirect) {
         try {
             accountService.toggleStatus(id, principal.getName());
+            auditLogService.record(principal.getName(), AuditLogService.USER_LOCK,
+                    "User", id, "Đổi trạng thái tài khoản");
             redirect.addFlashAttribute("message", "Đã đổi trạng thái tài khoản.");
         } catch (IllegalStateException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    /**
+     * Admin đặt lại mật khẩu cho tài khoản về mật khẩu mặc định.
+     * Không cần nhập mật khẩu - người dùng muốn đổi thì tự đổi sau khi đăng nhập
+     * tại trang /account/password. Mật khẩu mặc định KHÔNG hiển thị ra giao diện.
+     */
+    @PostMapping("/{id}/reset-password")
+    public String resetPassword(@PathVariable Long id,
+                                Principal principal,
+                                RedirectAttributes redirect) {
+        try {
+            accountService.resetPasswordToDefault(id, principal.getName());
+            auditLogService.record(principal.getName(), AuditLogService.PASSWORD_RESET,
+                    "User", id, "Admin đặt lại mật khẩu về mặc định");
+            redirect.addFlashAttribute("message",
+                    "Đã đặt lại mật khẩu về mặc định. Người dùng có thể tự đổi sau khi đăng nhập.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    /** Admin gán lại vai trò cho tài khoản (mục 5.1). */
+    @PostMapping("/{id}/assign-role")
+    public String assignRole(@PathVariable Long id,
+                             @RequestParam vn.edu.demo.topicmanagement.entity.UserRole role,
+                             Principal principal,
+                             RedirectAttributes redirect) {
+        try {
+            accountService.assignRole(id, role, principal.getName());
+            auditLogService.record(principal.getName(), AuditLogService.USER_ROLE_CHANGE,
+                    "User", id, "Gán vai trò " + role.name());
+            redirect.addFlashAttribute("message", "Đã gán vai trò mới cho tài khoản.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/users";

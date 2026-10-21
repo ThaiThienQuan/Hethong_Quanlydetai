@@ -1,12 +1,15 @@
 package vn.edu.demo.topicmanagement.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import vn.edu.demo.topicmanagement.entity.CouncilRole;
 
-/** Dữ liệu của một đề tài trong hội đồng cho trang chấm điểm/tổng hợp. */
+/** Dữ liệu của một đề tài trong hội đồng cho trang chấm điểm/tổng hợp (mục 5.7 &amp; 5.8). */
 public class CouncilWorkView {
-    private final Long councilTopicId;
+    /** {@code review_assignments.id} - dùng cho form nộp điểm của GV được phân công. */
+    private final Long assignmentId;
+    /** {@code topic_registrations.id} - dùng để tải báo cáo của nhóm. */
     private final Long registrationId;
     private final String councilName;
     private final String groupName;
@@ -17,6 +20,8 @@ public class CouncilWorkView {
     private final int memberCount;
     private final BigDecimal averageScore;
     private final BigDecimal myScore;
+    private final String myComment;
+    private final LocalDateTime deadline;
     private final boolean canScore;
     private final boolean canFinalize;
     private final String resultLabel;
@@ -24,21 +29,37 @@ public class CouncilWorkView {
     private final boolean published;
     private final boolean reportAvailable;
 
-    public CouncilWorkView(Long councilTopicId, Long registrationId, String councilName, String groupName,
+    public CouncilWorkView(Long assignmentId, Long registrationId, String councilName, String groupName,
                            String topicTitle, CouncilRole currentRole, List<String> scores, int scoreCount,
-                           int memberCount, BigDecimal averageScore, BigDecimal myScore, boolean canScore,
-                           boolean canFinalize, String resultLabel, String councilComment,
+                           int memberCount, BigDecimal averageScore, BigDecimal myScore, String myComment,
+                           LocalDateTime deadline, boolean canScore, boolean canFinalize,
+                           String resultLabel, String councilComment,
                            boolean published, boolean reportAvailable) {
-        this.councilTopicId = councilTopicId; this.registrationId = registrationId; this.councilName = councilName;
-        this.groupName = groupName; this.topicTitle = topicTitle; this.currentRole = currentRole;
-        this.scores = List.copyOf(scores); this.scoreCount = scoreCount; this.memberCount = memberCount;
-        this.averageScore = averageScore; this.myScore = myScore; this.canScore = canScore;
-        this.canFinalize = canFinalize; this.resultLabel = resultLabel;
-        this.councilComment = councilComment; this.published = published;
+        this.assignmentId = assignmentId;
+        this.registrationId = registrationId;
+        this.councilName = councilName;
+        this.groupName = groupName;
+        this.topicTitle = topicTitle;
+        this.currentRole = currentRole;
+        this.scores = scores == null ? List.of() : List.copyOf(scores);
+        this.scoreCount = scoreCount;
+        this.memberCount = memberCount;
+        this.averageScore = averageScore;
+        this.myScore = myScore;
+        this.myComment = myComment;
+        this.deadline = deadline;
+        this.canScore = canScore;
+        this.canFinalize = canFinalize;
+        this.resultLabel = resultLabel;
+        this.councilComment = councilComment;
+        this.published = published;
         this.reportAvailable = reportAvailable;
     }
-    public Long getCouncilTopicId() { return councilTopicId; }
+
+    public Long getAssignmentId() { return assignmentId; }
     public Long getRegistrationId() { return registrationId; }
+    /** Tương thích với template cũ: đường dẫn form dùng giá trị này. */
+    public Long getCouncilTopicId() { return assignmentId; }
     public String getCouncilName() { return councilName; }
     public String getGroupName() { return groupName; }
     public String getTopicTitle() { return topicTitle; }
@@ -48,6 +69,8 @@ public class CouncilWorkView {
     public int getMemberCount() { return memberCount; }
     public BigDecimal getAverageScore() { return averageScore; }
     public BigDecimal getMyScore() { return myScore; }
+    public String getMyComment() { return myComment; }
+    public LocalDateTime getDeadline() { return deadline; }
     public boolean isCanScore() { return canScore; }
     public boolean isCanFinalize() { return canFinalize; }
     public String getResultLabel() { return resultLabel; }

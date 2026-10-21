@@ -12,6 +12,9 @@
     <h2 th:text="${pageTitle}">Tài khoản</h2>
     <a th:href="@{/admin/users}">&larr; Về danh sách</a>
 
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
     <form th:action="@{${action}}" th:object="${userForm}" method="post">
 
         <label>Tên đăng nhập</label>
@@ -72,6 +75,26 @@
 
         <button type="submit">Lưu</button>
     </form>
+
+    <!-- ============ Khi SỬA: đặt lại mật khẩu & gán vai trò (mục 5.1) ============ -->
+    <div th:if="${editing}" style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem">
+        <h3>Thao tác quản trị</h3>
+
+        <form th:action="@{/admin/users/{id}/reset-password(id=${userId})}" method="post"
+              onsubmit="return confirm('Đặt lại mật khẩu tài khoản này về mật khẩu mặc định?');">
+            <label>Đặt lại mật khẩu <small>(về mật khẩu mặc định, người dùng tự đổi sau khi đăng nhập)</small></label>
+            <button type="submit">Đặt lại</button>
+        </form>
+
+        <form th:action="@{/admin/users/{id}/assign-role(id=${userId})}" method="post">
+            <label>Gán lại vai trò</label>
+            <select name="role" required>
+                <option value="">-- Chọn vai trò --</option>
+                <option th:each="r : ${roles}" th:value="${r.name()}" th:text="${r.label}"></option>
+            </select>
+            <button type="submit">Gán vai trò</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

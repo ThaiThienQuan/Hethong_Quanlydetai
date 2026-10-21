@@ -189,7 +189,7 @@ CREATE TABLE topic_supervisors (
     id               BIGINT   NOT NULL AUTO_INCREMENT,
     topic_id         BIGINT   NOT NULL,
     lecturer_id      BIGINT   NOT NULL,
-    supervisor_order TINYINT  NOT NULL COMMENT '1 = GVHD chính (người đề xuất), 2 = GVHD thứ hai',
+    supervisor_order INT      NOT NULL COMMENT '1 = GVHD chính (người đề xuất), 2 = GVHD thứ hai',
     assigned_by      BIGINT   NULL COMMENT 'Trưởng khoa phân công/điều chỉnh (nếu có)',
     assigned_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),

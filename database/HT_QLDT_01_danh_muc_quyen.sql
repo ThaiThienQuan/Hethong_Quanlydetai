@@ -9,7 +9,7 @@
    - Chạy SAU HT_QLDT.sql, TRƯỚC HT_QLDT_02_du_lieu_mau.sql.
    ===================================================================== */
 
-USE ht_qldt;
+USE student_topic_management;
 SET NAMES utf8mb4;
 
 /* ---------- 1. VAI TRÒ (4 vai trò gốc, is_system = 1) ---------- */

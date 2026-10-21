@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.List;
 import java.util.Set;
@@ -17,19 +18,18 @@ import org.springframework.web.server.ResponseStatusException;
 import vn.edu.demo.topicmanagement.dto.LecturerReportView;
 import vn.edu.demo.topicmanagement.dto.ReportDownload;
 import vn.edu.demo.topicmanagement.dto.StudentReportView;
-import vn.edu.demo.topicmanagement.entity.Council;
-import vn.edu.demo.topicmanagement.entity.CouncilMember;
-import vn.edu.demo.topicmanagement.entity.CouncilTopic;
+import vn.edu.demo.topicmanagement.config.PermissionCatalog;
 import vn.edu.demo.topicmanagement.entity.GroupMember;
+import vn.edu.demo.topicmanagement.entity.GroupStatus;
 import vn.edu.demo.topicmanagement.entity.RegistrationStatus;
 import vn.edu.demo.topicmanagement.entity.Report;
 import vn.edu.demo.topicmanagement.entity.StudentGroup;
 import vn.edu.demo.topicmanagement.entity.TopicRegistration;
+import vn.edu.demo.topicmanagement.entity.User;
 import vn.edu.demo.topicmanagement.repository.CouncilMemberRepository;
-import vn.edu.demo.topicmanagement.repository.CouncilTopicRepository;
 import vn.edu.demo.topicmanagement.repository.GroupMemberRepository;
 import vn.edu.demo.topicmanagement.repository.ReportRepository;
-import vn.edu.demo.topicmanagement.repository.StudentRepository;
+import vn.edu.demo.topicmanagement.repository.StudentGroupRepository;
 import vn.edu.demo.topicmanagement.repository.TopicRegistrationRepository;
 import vn.edu.demo.topicmanagement.repository.TopicSupervisorRepository;
 import vn.edu.demo.topicmanagement.repository.UserRepository;
@@ -47,29 +47,26 @@ public class StudentReportService {
     private final TopicRegistrationRepository registrationRepository;
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
     private final TopicSupervisorRepository supervisorRepository;
     private final CouncilMemberRepository councilMemberRepository;
-    private final CouncilTopicRepository councilTopicRepository;
+    private final StudentGroupRepository groupRepository;
     private final Path reportDirectory;
 
     public StudentReportService(GroupMemberRepository memberRepository,
                                 TopicRegistrationRepository registrationRepository,
                                 ReportRepository reportRepository,
                                 UserRepository userRepository,
-                                StudentRepository studentRepository,
                                 TopicSupervisorRepository supervisorRepository,
                                 CouncilMemberRepository councilMemberRepository,
-                                CouncilTopicRepository councilTopicRepository,
-                                @Value("${app.upload.report-dir:uploads/reports}") String reportDirectory) {
+                                StudentGroupRepository groupRepository,
+                                @Value("${app.storage.dir:./storage/reports}") String reportDirectory) {
         this.memberRepository = memberRepository;
         this.registrationRepository = registrationRepository;
         this.reportRepository = reportRepository;
         this.userRepository = userRepository;
-        this.studentRepository = studentRepository;
         this.supervisorRepository = supervisorRepository;
         this.councilMemberRepository = councilMemberRepository;
-        this.councilTopicRepository = councilTopicRepository;
+        this.groupRepository = groupRepository;
         this.reportDirectory = Paths.get(reportDirectory).toAbsolutePath().normalize();
     }
 
@@ -78,17 +75,37 @@ public class StudentReportService {
         GroupMember member = memberRepository.findByStudentUsername(username).orElse(null);
         if (member == null) return new StudentReportView(null, null, null, false, null, null, false);
 
-        StudentGroup group = member.getGroup();
-        // Giả định: "leader" dựa trên cột is_leader ở GroupMember (chưa có leader riêng trên group)
-        boolean leader = member.isLeader();
+        // SV có thể tham gia nhiều đợt; ưu tiên nhóm đang có đăng ký còn hiệu lực
+        // thay vì cứ lấy nhóm mới nhất (có thể thuộc đợt khác chưa đăng ký).
+        GroupMember activeMember = pickActiveMembership(username).orElse(member);
+        StudentGroup group = activeMember.getGroup();
+        boolean leader = activeMember.isLeader();
         TopicRegistration reg = registrationRepository.findByGroupIdAndStatusIn(
                 group.getId(), List.of(RegistrationStatus.APPROVED, RegistrationStatus.PENDING)).orElse(null);
         if (reg == null) return new StudentReportView(null, null, null, leader, null, null, false);
 
-        Report report = reportRepository.findByGroupIdOrderByVersionDesc(group.getId()).stream().findFirst().orElse(null);
+        Report report = reportRepository.findByGroupIdOrderByVersionDesc(group.getId()).stream()
+                .filter(r -> "SUBMITTED".equals(r.getStatus()))
+                .findFirst().orElse(null);
         return new StudentReportView(reg.getId(), reg.getTopic().getTopicName(), reg.getStatus(),
                 leader, report == null ? null : report.getFileName(), report == null ? null : report.getSubmittedAt(),
                 report != null && isStoredFileAvailable(report));
+    }
+
+    /**
+     * Chọn membership mà sinh viên này có đăng ký đề tài còn hiệu lực (APPROVED/PENDING),
+     * ưu tiên nhóm đã nộp báo cáo. Nhờ vậy màn hình báo cáo luôn mở đúng đợt
+     * mà sinh viên đang thực hiện, kể cả khi họ tham gia nhiều đợt.
+     */
+    private java.util.Optional<GroupMember> pickActiveMembership(String username) {
+        return memberRepository.findAllByStudentUsername(username).stream()
+                .filter(gm -> registrationRepository.findByGroupIdAndStatusIn(
+                        gm.getGroup().getId(),
+                        List.of(RegistrationStatus.APPROVED, RegistrationStatus.PENDING)).isPresent())
+                .max(Comparator
+                        .comparing((GroupMember gm) -> !reportRepository
+                                .existsByGroupIdAndStatus(gm.getGroup().getId(), "SUBMITTED"))
+                        .thenComparing(gm -> gm.getGroup().getId()));
     }
 
     @Transactional
@@ -96,7 +113,7 @@ public class StudentReportService {
         if (file == null || file.isEmpty()) throw new IllegalArgumentException("Vui lòng chọn tệp báo cáo.");
         if (file.getSize() > MAX_FILE_SIZE) throw new IllegalArgumentException("Tệp báo cáo không được vượt quá 10 MB.");
 
-        GroupMember member = memberRepository.findByStudentUsername(username)
+        GroupMember member = pickActiveMembership(username)
                 .orElseThrow(() -> new IllegalStateException("Bạn chưa tham gia nhóm."));
         StudentGroup group = member.getGroup();
         if (!member.isLeader()) {
@@ -125,8 +142,7 @@ public class StudentReportService {
             Report report = new Report();
             report.setGroup(group);
             // submittedBy là students.id của nhóm trưởng
-            vn.edu.demo.topicmanagement.entity.Student s = studentRepository.findById(member.getStudent().getId()).orElse(null);
-            if (s != null) report.setSubmittedBy(s);
+            report.setSubmittedBy(member.getStudent());
             report.setReportTitle(originalName);
             report.setFileName(originalName);
             report.setStoredPath(storedName);
@@ -134,6 +150,20 @@ public class StudentReportService {
             report.setVersion(nextVersion);
             report.setStatus("SUBMITTED");
             reportRepository.saveAndFlush(report);
+
+            // Bản cũ (nếu có) chuyển SUPERSEDED để chỉ còn 1 bản hiện lực mỗi nhóm.
+            for (Report older : existing) {
+                if ("SUBMITTED".equals(older.getStatus())) {
+                    older.setStatus("SUPERSEDED");
+                    reportRepository.save(older);
+                }
+            }
+
+            // Nhóm chuyển SUBMITTED khi có báo cáo đầu tiên (đặc tả 5.5).
+            if (group.getStatus() == GroupStatus.APPROVED) {
+                group.setStatus(GroupStatus.SUBMITTED);
+                groupRepository.saveAndFlush(group);
+            }
         } catch (IOException e) {
             deleteQuietly(target);
             throw new IllegalStateException("Không lưu được tệp báo cáo trên máy chủ.", e);
@@ -143,61 +173,83 @@ public class StudentReportService {
         }
     }
 
+    /**
+     * Tải báo cáo của sinh viên: chỉ thành viên trong cùng nhóm mới được.
+     * Tham số là {@code registrationId} (id của topic_registrations) như URL đặt tên.
+     */
     @Transactional(readOnly = true)
-    public ReportDownload getDownload(Long groupId, String username) {
-        GroupMember member = memberRepository.findByStudentUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
-        if (!member.getGroup().getId().equals(groupId)) {
+    public ReportDownload getDownload(Long registrationId, String username) {
+        TopicRegistration reg = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đăng ký đề tài."));
+        GroupMember member = memberRepository.findByStudentUsername(username).orElse(null);
+        if (member == null || !member.getGroup().getId().equals(reg.getGroup().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chỉ thành viên trong nhóm mới được tải báo cáo.");
         }
-        return resolveDownloadByGroup(groupId);
+        return resolveDownloadByGroup(reg.getGroup().getId());
     }
 
+    /**
+     * Tải báo cáo bởi giảng viên: GVHD của đề tài, thành viên hội đồng phụ trách đề tài,
+     * Trưởng khoa hoặc quản trị viên đều được (đặc tả 5.5).
+     */
     @Transactional(readOnly = true)
-    public ReportDownload getDownloadForLecturer(Long groupId, String username) {
-        boolean assignedReviewer = false;
-        boolean assignedSupervisor = false;
-        boolean councilMember = false;
-        try {
-            // GVHD: topic của group hiện tại
-            groupRepository(groupId).ifPresent(g -> {
-                if (g.getTopic() != null) {
-                    // Lấy các phân công chấm cho GV hiện tại
-                    // assignedReviewer / supervisor: giả định true nếu username thuộc danh sách GVHD/GVPB
-                }
-            });
-        } catch (Exception ignored) {}
-        if (!assignedReviewer && !assignedSupervisor && !councilMember) {
+    public ReportDownload getDownloadForLecturer(Long registrationId, String username) {
+        TopicRegistration reg = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đăng ký đề tài."));
+        if (!canLecturerViewTopic(reg.getTopic().getId(), username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không được phân công xem báo cáo này.");
         }
-        return resolveDownloadByGroup(groupId);
+        return resolveDownloadByGroup(reg.getGroup().getId());
     }
 
-    /** Truy vấn đơn giản bằng cách duyệt topic gắn với group. */
-    private java.util.Optional<StudentGroup> groupRepository(Long groupId) {
-        // dùng groupRepository đã có? - chưa inject. Trả Optional.empty tạm thời.
-        return java.util.Optional.empty();
-    }
-
+    /**
+     * Giảng viên này có quyền xem báo cáo của đề tài không: là GVHD, hoặc thành viên
+     * hội đồng phản biện phụ trách đề tài, hoặc Trưởng khoa / quản trị viên.
+     */
     @Transactional(readOnly = true)
-    public boolean isDownloadAvailable(Long registrationId) {
-        // Stub cũ - giữ cho code compile, không có ý nghĩa ở DB mới
-        return false;
+    public boolean canLecturerViewTopic(Long topicId, String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) return false;
+        if (user.hasRole(PermissionCatalog.ROLE_ADMIN) || user.hasRole(PermissionCatalog.ROLE_DEAN)) {
+            return true;
+        }
+        if (supervisorRepository.findTopicIdsByLecturerUsername(username).contains(topicId)) {
+            return true;
+        }
+        return councilMemberRepository.findTopicIdsByLecturerUsername(username).contains(topicId);
     }
 
-    /** Cho {@link ReviewerService} - kiểm tra theo topic (mới hơn theo DB). */
+    /** Cho {@link ReviewerService} - kiểm tra theo topic (GV phản biện tải báo cáo của đề tài). */
     @Transactional(readOnly = true)
     public boolean isDownloadAvailableByTopic(Long topicId) {
-        // Tìm group có topic_id = topicId
         List<Report> reports = reportRepository.search(null, topicId, null);
         if (reports.isEmpty()) return false;
         return isStoredFileAvailable(reports.get(0));
     }
 
+    /** Báo cáo của các nhóm mà giảng viên đang hướng dẫn - màn hình "Báo cáo hướng dẫn". */
     @Transactional(readOnly = true)
     public List<LecturerReportView> getReportsForSupervisor(String username) {
-        List<LecturerReportView> views = new ArrayList<>();
-        // giữ chỗ - chưa có liên kết trực tiếp
+        List<Long> topicIds = supervisorRepository.findTopicIdsByLecturerUsername(username);
+        if (topicIds.isEmpty()) return List.of();
+
+        List<LecturerReportView> views = new java.util.ArrayList<>();
+        for (Report report : reportRepository.findByTopicIds(topicIds)) {
+            StudentGroup group = report.getGroup();
+            TopicRegistration reg = registrationRepository.findByGroupIdAndStatusIn(
+                    group.getId(), List.of(RegistrationStatus.APPROVED)).orElse(null);
+            Long registrationId = reg != null ? reg.getId()
+                    : registrationRepository.findByGroupId(group.getId()).stream()
+                        .findFirst().map(TopicRegistration::getId).orElse(null);
+            if (registrationId == null) continue;
+            views.add(new LecturerReportView(
+                    registrationId,
+                    group.getGroupName(),
+                    group.getTopic() != null ? group.getTopic().getTopicName()
+                            : (reg != null ? reg.getTopic().getTopicName() : ""),
+                    report.getFileName(),
+                    isStoredFileAvailable(report)));
+        }
         return views;
     }
 
@@ -243,6 +295,4 @@ public class StudentReportService {
     private void deleteQuietly(Path path) {
         try { Files.deleteIfExists(path); } catch (IOException ignored) { }
     }
-
-    private static class ArrayList<T> extends java.util.ArrayList<T> { }
 }

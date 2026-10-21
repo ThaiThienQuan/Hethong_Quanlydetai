@@ -16,6 +16,21 @@ public interface ReviewResultRepository extends JpaRepository<ReviewResult, Long
     /** Kết quả chưa công bố - Trưởng khoa công bố (mục 5.8). */
     List<ReviewResult> findByPublishedFalseOrderByIdAsc();
 
+    /**
+     * Kết quả chưa công bố kèm đề tài/nhóm/hội đồng tồn tại thật.
+     * Dùng inner join để loại các dòng review_results mồ côi (group_id/topic_id không còn tồn tại),
+     * tránh lỗi EntityNotFoundException khi nạp lazy association.
+     */
+    @Query("""
+            select distinct rr from ReviewResult rr
+            join fetch rr.topic t
+            join fetch rr.group g
+            join fetch rr.council c
+            where rr.published = false
+            order by rr.id asc
+            """)
+    List<ReviewResult> findUnpublishedWithRefs();
+
     List<ReviewResult> findByCouncilIdOrderByIdAsc(Long councilId);
 
     long countByPublishedTrue();

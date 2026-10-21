@@ -41,12 +41,13 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup, Long
 
     /** Danh sách nhóm của một sinh viên theo mọi đợt (dùng cho tra cứu kết quả theo đợt). */
     @Query("""
-            select distinct gm.group from GroupMember gm
+            select g from StudentGroup g
+            join fetch g.period p
+            join GroupMember gm on gm.group = g
             where gm.student.user.id = :studentUserId
-            order by gm.group.id desc
+            order by g.id desc
             """)
     List<StudentGroup> findAllByStudent(@Param("studentUserId") Long studentUserId);
-
     @Query("""
             select distinct g from StudentGroup g
             left join fetch g.topic t

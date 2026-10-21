@@ -23,6 +23,7 @@ import vn.edu.demo.topicmanagement.service.TopicService;
  */
 @Controller
 @RequestMapping("/head/topics")
+@PreAuthorize("hasAuthority('TOPIC_VIEW')")
 public class HeadTopicController {
 
     private final TopicService topicService;

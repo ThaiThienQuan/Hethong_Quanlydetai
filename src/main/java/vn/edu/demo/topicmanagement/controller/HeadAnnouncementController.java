@@ -3,6 +3,7 @@ package vn.edu.demo.topicmanagement.controller;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +21,7 @@ import java.util.List;
 /** Trưởng khoa tạo thông báo toàn trường hoặc chỉ cho bộ môn của mình. */
 @Controller
 @RequestMapping("/head/announcements")
+@PreAuthorize("hasAuthority('NOTICE_MANAGE')")
 public class HeadAnnouncementController {
     private final AnnouncementService announcementService;
     public HeadAnnouncementController(AnnouncementService announcementService) { this.announcementService = announcementService; }

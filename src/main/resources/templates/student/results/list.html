@@ -3,12 +3,49 @@
 <head><meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"><title>Kết quả đề tài</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
 <body class="app-page">
-<div th:replace="~{fragments/nav :: nav}"></div><div class="box wide">
-    <h2>Kết quả đề tài của nhóm</h2><a th:href="@{/}">&larr; Trang chủ</a>
-    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Nhóm</th><th>Đề tài</th><th>Điểm cuối</th><th>Kết quả</th><th>Nhận xét hội đồng</th><th>Ngày công bố</th></tr></thead>
-        <tbody><tr th:each="r : ${results}"><td th:text="${r.groupName}"></td><td th:text="${r.topicTitle}"></td>
-            <td th:text="${r.finalScore}"></td><td th:text="${r.result}"></td><td th:text="${r.councilComment}"></td>
-            <td th:text="${r.publishedAt != null ? #temporals.format(r.publishedAt, 'dd/MM/yyyy HH:mm') : ''}"></td></tr>
-            <tr th:if="${#lists.isEmpty(results)}"><td colspan="6">Nhóm chưa có kết quả được công bố.</td></tr></tbody>
-    </table></div>
-</div></body></html>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Kết quả của tôi</h2>
+    <a th:href="@{/}">&larr; Trang chủ</a>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <form method="get" th:action="@{/student/results}" style="margin:1rem 0">
+        <label>Tra cứu theo đợt</label>
+        <select name="periodId" onchange="this.form.submit()">
+            <option value="">-- Tất cả các đợt tôi tham gia --</option>
+            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}"
+                    th:selected="${selectedPeriodId != null and selectedPeriodId == p.id}"></option>
+        </select>
+        <noscript><button type="submit">Xem</button></noscript>
+    </form>
+
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
+        <table>
+            <thead><tr>
+                <th>Đợt</th><th>Nhóm</th><th>Đề tài</th><th>Điểm cuối</th>
+                <th>Kết quả</th><th>Nhận xét hội đồng</th><th>Ngày công bố</th>
+            </tr></thead>
+            <tbody>
+            <tr th:each="r : ${results}">
+                <td th:text="${r.periodName}"></td>
+                <td th:text="${r.groupName}"></td>
+                <td th:text="${r.topicTitle}"></td>
+                <td th:text="${r.finalScore}"></td>
+                <td>
+                    <span th:if="${r.result == 'PASSED'}" class="badge st-PUBLISHED">ĐẠT</span>
+                    <span th:if="${r.result != 'PASSED'}" class="badge st-OVERDUE">KHÔNG ĐẠT</span>
+                </td>
+                <td th:text="${r.councilComment}"></td>
+                <td th:text="${r.publishedAt != null ? #temporals.format(r.publishedAt, 'dd/MM/yyyy HH:mm') : ''}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(results)}">
+                <td colspan="7">Nhóm của bạn chưa có kết quả được công bố.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p><small>Bạn chỉ xem được kết quả <b>đã công bố</b> của nhóm mình.
+        Điểm thành phần của từng giảng viên không hiển thị mặc định.</small></p>
+</div>
+</body>
+</html>

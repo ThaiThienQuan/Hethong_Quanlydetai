@@ -50,4 +50,8 @@ public interface TopicSupervisorRepository extends JpaRepository<TopicSupervisor
      */
     @Query("select distinct ts.lecturer.id from TopicSupervisor ts where ts.topic.period.id = :periodId")
     List<Long> findLecturerIdsByPeriodId(@Param("periodId") Long periodId);
+
+    /** Các đề tài mà giảng viên này hướng dẫn, tra theo username tài khoản. */
+    @Query("select ts.topic.id from TopicSupervisor ts where ts.lecturer.user.username = :username")
+    List<Long> findTopicIdsByLecturerUsername(@Param("username") String username);
 }

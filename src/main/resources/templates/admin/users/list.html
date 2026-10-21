@@ -16,7 +16,26 @@
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
 
-    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
+    <!-- Tìm kiếm + lọc vai trò/trạng thái + phân trang (mục 5.1) -->
+    <form method="get" th:action="@{/admin/users}" style="margin:1rem 0">
+        <label>Tìm kiếm</label>
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tên đăng nhập, họ tên, email">
+        <label>Vai trò</label>
+        <select name="role">
+            <option value="">-- Tất cả --</option>
+            <option th:each="r : ${roles}" th:value="${r.name()}" th:text="${r.label}"
+                    th:selected="${selectedRole == r.name()}"></option>
+        </select>
+        <label>Trạng thái</label>
+        <select name="status">
+            <option value="">-- Tất cả --</option>
+            <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}"
+                    th:selected="${selectedStatus == s.name()}"></option>
+        </select>
+        <button type="submit">Lọc</button>
+    </form>
+
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table style="min-width:1000px">
         <thead>
             <tr><th>#</th><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th><th>Mã SV/GV</th>
                 <th>Bộ môn</th><th>Email</th><th>Trạng thái</th><th>Thao tác</th></tr>
@@ -24,16 +43,17 @@
         <tbody>
             <tr th:each="u, stat : ${users}">
                 <td th:text="${stat.count}">1</td>
-                <td th:text="${u.username}">user</td>
-                <td th:text="${u.fullName != null ? u.fullName : ''}">Họ tên</td>
-                <td th:text="${u.role != null ? u.role.label : '—'}">Vai trò</td>
-                <td th:text="${u.studentCode != null ? u.studentCode : (u.lecturerCode != null ? u.lecturerCode : '')}">Mã</td>
-                <td th:text="${u.department != null ? u.department.name : ''}">Bộ môn</td>
-                <td th:text="${u.email != null ? u.email : ''}">Email</td>
+                <td class="nowrap" th:text="${u.username}">user</td>
+                <td class="nowrap" th:text="${u.fullName != null ? u.fullName : ''}">Họ tên</td>
+                <td class="nowrap" th:text="${u.role != null ? u.role.label : '—'}">Vai trò</td>
+                <td class="nowrap" th:text="${u.studentCode != null ? u.studentCode : (u.lecturerCode != null ? u.lecturerCode : '')}">Mã</td>
+                <td class="nowrap" th:text="${u.departmentName != null ? u.departmentName : ''}">Bộ môn</td>
+                <td class="nowrap" th:text="${u.email != null ? u.email : ''}">Email</td>
                 <td>
                     <span class="badge"
                           th:classappend="${u.status != null ? 'st-' + u.status.name() : ''}"
                           th:text="${u.status != null ? u.status.label : '—'}">Hoạt động</span>
+                    <span class="badge st-OVERDUE" th:if="${u.temporarilyLocked}">Tạm khóa (đăng nhập sai)</span>
                 </td>
                 <td class="actions">
                     <a th:href="@{/admin/users/{id}/edit(id=${u.id})}">Sửa</a>
@@ -48,10 +68,18 @@
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(users)}">
-                <td colspan="9">Chưa có tài khoản nào.</td>
+                <td colspan="9">Không tìm thấy tài khoản nào.</td>
             </tr>
         </tbody>
     </table></div>
+
+    <p th:if="${page != null and page.totalPages > 1}" style="margin-top:1rem">
+        <span th:text="'Trang ' + ${page.number + 1} + '/' + ${page.totalPages}"></span>
+        <a th:if="${page.hasPrevious()}"
+           th:href="@{/admin/users(keyword=${keyword},role=${selectedRole},status=${selectedStatus},page=${page.number})}">&larr; Trước</a>
+        <a th:if="${page.hasNext()}"
+           th:href="@{/admin/users(keyword=${keyword},role=${selectedRole},status=${selectedStatus},page=${page.number + 2})}">Sau &rarr;</a>
+    </p>
 </div>
 </body>
 </html>

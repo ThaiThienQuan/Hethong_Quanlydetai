@@ -32,6 +32,14 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
         return findFirstByStudentUserUsernameOrderByIdDesc(username);
     }
 
+    /** Tất cả membership của một SV (SV có thể ở nhiều nhóm, mỗi đợt một nhóm). */
+    @Query("""
+            select gm from GroupMember gm
+            where gm.student.user.username = :username
+            order by gm.id desc
+            """)
+    List<GroupMember> findAllByStudentUsername(@Param("username") String username);
+
     /** Thành viên kèm hồ sơ sinh viên, dùng khi hiển thị danh sách nhóm. */
     @Query("""
             select gm from GroupMember gm

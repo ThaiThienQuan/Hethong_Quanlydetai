@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Nhật ký email kết quả</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Nhật ký email kết quả</h2>
+    <a th:href="@{/head/results}">&larr; Kết quả chờ công bố</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <p th:if="${!mailEnabled}" class="error">
+        Cấu hình <code>app.mail.enabled=false</code> nên hệ thống không gửi email thật;
+        các dòng được ghi với trạng thái <em>Bỏ qua (demo)</em>. Bật SMTP qua biến môi trường
+        <code>MAIL_ENABLED=true</code> + <code>MAIL_HOST</code>/<code>MAIL_PORT</code> để gửi thật.
+    </p>
+    <p>Có <strong th:text="${failedCount}"></strong> email đang lỗi.</p>
+
+    <form method="get" th:action="@{/head/emails}">
+        <label>Trạng thái</label>
+        <select name="status">
+            <option value="">-- Tất cả --</option>
+            <option value="SENT" th:selected="${status == 'SENT'}">Đã gửi</option>
+            <option value="FAILED" th:selected="${status == 'FAILED'}">Lỗi</option>
+            <option value="SKIPPED" th:selected="${status == 'SKIPPED'}">Bỏ qua (demo)</option>
+        </select>
+        <label>Đợt</label>
+        <select name="periodId">
+            <option value="">-- Tất cả --</option>
+            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}"
+                    th:selected="${periodId != null and periodId == p.id}"></option>
+        </select>
+        <button type="submit">Lọc</button>
+    </form>
+
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
+        <table>
+            <thead><tr>
+                <th>Sinh viên</th><th>Mã</th><th>Nhóm</th><th>Đề tài</th><th>Email nhận</th>
+                <th>Trạng thái</th><th>Số lần</th><th>Lỗi</th><th>Thời điểm</th><th></th>
+            </tr></thead>
+            <tbody>
+            <tr th:each="log : ${logs}">
+                <td th:text="${log.studentName}"></td>
+                <td th:text="${log.studentCode}"></td>
+                <td th:text="${log.groupName}"></td>
+                <td th:text="${log.topicTitle}"></td>
+                <td th:text="${log.toEmail}"></td>
+                <td>
+                    <span th:if="${log.status == 'SENT'}" class="badge st-PUBLISHED">Đã gửi</span>
+                    <span th:if="${log.failed}" class="badge st-OVERDUE">Lỗi</span>
+                    <span th:if="${log.skipped}" class="badge st-PENDING">Bỏ qua (demo)</span>
+                </td>
+                <td th:text="${log.attemptCount}"></td>
+                <td th:text="${log.errorMessage}"></td>
+                <td th:text="${log.sentAt != null ? #temporals.format(log.sentAt, 'dd/MM/yyyy HH:mm') : (log.createdAt != null ? #temporals.format(log.createdAt, 'dd/MM/yyyy HH:mm') : '')}"></td>
+                <td>
+                    <form th:if="${log.status != 'SENT'}"
+                          th:action="@{/head/emails/{id}/resend(id=${log.id})}" method="post">
+                        <button type="submit">Gửi lại</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(logs)}"><td colspan="10">Chưa có email nào.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <form th:if="${failedCount > 0}" th:action="@{/head/emails/resend-failed}" method="post"
+          onsubmit="return confirm('Gửi lại toàn bộ email đang lỗi?');">
+        <button type="submit">Gửi lại tất cả email lỗi</button>
+    </form>
+
+    <p th:if="${page.totalPages > 1}" style="margin-top:1rem">
+        <span th:text="'Trang ' + ${page.number + 1} + '/' + ${page.totalPages}"></span>
+        <a th:if="${page.hasPrevious()}" th:href="@{/head/emails(status=${status},periodId=${periodId},page=${page.number})}">&larr; Trước</a>
+        <a th:if="${page.hasNext()}" th:href="@{/head/emails(status=${status},periodId=${periodId},page=${page.number + 2})}">Sau &rarr;</a>
+    </p>
+</div>
+</body>
+</html>

@@ -39,6 +39,8 @@ public class AuditLogService {
     public static final String USER_LOCK = "USER_LOCK";
     public static final String ROLE_PERMISSION_CHANGE = "ROLE_PERMISSION_CHANGE";
     public static final String PASSWORD_CHANGE = "PASSWORD_CHANGE";
+    public static final String PASSWORD_RESET = "PASSWORD_RESET";
+    public static final String USER_ROLE_CHANGE = "USER_ROLE_CHANGE";
 
     private final AuditLogRepository auditLogRepository;
     private final UserRepository userRepository;

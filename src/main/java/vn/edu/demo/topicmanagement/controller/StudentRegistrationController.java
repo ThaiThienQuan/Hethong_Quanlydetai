@@ -2,6 +2,7 @@ package vn.edu.demo.topicmanagement.controller;
 
 import jakarta.validation.Valid;
 import java.security.Principal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,6 +17,7 @@ import vn.edu.demo.topicmanagement.service.StudentPortalService;
 
 @Controller
 @RequestMapping("/student/registrations")
+@PreAuthorize("hasAuthority('REGISTRATION_CREATE')")
 public class StudentRegistrationController {
     private final StudentPortalService studentService;
 

@@ -26,6 +26,7 @@ import vn.edu.demo.topicmanagement.service.TopicService;
  */
 @Controller
 @RequestMapping("/lecturer/topics")
+@PreAuthorize("hasAuthority('TOPIC_VIEW')")
 public class LecturerTopicController {
 
     private final TopicService topicService;

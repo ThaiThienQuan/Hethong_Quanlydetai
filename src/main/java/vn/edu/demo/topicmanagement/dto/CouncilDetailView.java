@@ -9,18 +9,25 @@ public class CouncilDetailView {
     private final List<LecturerOption> lecturerCandidates;
     private final List<CouncilRegistrationOption> availableRegistrations;
     private final List<CouncilRegistrationOption> assignedRegistrations;
+    private final List<CouncilTopicProgressView> topics;
+
     public CouncilDetailView(CouncilSummaryView council, List<CouncilMemberView> members,
                              List<LecturerOption> lecturerCandidates,
                              List<CouncilRegistrationOption> availableRegistrations,
-                             List<CouncilRegistrationOption> assignedRegistrations) {
-        this.council = council; this.members = List.copyOf(members);
+                             List<CouncilRegistrationOption> assignedRegistrations,
+                             List<CouncilTopicProgressView> topics) {
+        this.council = council;
+        this.members = List.copyOf(members);
         this.lecturerCandidates = List.copyOf(lecturerCandidates);
         this.availableRegistrations = List.copyOf(availableRegistrations);
         this.assignedRegistrations = List.copyOf(assignedRegistrations);
+        this.topics = List.copyOf(topics);
     }
+
     public CouncilSummaryView getCouncil() { return council; }
     public List<CouncilMemberView> getMembers() { return members; }
     public List<LecturerOption> getLecturerCandidates() { return lecturerCandidates; }
     public List<CouncilRegistrationOption> getAvailableRegistrations() { return availableRegistrations; }
     public List<CouncilRegistrationOption> getAssignedRegistrations() { return assignedRegistrations; }
+    public List<CouncilTopicProgressView> getTopics() { return topics; }
 }

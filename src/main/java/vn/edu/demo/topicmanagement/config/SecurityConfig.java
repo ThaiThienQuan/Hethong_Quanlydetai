@@ -29,6 +29,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final LoginFailureHandler loginFailureHandler;
+    private final LoginSuccessHandler loginSuccessHandler;
+
+    public SecurityConfig(LoginFailureHandler loginFailureHandler, LoginSuccessHandler loginSuccessHandler) {
+        this.loginFailureHandler = loginFailureHandler;
+        this.loginSuccessHandler = loginSuccessHandler;
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -78,6 +86,9 @@ public class SecurityConfig {
                 // Công bố kết quả  (5.8, RESULT_PUBLISH)
                 .requestMatchers("/head/results/**").hasAuthority("RESULT_PUBLISH")
 
+                // Nhật ký email kết quả + gửi lại (7.10) - cùng nhóm quyền RESULT_PUBLISH
+                .requestMatchers("/head/emails/**").hasAuthority("RESULT_PUBLISH")
+
                 // Thông báo của khoa  (5.9)
                 .requestMatchers("/head/announcements/**").hasAuthority("NOTICE_MANAGE")
 
@@ -96,8 +107,13 @@ public class SecurityConfig {
                 // SV: nhóm, đăng ký đề tài, nộp báo cáo, xem kết quả.
                 .requestMatchers("/student/groups/**", "/student/registrations/**")
                     .hasAuthority("REGISTRATION_CREATE")
+                // Nộp báo cáo cần SUBMISSION_CREATE, nhưng tải báo cáo đã nộp thì mọi
+                // thành viên trong nhóm đều được (đặc tả 5.5) → REPORT_VIEW.
+                .requestMatchers("/student/reports/*/download").hasAuthority("REPORT_VIEW")
                 .requestMatchers("/student/reports/**").hasAuthority("SUBMISSION_CREATE")
                 .requestMatchers("/student/results/**").hasAuthority("RESULT_VIEW")
+                // API tra cứu kết quả của SV - cùng quyền RESULT_VIEW.
+                .requestMatchers("/api/my/results/**").hasAuthority("RESULT_VIEW")
 
                 // Danh sách đề tài công bố + thông báo: mọi vai trò đã đăng nhập đều xem được.
                 .requestMatchers("/topics/**", "/announcements/**").authenticated()
@@ -108,6 +124,9 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error")
+                // Bộ đếm đăng nhập sai + khóa tạm 5 lần/15 phút (mục 5.1).
+                .failureHandler(loginFailureHandler)
+                .successHandler(loginSuccessHandler)
                 .permitAll())
             // Đăng xuất bằng POST, có kiểm tra CSRF.
             .logout(logout -> logout

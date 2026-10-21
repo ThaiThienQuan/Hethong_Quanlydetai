@@ -49,4 +49,12 @@ public interface ReviewAssignmentRepository extends JpaRepository<ReviewAssignme
             """)
     List<ReviewAssignment> findByCouncilAndTopicWithEvaluation(@Param("councilId") Long councilId,
                                                               @Param("topicId") Long topicId);
+
+    /** Bản gọn: tất cả phân công của một đề tài trong hội đồng (không cần fetch evaluation). */
+    @Query("""
+            select ra from ReviewAssignment ra
+            where ra.council.id = :councilId and ra.topic.id = :topicId
+            """)
+    List<ReviewAssignment> findByCouncilAndTopic(@Param("councilId") Long councilId,
+                                                 @Param("topicId") Long topicId);
 }

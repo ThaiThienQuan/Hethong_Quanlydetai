@@ -10,6 +10,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import vn.edu.demo.topicmanagement.service.StudentReportService;
 /** Trang nộp báo cáo dành cho nhóm sinh viên; Spring Security bảo vệ toàn bộ URL /student/**. */
 @Controller
 @RequestMapping("/student/reports")
+@PreAuthorize("hasAuthority('SUBMISSION_CREATE')")
 public class StudentReportController {
     private final StudentReportService reportService;
 

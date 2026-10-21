@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Phân công GVPB</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Phân công giảng viên chấm</h2>
+    <a th:href="@{/head/councils/{id}(id=${view.councilId})}">&larr; Quay lại chi tiết hội đồng</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+    <p>Đề tài:
+        <strong th:text="${view.topicCode + ' — ' + view.topicTitle}"></strong>;
+        Nhóm: <strong th:text="${view.groupName}"></strong>
+    </p>
+    <p>Trạng thái hội đồng:
+        <span th:if="${view.ready}" class="badge st-PUBLISHED">READY - có thể phân công</span>
+        <span th:if="${!view.ready}">chưa READY</span>
+    </p>
+
+    <h3>GVPB đã phân công</h3>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="GVPB đã phân công">
+        <table>
+            <thead><tr><th>Giảng viên</th><th>Mã</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+            <tr th:each="a : ${view.assignees}">
+                <td th:text="${a.fullName}"></td>
+                <td th:text="${a.lecturerCode}"></td>
+                <td>
+                    <span class="badge" th:if="${a.supervisor}">GVHD - không hợp lệ (chặn ở service)</span>
+                    <span class="badge st-SCORED" th:if="${a.submitted}">Đã nộp điểm</span>
+                    <span class="badge st-PENDING" th:if="${!a.submitted}">Chưa chấm</span>
+                </td>
+                <td>
+                    <form th:action="@{/head/councils/{id}/topics/{ctId}/assignments/{aId}/remove(id=${view.councilId},ctId=${view.councilTopicId},aId=${a.assignmentId})}"
+                          method="post" style="display:inline"
+                          onsubmit="return confirm('Gỡ phân công này?');">
+                        <button type="submit" th:disabled="${a.submitted}">Gỡ</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(view.assignees)}">
+                <td colspan="4">Chưa phân công GVPB nào.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 th:if="${view.ready}">Thêm GVPB (chỉ chọn được thành viên hội đồng, không phải GVHD/người tạo đề tài)</h3>
+    <form th:if="${view.ready && !#lists.isEmpty(view.candidates)}"
+          th:action="@{/head/councils/{id}/topics/{ctId}/assignments(id=${view.councilId},ctId=${view.councilTopicId})}"
+          method="post">
+        <label>Giảng viên</label>
+        <select name="lecturerId" required>
+            <option value="">-- Chọn --</option>
+            <option th:each="l : ${view.candidates}" th:value="${l.id}"
+                    th:text="${l.fullName + ' (' + l.lecturerCode + ')'}"></option>
+        </select>
+        <button type="submit">Phân công</button>
+    </form>
+    <p th:if="${view.ready && #lists.isEmpty(view.candidates)}">
+        Không còn ứng viên hợp lệ (tất cả thành viên hội đồng đều là GVHD/người tạo hoặc đã được phân công).
+    </p>
+    <p th:if="${!view.ready}">Chỉ được phân công khi hội đồng ở trạng thái READY.</p>
+
+    <p style="margin-top:1rem"><small>
+        Quy tắc (mục 5.7): GV phải thuộc hội đồng; hội đồng và đề tài cùng đợt; đề tài đã có báo cáo;
+        GV không là GVHD; không trùng phân công; mỗi đề tài cần ít nhất 1 người chấm. Không xóa phân công đã có điểm.
+    </small></p>
+</div>
+</body>
+</html>
