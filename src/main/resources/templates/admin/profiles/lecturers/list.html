@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hồ sơ giảng viên</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="box xwide">
+        <h2>Hồ sơ giảng viên</h2>
+        <a th:href="@{/}">&larr; Về trang chủ</a>
+
+        <p class="ok" th:if="${message}" th:text="${message}"></p>
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <!-- Bộ lọc theo bộ môn -->
+        <form th:action="@{/admin/profiles/lecturers}" method="get" class="filter-bar">
+            <label>Lọc theo bộ môn:</label>
+            <select name="departmentId" onchange="this.form.submit()">
+                <option value="">— Tất cả bộ môn —</option>
+                <option th:each="d : ${departments}" th:value="${d.id}" 
+                        th:text="${d.name}"
+                        th:selected="${selectedDepartment != null and selectedDepartment == d.id}"></option>
+            </select>
+        </form>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mã GV</th>
+                        <th>Họ tên</th>
+                        <th>Học vị</th>
+                        <th>Bộ môn</th>
+                        <th>Email</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="l, stat : ${lecturers}">
+                        <td th:text="${stat.count}">1</td>
+                        <td><code th:text="${l.lecturerCode}">GV001</code></td>
+                        <td th:text="${l.user.fullName}">Nguyễn Văn A</td>
+                        <td th:text="${l.academicDegree != null ? l.academicDegree : '—'}">Tiến sĩ</td>
+                        <td th:text="${l.department.name}">CNTT</td>
+                        <td th:text="${l.user.email != null ? l.user.email : '—'}">email@edu.vn</td>
+                        <td class="actions">
+                            <a th:href="@{/admin/profiles/lecturers/{id}(id=${l.id})}">Xem</a>
+                            <a th:href="@{/admin/profiles/lecturers/{id}/edit(id=${l.id})}">Sửa</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(lecturers)}">
+                        <td colspan="7">Chưa có hồ sơ giảng viên nào.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

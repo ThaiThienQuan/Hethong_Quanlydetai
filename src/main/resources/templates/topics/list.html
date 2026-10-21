@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Danh sách đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box wide">
+    <h2>Danh sách đề tài đã công bố</h2>
+    <a th:href="@{/}">&larr; Về trang chủ</a>
+
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
+        <thead>
+            <tr><th>#</th><th>Tên đề tài</th><th>Bộ môn</th><th>Người tạo</th><th>Ngày tạo</th></tr>
+        </thead>
+        <tbody>
+            <!-- th:each lặp qua danh sách "topics" mà Controller đã đưa vào Model -->
+            <tr th:each="t, stat : ${topics}">
+                <td th:text="${stat.count}">1</td>
+                <td>
+                    <strong th:text="${t.topicName}">Tên đề tài</strong>
+                    <div class="muted" th:text="${t.topicCode}">Mã đề tài</div>
+                </td>
+                <td th:text="${t.departmentName}">Bộ môn</td>
+                <td th:text="${t.createdByLecturerName}">GV</td>
+                <td>
+                    <span th:if="${t.id != null}" th:text="${'#' + t.id}">1</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(topics)}">
+                <td colspan="5">Chưa có đề tài nào được công bố.</td>
+            </tr>
+        </tbody>
+    </table></div>
+</div>
+</body>
+</html>

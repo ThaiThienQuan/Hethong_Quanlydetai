@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phân công giảng viên hướng dẫn</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box formbox">
+    <h2>Phân công / Thay đổi GVHD</h2>
+    <a th:href="@{/head/topics}">&larr; Về danh sách duyệt đề tài</a>
+
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+    <p><strong>Đề tài:</strong> <span th:text="${info.topicTitle}"></span></p>
+    <p><strong>Đợt:</strong> <span th:text="${info.periodName}"></span></p>
+    <p><strong>Trạng thái:</strong> <span th:text="${info.statusLabel}"></span></p>
+    <p><strong>GVHD hiện tại:</strong> <span th:text="${info.currentSupervisors}"></span></p>
+
+    <form th:action="@{/head/topics/{id}/supervisors(id=${id})}" method="post" th:object="${form}">
+        <label for="primarySupervisorId">GVHD chính <span class="required">*</span></label>
+        <select id="primarySupervisorId" th:field="*{primarySupervisorId}" required>
+            <option value="">-- Chọn giảng viên --</option>
+            <option th:each="lecturer : ${lecturers}"
+                    th:value="${lecturer.id}"
+                    th:text="${lecturer.fullName + ' (' + lecturer.lecturerCode + ')'}"></option>
+        </select>
+        <label for="coSupervisorId">GVHD thứ hai <small>(không bắt buộc)</small></label>
+        <select id="coSupervisorId" th:field="*{coSupervisorId}">
+            <option value="">-- Không có --</option>
+            <option th:each="lecturer : ${lecturers}"
+                    th:value="${lecturer.id}"
+                    th:text="${lecturer.fullName + ' (' + lecturer.lecturerCode + ')'}"></option>
+        </select>
+        <p class="desc">Chỉ giảng viên đang hoạt động được chọn. Hai GVHD phải khác nhau; không được là người đang phản biện hoặc chấm đề tài này. Đề tài đã có kết quả hội đồng không thể đổi GVHD.</p>
+        <button type="submit">Lưu phân công GVHD</button>
+        <a th:href="@{/head/topics}" style="margin-left:12px">Hủy</a>
+    </form>
+</div>
+</body>
+</html>

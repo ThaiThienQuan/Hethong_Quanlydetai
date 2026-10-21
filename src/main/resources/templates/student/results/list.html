@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Kết quả đề tài</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box wide">
+    <h2>Kết quả đề tài của nhóm</h2><a th:href="@{/}">&larr; Trang chủ</a>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Nhóm</th><th>Đề tài</th><th>Điểm cuối</th><th>Kết quả</th><th>Nhận xét hội đồng</th><th>Ngày công bố</th></tr></thead>
+        <tbody><tr th:each="r : ${results}"><td th:text="${r.groupName}"></td><td th:text="${r.topicTitle}"></td>
+            <td th:text="${r.finalScore}"></td><td th:text="${r.result}"></td><td th:text="${r.councilComment}"></td>
+            <td th:text="${r.publishedAt != null ? #temporals.format(r.publishedAt, 'dd/MM/yyyy HH:mm') : ''}"></td></tr>
+            <tr th:if="${#lists.isEmpty(results)}"><td colspan="6">Nhóm chưa có kết quả được công bố.</td></tr></tbody>
+    </table></div>
+</div></body></html>

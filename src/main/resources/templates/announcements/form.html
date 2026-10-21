@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle}">Sửa thông báo</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box formbox">
+    <h2 th:text="${pageTitle}">Sửa thông báo</h2>
+    <a th:href="@{${backUrl}}">← Quay lại quản lý thông báo</a>
+    <form th:action="@{${action}}" th:object="${announcementForm}" method="post">
+        <label>Tiêu đề</label>
+        <input th:field="*{title}" maxlength="500" required>
+        <div class="field-error" th:errors="*{title}"></div>
+        <label>Nội dung</label>
+        <textarea th:field="*{content}" rows="8" required></textarea>
+        <div class="field-error" th:errors="*{content}"></div>
+        <label>Phạm vi</label>
+        <select th:field="*{scope}" required>
+            <option th:each="scope : ${scopeOptions}" th:value="${scope}" th:text="${scope}"></option>
+        </select>
+        <div class="field-error" th:errors="*{scope}"></div>
+        <button type="submit">Lưu thông báo</button>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đề tài của tôi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Đề tài của tôi</h2>
+    <a th:href="@{/}">&larr; Về trang chủ</a>
+    <a class="btn" th:href="@{/lecturer/topics/new}">+ Đăng ký đề tài mới</a>
+
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
+        <thead>
+            <tr><th>#</th><th>Mã</th><th>Tên đề tài</th><th>Bộ môn</th><th>Đợt</th><th>GVHD</th>
+                <th>Trạng thái</th><th>Lý do từ chối</th><th>Thao tác</th></tr>
+        </thead>
+        <tbody>
+            <!-- "rows" là danh sách TopicView do Controller đưa vào; row.topic là đề tài, row.supervisors là tên các GVHD -->
+            <tr th:each="row, stat : ${rows}">
+                <td th:text="${stat.count}">1</td>
+                <td th:text="${row.topicCode}">Mã</td>
+                <td th:text="${row.topicName}">Tên đề tài</td>
+                <td th:text="${row.departmentName}">Bộ môn</td>
+                <td th:text="${row.periodName}">Đợt</td>
+                <td th:text="${row.supervisorsText}">GVHD</td>
+                <td>
+                    <span class="badge" th:classappend="${row.status != null ? 'st-' + row.status.name() : ''}"
+                          th:text="${
+                              row.status == null ? '—' :
+                              row.status.name() == 'PENDING' ? 'Chờ duyệt' :
+                              row.status.name() == 'APPROVED' ? 'Đã duyệt' :
+                              row.status.name() == 'REJECTED' ? 'Bị từ chối' : row.status.name()}">Chờ duyệt</span>
+                </td>
+                <td th:text="${row.rejectReason}"></td>
+                <td class="actions">
+                    <a th:if="${row.editable}" th:href="@{/lecturer/topics/{id}/edit(id=${row.id})}">Sửa</a>
+                    <form th:if="${row.editable}" th:action="@{/lecturer/topics/{id}/delete(id=${row.id})}" method="post" style="display:inline"
+                          onsubmit="return confirm('Bạn chắc chắn muốn xóa đề tài này?');">
+                        <button type="submit">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="9">Bạn chưa có đề tài nào.</td></tr>
+        </tbody>
+    </table></div>
+</div>
+</body>
+</html>

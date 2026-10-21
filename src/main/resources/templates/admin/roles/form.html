@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle}">Tạo/Sửa vai trò</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="box narrow">
+        <h2 th:text="${pageTitle}">Tạo/Sửa vai trò</h2>
+        <a th:href="@{/roles}">&larr; Quay lại danh sách vai trò</a>
+
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <form th:action="@{${action}}" th:object="${role}" method="post">
+            <div class="form-group">
+                <label for="code">Mã vai trò <span class="required">*</span></label>
+                <input type="text" id="code" th:field="*{code}" placeholder="VD: QUAN_LY_DE_TAI"
+                       th:readonly="${readonly}" required
+                       pattern="[A-Z_0-9]+" title="Chỉ chữ hoa, gạch dưới và số">
+                <small>Chỉ chữ hoa (A-Z), gạch dưới (_) và số. Ví dụ: QUAN_LY_DE_TAI</small>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Tên vai trò <span class="required">*</span></label>
+                <input type="text" id="name" th:field="*{name}" placeholder="VD: Quản lý đề tài" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Mô tả</label>
+                <textarea id="description" th:field="*{description}" rows="3"
+                          placeholder="Mô tả ngắn về vai trò này..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn primary">Lưu</button>
+                <a th:href="@{/roles}" class="btn secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

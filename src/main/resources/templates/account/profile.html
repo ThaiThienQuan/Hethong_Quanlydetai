@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thông tin tài khoản</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box formbox">
+    <h2>Thông tin tài khoản của tôi</h2>
+    <a th:href="@{/}">← Về trang chủ</a>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
+        <tbody>
+        <tr><th>Tên đăng nhập</th><td th:text="${profile.username}"></td></tr>
+        <tr><th>Họ và tên</th><td th:text="${profile.fullName != null ? profile.fullName : '—'}"></td></tr>
+        <tr><th>Email</th><td th:text="${profile.email != null ? profile.email : '—'}"></td></tr>
+        <tr><th>Số điện thoại</th><td th:text="${profile.phone != null ? profile.phone : '—'}"></td></tr>
+        <tr><th>Vai trò</th><td th:text="${profile.role}"></td></tr>
+        <tr><th>Trạng thái</th><td th:text="${profile.status}"></td></tr>
+        <tr th:if="${profile.studentCode != null}"><th>Mã sinh viên</th><td th:text="${profile.studentCode}"></td></tr>
+        <tr th:if="${profile.lecturerCode != null}"><th>Mã giảng viên</th><td th:text="${profile.lecturerCode}"></td></tr>
+        <tr th:if="${profile.departmentName != null}"><th>Bộ môn</th><td th:text="${profile.departmentName}"></td></tr>
+        <tr th:if="${profile.createdAt != null}"><th>Ngày tạo tài khoản</th><td th:text="${#temporals.format(profile.createdAt, 'dd/MM/yyyy HH:mm')}"></td></tr>
+        </tbody>
+    </table></div>
+    <p class="desc">Để đổi mật khẩu, vào <a th:href="@{/account/password}">Đổi mật khẩu</a>.</p>
+</div>
+</body>
+</html>

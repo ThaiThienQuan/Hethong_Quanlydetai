@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Chấm điểm hội đồng</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+    <h2>Chấm điểm và tổng hợp kết quả hội đồng</h2><a th:href="@{/}">&larr; Trang chủ</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+    <article th:each="item : ${work}">
+        <h3 th:text="${item.councilName + ' — ' + item.topicTitle}"></h3>
+        <p>Nhóm: <span th:text="${item.groupName}"></span> | Vai trò: <span th:text="${item.currentRole != null ? item.currentRole.displayName : '—'}"></span></p>
+        <p th:if="${item.reportAvailable}"><a th:href="@{/lecturer/reports/{id}/download(id=${item.registrationId})}">Tải báo cáo đề tài</a></p>
+        <p th:if="${!item.reportAvailable}">Không tìm thấy tệp báo cáo. Hãy yêu cầu nhóm trưởng nộp lại báo cáo.</p>
+        <p>Đã có điểm / thành viên đủ điều kiện chấm: <span th:text="${item.scoreCount + '/' + item.memberCount}"></span></p>
+        <ul><li th:each="score : ${item.scores}" th:text="${score}"></li></ul>
+        <form th:if="${item.canScore}" th:action="@{/lecturer/council-work/{id}/score(id=${item.councilTopicId})}" method="post">
+            <label>Điểm thành phần (0–10)</label><input type="number" name="score" min="0" max="10" step="0.01" required>
+            <label>Nhận xét</label><input name="comment" maxlength="5000"><button type="submit" th:text="${item.myScore != null} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
+        </form>
+        <p th:if="${!item.canScore}">Bạn không thể chấm đề tài này (có thể bạn là GVHD hoặc không thuộc hội đồng).</p>
+        <section th:if="${item.canFinalize}">
+            <p>Trung bình hiện tại: <strong th:text="${item.averageScore}"></strong></p>
+            <form th:action="@{/lecturer/council-work/{id}/finalize(id=${item.councilTopicId})}" method="post">
+                <label>Kết quả/xếp loại</label><input name="result" maxlength="100" required>
+                <label>Nhận xét tổng hợp của chủ tịch</label><textarea name="councilComment" required rows="3"></textarea>
+                <button type="submit">Tổng hợp kết quả</button>
+            </form>
+        </section>
+        <section th:if="${item.resultLabel != null}">
+            <p>Kết quả: <strong th:text="${item.resultLabel}"></strong>; điểm cuối: <strong th:text="${item.averageScore}"></strong></p>
+            <p th:text="${item.councilComment}"></p>
+            <span th:if="${!item.published}">Đã tổng hợp; đang chờ Khoa công bố.</span>
+            <span th:if="${item.published}" class="badge st-PUBLISHED">Đã công bố</span>
+        </section>
+        <hr>
+    </article>
+    <p th:if="${#lists.isEmpty(work)}">Bạn chưa được phân công vào hội đồng đang hoạt động.</p>
+</div></body></html>

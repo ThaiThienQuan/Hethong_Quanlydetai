@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${editing} ? 'Sửa đợt đăng ký' : 'Tạo đợt đăng ký'">Đợt đăng ký</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box formbox">
+    <h2 th:text="${editing} ? 'Sửa đợt đăng ký nháp' : 'Tạo đợt đăng ký'">Đợt đăng ký</h2>
+    <a th:href="@{/periods}">&larr; Về danh sách</a>
+    <form th:action="${editing} ? @{/periods/{id}/edit(id=${periodId})} : @{/periods/new}" th:object="${periodForm}" method="post">
+        <label>Tên đợt</label><input th:field="*{name}" required>
+        <div class="field-error" th:errors="*{name}"></div>
+        <label>Loại đợt</label>
+        <select th:field="*{type}" required><option value="">-- Chọn loại --</option><option th:each="t : ${periodTypes}" th:value="${t}" th:text="${t.displayName}"></option></select>
+        <div class="field-error" th:errors="*{type}"></div>
+        <label>GV đăng ký từ</label><input type="datetime-local" th:field="*{lecturerStart}" required>
+        <div class="field-error" th:errors="*{lecturerStart}"></div>
+        <label>GV đăng ký đến</label><input type="datetime-local" th:field="*{lecturerEnd}" required>
+        <div class="field-error" th:errors="*{lecturerEnd}"></div>
+        <label>SV đăng ký từ</label><input type="datetime-local" th:field="*{studentStart}" required>
+        <div class="field-error" th:errors="*{studentStart}"></div>
+        <label>SV đăng ký đến</label><input type="datetime-local" th:field="*{studentEnd}" required>
+        <div class="field-error" th:errors="*{studentEnd}"></div>
+        <label>Hạn GVPB nộp điểm (chỉ TLCN/KLTN)</label><input type="datetime-local" th:field="*{reviewDeadline}">
+        <div class="field-error" th:errors="*{reviewDeadline}"></div>
+        <label>Ngày báo cáo hội đồng (chỉ KLTN)</label><input type="datetime-local" th:field="*{defenseDate}">
+        <div class="field-error" th:errors="*{defenseDate}"></div>
+        <p class="desc">Đợt mới được tạo ở trạng thái nháp. Sau khi kiểm tra thông tin, Trưởng khoa có thể mở đợt từ danh sách.</p>
+        <button type="submit" th:text="${editing} ? 'Lưu thay đổi' : 'Tạo đợt'">Tạo đợt</button>
+    </form>
+</div>
+</body>
+</html>

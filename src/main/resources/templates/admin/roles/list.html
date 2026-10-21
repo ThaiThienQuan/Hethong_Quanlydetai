@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý vai trò</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="box xwide">
+        <h2>Quản lý vai trò</h2>
+        <a th:href="@{/}">&larr; Về trang chủ</a>
+        <a class="btn" th:href="@{/roles/new}">+ Tạo vai trò mới</a>
+
+        <p class="ok" th:if="${message}" th:text="${message}"></p>
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng vai trò">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mã vai trò</th>
+                        <th>Tên vai trò</th>
+                        <th>Mô tả</th>
+                        <th>Số quyền</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r, stat : ${roles}">
+                        <td th:text="${stat.count}">1</td>
+                        <td>
+                            <code th:text="${r.code}">ADMIN</code>
+                            <span th:if="${r.system}" class="badge st-sys" title="Vai trò hệ thống, không xóa được">Hệ thống</span>
+                        </td>
+                        <td th:text="${r.name}">Quản trị viên</td>
+                        <td th:text="${r.description != null ? r.description : '—'}">Mô tả</td>
+                        <td th:text="${r.permissions.size()}">5</td>
+                        <td class="actions">
+                            <a th:href="@{/roles/{id}/permissions(id=${r.id})}">Phân quyền</a>
+                            <a th:href="@{/roles/{id}/edit(id=${r.id})}" th:if="${!r.system}">Sửa</a>
+                            <form th:action="@{/roles/{id}/delete(id=${r.id})}" method="post"
+                                  onsubmit="return confirm('Xóa vai trò này? Người dùng đang dùng vai trò này sẽ mất quyền tương ứng.');"
+                                  th:if="${!r.system}">
+                                <button type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(roles)}">
+                        <td colspan="6">Chưa có vai trò nào.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

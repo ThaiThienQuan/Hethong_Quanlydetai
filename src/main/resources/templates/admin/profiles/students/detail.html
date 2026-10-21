@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Xem chi tiết sinh viên</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="box narrow">
+        <h2>Chi tiết hồ sơ sinh viên</h2>
+        <a th:href="@{/admin/profiles/students}">&larr; Quay lại danh sách</a>
+
+        <div class="detail-card">
+            <dl class="detail-list">
+                <dt>Mã sinh viên</dt>
+                <dd><code th:text="${student.studentCode}">SV001</code></dd>
+                
+                <dt>Họ tên</dt>
+                <dd th:text="${student.user.fullName}">Nguyễn Văn B</dd>
+                
+                <dt>Tài khoản</dt>
+                <dd th:text="${student.user.username}">username</dd>
+                
+                <dt>Email</dt>
+                <dd th:text="${student.user.email != null ? student.user.email : '—'}">email@edu.vn</dd>
+                
+                <dt>Số điện thoại</dt>
+                <dd th:text="${student.user.phone != null ? student.user.phone : '—'}">—</dd>
+                
+                <dt>Lớp</dt>
+                <dd th:text="${student.className}">CNTT-K63</dd>
+                
+                <dt>Ngành</dt>
+                <dd th:text="${student.major}">Công nghệ thông tin</dd>
+            </dl>
+        </div>
+
+        <div class="form-actions">
+            <a th:href="@{/admin/profiles/students/{id}/edit(id=${student.id})}" class="btn primary">Sửa hồ sơ</a>
+            <a th:href="@{/admin/profiles/students}" class="btn secondary">Đóng</a>
+        </div>
+    </div>
+</body>
+</html>

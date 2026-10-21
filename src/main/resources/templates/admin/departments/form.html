@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle}">Thêm/Sửa bộ môn</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="box narrow">
+        <h2 th:text="${pageTitle}">Thêm/Sửa bộ môn</h2>
+        <a th:href="@{/admin/departments}">&larr; Quay lại danh sách bộ môn</a>
+
+        <form th:action="@{${action}}" th:object="${departmentForm}" method="post">
+            <div class="form-group">
+                <label for="code">Mã bộ môn <span class="required">*</span></label>
+                <input type="text" id="code" th:field="*{code}" 
+                       placeholder="VD: CNTT, KHMT, HTTT"
+                       pattern="[A-Z0-9]+" title="Chỉ chữ hoa và số" required>
+                <small>Viết HOA, không dấu. VD: CNTT, KHMT</small>
+                <p class="field-error" th:if="${#fields.hasErrors('code')}" th:text="${#fields.errors('code')}"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Tên bộ môn <span class="required">*</span></label>
+                <input type="text" id="name" th:field="*{name}"
+                       placeholder="VD: Công nghệ thông tin" required>
+                <p class="field-error" th:if="${#fields.hasErrors('name')}" th:text="${#fields.errors('name')}"></p>
+            </div>
+
+            <div class="form-group" th:if="${department != null}">
+                <label for="status">Trạng thái</label>
+                <select id="status" th:field="*{status}">
+                    <option value="ACTIVE">Hoạt động</option>
+                    <option value="INACTIVE">Không hoạt động</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn primary">💾 Lưu</button>
+                <a th:href="@{/admin/departments}" class="btn secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

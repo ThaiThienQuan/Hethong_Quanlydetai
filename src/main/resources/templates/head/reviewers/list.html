@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Phân công phản biện</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+    <h2>Phân công giảng viên phản biện</h2><a th:href="@{/}">&larr; Trang chủ</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Nhóm</th><th>Đề tài</th><th>Loại đợt</th><th>Hạn nộp điểm</th><th>GVPB đã phân công</th><th>Thêm GVPB</th></tr></thead>
+        <tbody><tr th:each="row : ${rows}">
+            <td th:text="${row.groupName}"></td><td th:text="${row.topicTitle}"></td><td th:text="${row.periodType}"></td>
+            <td th:text="${row.deadline != null ? #temporals.format(row.deadline, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+            <td><div th:each="assignee : ${row.assignees}">
+                <span th:text="${assignee.fullName + (assignee.submitted ? ' (đã nộp điểm)' : ' (chưa nộp điểm)')}"></span>
+                <form th:if="${!assignee.submitted}" th:action="@{/head/reviewers/{registrationId}/{assignmentId}/remove(registrationId=${row.registrationId},assignmentId=${assignee.assignmentId})}" method="post" style="display:inline" onsubmit="return confirm('Gỡ phân công phản biện này?');">
+                    <button type="submit">Gỡ</button>
+                </form>
+            </div></td>
+            <td><form th:if="${!#lists.isEmpty(row.candidates)}" th:action="@{/head/reviewers/{id}(id=${row.registrationId})}" method="post">
+                <select name="lecturerId" required><option value="">-- Chọn giảng viên --</option><option th:each="l : ${row.candidates}" th:value="${l.id}" th:text="${l.fullName + ' (' + l.lecturerCode + ')'}"></option></select><button type="submit">Phân công</button>
+            </form><span th:if="${#lists.isEmpty(row.candidates)}">Không còn ứng viên phù hợp.</span></td>
+        </tr><tr th:if="${#lists.isEmpty(rows)}"><td colspan="6">Chưa có đăng ký TLCN/KLTN đã duyệt để phân công.</td></tr></tbody>
+    </table></div>
+</div></body></html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Quản lý hội đồng</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+    <h2>Quản lý hội đồng phản biện</h2><a th:href="@{/}">&larr; Trang chủ</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+    <h3>Tạo hội đồng</h3>
+    <form th:action="@{/head/councils}" th:object="${councilForm}" method="post">
+        <label>Tên hội đồng</label><input th:field="*{name}" required><div class="field-error" th:errors="*{name}"></div>
+        <label>Đợt TLCN/KLTN</label><select th:field="*{periodId}" required><option value="">-- Chọn đợt --</option><option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name + ' (' + p.periodType.displayName + ')'}"></option></select>
+        <div class="field-error" th:errors="*{periodId}"></div>
+        <label>Ngày báo cáo hội đồng (để trống sẽ lấy theo đợt)</label><input type="datetime-local" th:field="*{defenseDate}">
+        <label>Phòng</label><input th:field="*{room}">
+        <button type="submit">Tạo hội đồng</button>
+    </form>
+    <h3>Danh sách hội đồng</h3>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Tên</th><th>Đợt</th><th>Ngày</th><th>Phòng</th><th>Trạng thái</th><th></th></tr></thead>
+        <tbody><tr th:each="c : ${councils}"><td th:text="${c.name}"></td><td th:text="${c.periodName}"></td>
+            <td th:text="${c.defenseDate != null ? #temporals.format(c.defenseDate, 'dd/MM/yyyy HH:mm') : ''}"></td><td th:text="${c.room}"></td>
+            <td th:text="${c.status}"></td><td><a th:href="@{/head/councils/{id}(id=${c.id})}">Chi tiết</a></td></tr>
+            <tr th:if="${#lists.isEmpty(councils)}"><td colspan="6">Chưa tạo hội đồng.</td></tr></tbody>
+    </table></div>
+</div></body></html>

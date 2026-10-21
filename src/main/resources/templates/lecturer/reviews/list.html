@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Nhiệm vụ phản biện</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+    <h2>Nhiệm vụ phản biện</h2><a th:href="@{/}">&larr; Trang chủ</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Nhóm</th><th>Đề tài</th><th>Báo cáo</th><th>Hạn</th><th>Điểm</th><th>Nhận xét</th><th>Gửi/cập nhật</th></tr></thead>
+        <tbody><tr th:each="task : ${tasks}"><td th:text="${task.groupName}"></td><td th:text="${task.topicTitle}"></td>
+            <td>
+                <a th:if="${task.reportAvailable}" th:href="@{/lecturer/reports/{id}/download(id=${task.registrationId})}">Tải báo cáo</a>
+                <span th:if="${!task.reportAvailable}">Nhóm chưa nộp báo cáo hoặc tệp không còn trong kho lưu trữ.</span>
+            </td>
+            <td th:text="${task.deadline != null ? #temporals.format(task.deadline, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+            <td th:text="${task.score != null ? task.score : 'Chưa nộp'}"></td><td th:text="${task.comment}"></td>
+            <td><form th:if="${task.canSubmit}" th:action="@{/lecturer/reviews/{id}(id=${task.assignmentId})}" method="post">
+                <label>Điểm 0–10</label><input type="number" name="score" min="0" max="10" step="0.01" required>
+                <label>Nhận xét</label><input name="comment" maxlength="5000">
+                <button type="submit" th:text="${task.submitted} ? 'Cập nhật' : 'Gửi điểm'"></button>
+            </form><span th:if="${!task.canSubmit}">Đã hết hạn.</span></td>
+        </tr><tr th:if="${#lists.isEmpty(tasks)}"><td colspan="7">Bạn chưa được phân công phản biện.</td></tr></tbody>
+    </table></div>
+</div></body></html>

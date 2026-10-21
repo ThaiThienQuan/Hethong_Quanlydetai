@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Xem chi tiết giảng viên</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="box narrow">
+        <h2>Chi tiết hồ sơ giảng viên</h2>
+        <a th:href="@{/admin/profiles/lecturers}">&larr; Quay lại danh sách</a>
+
+        <div class="detail-card">
+            <dl class="detail-list">
+                <dt>Mã giảng viên</dt>
+                <dd><code th:text="${lecturer.lecturerCode}">GV001</code></dd>
+                
+                <dt>Họ tên</dt>
+                <dd th:text="${lecturer.user.fullName}">Nguyễn Văn A</dd>
+                
+                <dt>Tài khoản</dt>
+                <dd th:text="${lecturer.user.username}">username</dd>
+                
+                <dt>Email</dt>
+                <dd th:text="${lecturer.user.email != null ? lecturer.user.email : '—'}">email@edu.vn</dd>
+                
+                <dt>Số điện thoại</dt>
+                <dd th:text="${lecturer.user.phone != null ? lecturer.user.phone : '—'}">—</dd>
+                
+                <dt>Học vị</dt>
+                <dd th:text="${lecturer.academicDegree != null ? lecturer.academicDegree : '—'}">Tiến sĩ</dd>
+                
+                <dt>Bộ môn</dt>
+                <dd th:text="${lecturer.department.name}">Công nghệ thông tin</dd>
+            </dl>
+        </div>
+
+        <div class="form-actions">
+            <a th:href="@{/admin/profiles/lecturers/{id}/edit(id=${lecturer.id})}" class="btn primary">Sửa hồ sơ</a>
+            <a th:href="@{/admin/profiles/lecturers}" class="btn secondary">Đóng</a>
+        </div>
+    </div>
+</body>
+</html>

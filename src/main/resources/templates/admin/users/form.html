@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle}">Tài khoản</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box formbox">
+    <h2 th:text="${pageTitle}">Tài khoản</h2>
+    <a th:href="@{/admin/users}">&larr; Về danh sách</a>
+
+    <form th:action="@{${action}}" th:object="${userForm}" method="post">
+
+        <label>Tên đăng nhập</label>
+        <!-- Khi SỬA (editing = true): chỉ xem, không đổi được -->
+        <input type="text" th:field="*{username}" th:readonly="${editing}">
+        <div class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+
+        <label>Mật khẩu <small th:if="${editing}">(để trống nếu không đổi)</small></label>
+        <input type="password" th:field="*{password}" autocomplete="new-password">
+        <div class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+
+        <label>Họ tên</label>
+        <input type="text" th:field="*{fullName}">
+        <div class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+
+        <label>Email</label>
+        <input type="text" th:field="*{email}">
+        <div class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+
+        <label>Số điện thoại</label>
+        <input type="text" th:field="*{phone}">
+        <div class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+
+        <label>Vai trò</label>
+        <!-- Tạo mới: chọn vai trò. Sửa: hiển thị chữ + ô ẩn giữ giá trị (Service bỏ qua giá trị này khi sửa) -->
+        <select th:if="${!editing}" th:field="*{role}">
+            <option value="">-- Chọn vai trò --</option>
+            <option th:each="r : ${roles}" th:value="${r}" th:text="${r.label}">Vai trò</option>
+        </select>
+        <div th:if="${editing}">
+            <strong th:text="${userForm.role.label}">Vai trò</strong>
+            <input type="hidden" th:field="*{role}">
+        </div>
+        <div class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+
+        <label>Mã sinh viên <small>(chỉ nhập cho Sinh viên)</small></label>
+        <input type="text" th:field="*{studentCode}">
+        <div class="field-error" th:if="${#fields.hasErrors('studentCode')}" th:errors="*{studentCode}"></div>
+
+        <label>Lớp <small>(chỉ nhập cho Sinh viên)</small></label>
+        <input type="text" th:field="*{className}" placeholder="Ví dụ: IT17201">
+        <div class="field-error" th:if="${#fields.hasErrors('className')}" th:errors="*{className}"></div>
+
+        <label>Ngành học <small>(chỉ nhập cho Sinh viên)</small></label>
+        <input type="text" th:field="*{major}" placeholder="Ví dụ: Hệ thống thông tin">
+        <div class="field-error" th:if="${#fields.hasErrors('major')}" th:errors="*{major}"></div>
+
+        <label>Mã giảng viên <small>(chỉ nhập cho Giảng viên / Trưởng khoa)</small></label>
+        <input type="text" th:field="*{lecturerCode}">
+        <div class="field-error" th:if="${#fields.hasErrors('lecturerCode')}" th:errors="*{lecturerCode}"></div>
+
+        <label>Bộ môn <small>(Admin có thể bỏ trống)</small></label>
+        <select th:field="*{departmentId}">
+            <option value="">-- Chọn bộ môn --</option>
+            <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}">Bộ môn</option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
+
+        <button type="submit">Lưu</button>
+    </form>
+</div>
+</body>
+</html>

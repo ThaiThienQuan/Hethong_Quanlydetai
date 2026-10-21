@@ -1,0 +1,12 @@
+{
+  "groups": [],
+  "properties": [
+    {
+      "name": "app.upload.report-dir",
+      "type": "java.lang.String",
+      "description": "Thư mục lưu các tệp báo cáo do sinh viên tải lên.",
+      "defaultValue": "uploads/reports"
+    }
+  ],
+  "hints": []
+}

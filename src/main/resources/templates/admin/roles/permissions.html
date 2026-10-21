@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phân quyền cho vai trò</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 16px 0; }
+        .perm-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; background: #fff; }
+        .perm-card label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+        .perm-card input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; }
+        .perm-info { display: flex; flex-direction: column; }
+        .perm-code { font-family: monospace; font-size: 0.85em; color: #64748b; }
+        .perm-name { font-weight: 500; color: #1e293b; }
+        .perm-desc { font-size: 0.8em; color: #64748b; margin-top: 2px; }
+        .system-warn { background: #fef3c7; border: 1px solid #f59e0b; padding: 12px; border-radius: 6px; margin: 16px 0; }
+        .perm-list-simple { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+        .perm-list-simple li { background: #e2e8f0; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; }
+    </style>
+</head>
+<body class="app-page">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div class="box wide">
+        <h2>Phân quyền: <span th:text="${role.name}">Vai trò</span></h2>
+        <p>
+            <small>
+                <code th:text="${role.code}">CODE</code>
+                <span th:if="${role.system}" class="badge st-sys">Vai trò hệ thống</span>
+            </small>
+        </p>
+        <a th:href="@{/roles}">&larr; Quay lại danh sách vai trò</a>
+
+        <p class="ok" th:if="${message}" th:text="${message}"></p>
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <!-- Vai trò hệ thống: chỉ xem -->
+        <th:block th:if="${role.system}">
+            <div class="system-warn">
+                <strong>⚠️ Vai trò hệ thống</strong> — không thể thay đổi quyền. 
+                Đây là phân quyền mặc định được thiết lập khi khởi động.
+            </div>
+            <h3>Quyền hiện tại</h3>
+            <ul class="perm-list-simple">
+                <li th:each="perm : ${role.permissions}">
+                    <code th:text="${perm.code}">PERM</code>
+                </li>
+            </ul>
+        </th:block>
+
+        <!-- Vai trò tùy chỉnh: cho phép sửa -->
+        <th:block th:if="${!role.system}">
+            <form th:action="@{/roles/{id}/permissions(id=${role.id})}" method="post">
+                <p>Chọn các quyền cần cấp cho vai trò này:</p>
+                <div class="perm-grid">
+                    <th:block th:each="entry : ${permissionNames}">
+                        <div class="perm-card">
+                            <label>
+                                <input type="checkbox" name="permissions" 
+                                       th:value="${entry.key}"
+                                       th:checked="${permissionMap.get(entry.key)}">
+                                <span class="perm-info">
+                                    <span class="perm-code" th:text="${entry.key}">PERM_CODE</span>
+                                    <span class="perm-name" th:text="${entry.value}">Tên quyền</span>
+                                </span>
+                            </label>
+                        </div>
+                    </th:block>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">💾 Lưu phân quyền</button>
+                    <a th:href="@{/roles}" class="btn secondary">Hủy</a>
+                </div>
+            </form>
+        </th:block>
+    </div>
+</body>
+</html>

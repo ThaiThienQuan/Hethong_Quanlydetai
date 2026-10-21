@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý đợt đăng ký</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Quản lý đợt đăng ký</h2>
+    <a th:href="@{/}">&larr; Về trang chủ</a>
+    <a class="btn" th:href="@{/periods/new}">+ Tạo đợt đăng ký</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
+        <thead><tr><th>Tên đợt</th><th>Loại</th><th>Giai đoạn GV</th><th>Giai đoạn SV</th><th>Hạn phản biện</th><th>Ngày hội đồng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${periods}">
+            <td th:text="${p.name}">Đợt đăng ký</td>
+            <td th:text="${p.periodType.displayName}">Khóa luận tốt nghiệp</td>
+            <td><span th:text="${#temporals.format(p.lecturerStartAt, 'dd/MM/yyyy HH:mm')}"></span> – <span th:text="${#temporals.format(p.lecturerEndAt, 'dd/MM/yyyy HH:mm')}"></span></td>
+            <td><span th:text="${#temporals.format(p.studentStartAt, 'dd/MM/yyyy HH:mm')}"></span> – <span th:text="${#temporals.format(p.studentEndAt, 'dd/MM/yyyy HH:mm')}"></span></td>
+            <td th:text="${p.reviewDeadline != null ? #temporals.format(p.reviewDeadline, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+            <td th:text="${p.councilReportDate != null ? #temporals.format(p.councilReportDate, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+            <td><span class="badge" th:classappend="${'st-' + p.status.name()}" th:text="${p.status}">DRAFT</span></td>
+            <td class="actions">
+                <a th:if="${p.status.name() == 'DRAFT'}" th:href="@{/periods/{id}/edit(id=${p.id})}">Sửa</a>
+                <form th:if="${p.status.name() == 'DRAFT'}" th:action="@{/periods/{id}/delete(id=${p.id})}" method="post"
+                      onsubmit="return confirm('Xóa đợt nháp này? Chỉ xóa được khi chưa có đề tài hoặc hội đồng liên kết.');">
+                    <button type="submit">Xóa đợt nháp</button>
+                </form>
+                <form th:if="${p.status.name() == 'DRAFT'}" th:action="@{/periods/{id}/open(id=${p.id})}" method="post"><button type="submit">Mở đợt</button></form>
+                <form th:if="${p.status.name() == 'PUBLISHED' or p.status.name() == 'OPEN'}" th:action="@{/periods/{id}/close(id=${p.id})}" method="post"><button type="submit">Đóng đợt</button></form>
+                <form th:if="${p.status.name() == 'CLOSED'}" th:action="@{/periods/{id}/reopen(id=${p.id})}" method="post" onsubmit="return confirm('Mở lại đợt này? Chỉ có thể mở khi còn thời gian đăng ký và chưa có hội đồng.');"><button type="submit">Mở lại</button></form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(periods)}"><td colspan="8">Chưa có đợt đăng ký nào.</td></tr>
+        </tbody>
+    </table></div>
+</div>
+</body>
+</html>

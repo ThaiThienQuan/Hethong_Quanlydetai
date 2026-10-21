@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Thông tin cấu hình riêng trên từng máy
+.env
+.env.*
+
+# Báo cáo được người dùng tải lên khi chạy ứng dụng
+uploads/

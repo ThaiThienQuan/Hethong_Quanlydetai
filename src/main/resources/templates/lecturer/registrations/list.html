@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Duyệt đăng ký nhóm</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Duyệt đăng ký nhóm</h2>
+    <a th:href="@{/}">&larr; Về trang chủ</a>
+
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
+        <table>
+            <thead>
+            <tr>
+                <th>Nhóm</th>
+                <th>Nhóm trưởng</th>
+                <th>Thành viên</th>
+                <th>Đề tài</th>
+                <th>Bộ môn</th>
+                <th>Đợt</th>
+                <th>Ngày đăng ký</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="reg : ${registrations}">
+                <td>
+                    <strong th:text="${reg.groupName}">Nhóm</strong>
+                </td>
+                <td th:text="${reg.leaderName}">Nhóm trưởng</td>
+                <td>
+                    <th:block th:each="m : ${reg.members}">
+                        <span th:text="${m.fullName}">Thành viên</span><br>
+                    </th:block>
+                </td>
+                <td>
+                    <strong th:text="${reg.topicTitle}">Đề tài</strong>
+                    <div class="desc" th:text="${reg.topicDescription}">Mô tả</div>
+                </td>
+                <td th:text="${reg.departmentName}">Bộ môn</td>
+                <td th:text="${reg.periodName}">Đợt</td>
+                <td th:text="${#temporals.format(reg.registeredAt, 'dd/MM/yyyy HH:mm')}">Ngày</td>
+                <td class="actions">
+                    <form th:action="@{/lecturer/registrations/{id}/approve(id=${reg.id})}" method="post">
+                        <button type="submit" onclick="return confirm('Bạn chắc chắn chấp thuận nhóm này được đăng ký đề tài?');">Chấp thuận</button>
+                    </form>
+                    <form th:action="@{/lecturer/registrations/{id}/reject(id=${reg.id})}" method="post">
+                        <input type="text" name="reason" placeholder="Lý do từ chối" class="reason" required>
+                        <button type="submit" onclick="return confirm('Bạn chắc chắn từ chối đăng ký này?');">Từ chối</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(registrations)}">
+                <td colspan="8">Không có đăng ký nào đang chờ xác nhận.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

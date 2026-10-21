@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Công bố kết quả</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+    <h2>Kết quả đang chờ Khoa công bố</h2>
+    <a th:href="@{/}">← Trang chủ</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
+        <thead><tr><th>Hội đồng</th><th>Nhóm</th><th>Đề tài</th><th>Điểm TB</th><th>Kết quả</th><th>Nhận xét</th><th>Thao tác</th></tr></thead>
+        <tbody>
+        <tr th:each="row : ${results}">
+            <td th:text="${row.councilName}"></td>
+            <td th:text="${row.groupName}"></td>
+            <td th:text="${row.topicTitle}"></td>
+            <td th:text="${row.finalScore}"></td>
+            <td th:text="${row.result}"></td>
+            <td th:text="${row.councilComment}"></td>
+            <td>
+                <form th:action="@{/head/results/{id}/publish(id=${row.councilTopicId})}" method="post"
+                      onsubmit="return confirm('Công bố kết quả này cho sinh viên?');">
+                    <button type="submit">Công bố</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(results)}"><td colspan="7">Không có kết quả nào đang chờ công bố.</td></tr>
+        </tbody>
+    </table></div>
+</div></body></html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pageTitle}">Đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box formbox">
+    <h2 th:text="${pageTitle}">Đề xuất đề tài</h2>
+    <a th:href="@{/lecturer/topics}">&larr; Về danh sách</a>
+
+    <p class="error" th:if="${#lists.isEmpty(periods)}">
+        Hiện chưa có đợt đăng ký nào đang mở cho giảng viên.
+    </p>
+
+    <form th:action="@{${action}}" th:object="${topicForm}" method="post">
+
+        <label>Mã đề tài <span class="required">*</span>
+            <small>(duy nhất, gồm chữ, số và . _ -)</small></label>
+        <input type="text" th:field="*{topicCode}" maxlength="30"
+               pattern="[A-Za-z0-9._-]+" required>
+        <div class="field-error" th:if="${#fields.hasErrors('topicCode')}" th:errors="*{topicCode}"></div>
+
+        <label>Tên đề tài <span class="required">*</span></label>
+        <input type="text" th:field="*{topicName}" maxlength="200" required>
+        <div class="field-error" th:if="${#fields.hasErrors('topicName')}" th:errors="*{topicName}"></div>
+
+        <label>Mô tả nội dung <span class="required">*</span>
+            <small>(tối thiểu 20 ký tự)</small></label>
+        <textarea th:field="*{description}" rows="5" maxlength="5000" required></textarea>
+        <div class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+
+        <label>Bộ môn <span class="required">*</span>
+            <small>(bộ môn của bạn - không thể chọn bộ môn khác)</small></label>
+        <div th:if="${myDepartment != null}">
+            <input type="hidden" th:field="*{departmentId}">
+            <input type="text" th:value="${myDepartment.name()}" readonly
+                   style="background:#f3f4f6;cursor:not-allowed;" tabindex="-1">
+        </div>
+        <select th:if="${myDepartment == null}" th:field="*{departmentId}" required>
+            <option value="">-- Chọn bộ môn --</option>
+            <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}">Bộ môn</option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
+
+        <label>Đợt đăng ký <span class="required">*</span>
+            <small>(chỉ hiện các đợt đang mở cho giảng viên)</small></label>
+        <select th:field="*{periodId}" required>
+            <option value="">-- Chọn đợt --</option>
+            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}">Đợt</option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('periodId')}" th:errors="*{periodId}"></div>
+
+        <label>GVHD thứ hai <small>(không bắt buộc; bạn là GVHD chính, tối đa 2 GVHD)</small></label>
+        <select th:field="*{coSupervisorId}">
+            <option value="">-- Không có --</option>
+            <option th:each="l : ${lecturers}" th:value="${l.id}" th:text="${l.fullName}">Giảng viên</option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('coSupervisorId')}" th:errors="*{coSupervisorId}"></div>
+
+        <button type="submit">Gửi đề tài</button>
+    </form>
+</div>
+</body>
+</html>

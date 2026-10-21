@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Duyệt đề tài</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div class="box xwide">
+    <h2>Duyệt và công bố đề tài</h2>
+    <a th:href="@{/}">&larr; Về trang chủ</a>
+
+    <p class="ok" th:if="${message}" th:text="${message}"></p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <!-- Bộ lọc: trạng thái / bộ môn / đợt -->
+    <form class="inline" method="get" th:action="@{/head/topics}">
+        <label for="f-status" class="sr-only">Trạng thái</label>
+        <select id="f-status" name="status">
+            <option value="">Tất cả trạng thái</option>
+            <option th:each="s : ${statuses}" th:value="${s.name()}"
+                    th:text="${s.name() == 'PENDING' ? 'Chờ duyệt'
+                            : s.name() == 'APPROVED' ? 'Đã duyệt' : 'Bị từ chối'}"
+                    th:selected="${selectedStatus == s.name()}">Trạng thái</option>
+        </select>
+
+        <label for="f-dept" class="sr-only">Bộ môn</label>
+        <select id="f-dept" name="departmentId">
+            <option value="">Tất cả bộ môn</option>
+            <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"
+                    th:selected="${selectedDepartmentId != null and selectedDepartmentId == d.id}">Bộ môn</option>
+        </select>
+
+        <label for="f-period" class="sr-only">Đợt</label>
+        <select id="f-period" name="periodId">
+            <option value="">Tất cả đợt</option>
+            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}"
+                    th:selected="${selectedPeriodId != null and selectedPeriodId == p.id}">Đợt</option>
+        </select>
+
+        <button type="submit">Lọc</button>
+        <a th:href="@{/head/topics}">Đặt lại</a>
+    </form>
+
+    <!-- Công bố danh sách đề tài theo đợt (giai đoạn 1) -->
+    <form class="inline" method="post" th:action="@{/head/topics/publish-by-period}">
+        <label for="p-period">Công bố danh sách đề tài của đợt:</label>
+        <select id="p-period" name="periodId" required>
+            <option value="">-- Chọn đợt --</option>
+            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}">Đợt</option>
+        </select>
+        <button type="submit">Công bố danh sách</button>
+    </form>
+
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
+        <thead>
+            <tr><th>#</th><th>Mã</th><th>Tên đề tài</th><th>Bộ môn</th><th>Đợt</th><th>GVHD</th>
+                <th>Nhóm đang thực hiện</th><th>Trạng thái</th><th>Thao tác</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="row, stat : ${rows}">
+                <td th:text="${stat.count}">1</td>
+                <td th:text="${row.topicCode}">Mã</td>
+                <td>
+                    <strong th:text="${row.topicName}">Tên đề tài</strong>
+                    <div class="desc" th:text="${row.description}">Mô tả</div>
+                    <div class="field-error" th:if="${row.rejectReason != null}"
+                         th:text="${'Lý do từ chối: ' + row.rejectReason}"></div>
+                </td>
+                <td th:text="${row.departmentName}">Bộ môn</td>
+                <td th:text="${row.periodName}">Đợt</td>
+                <td th:text="${row.supervisorsText}">GVHD</td>
+                <td>
+                    <span th:if="${row.groupName != null}"
+                          th:text="${row.groupCode + ' - ' + row.groupName}">Nhóm</span>
+                    <span th:if="${row.groupName == null}">—</span>
+                </td>
+                <td><span class="badge" th:classappend="${'st-' + row.status.name()}" th:text="${
+                                  row.status.name() == 'PENDING' ? 'Chờ duyệt' :
+                                  row.status.name() == 'APPROVED' ? 'Đã duyệt' :
+                                  row.status.name() == 'REJECTED' ? 'Bị từ chối' : row.status.name()}">Chờ duyệt</span></td>
+                <td class="actions">
+                    <a th:href="@{/head/topics/{id}/supervisors(id=${row.id})}"
+                       class="supervisor-link">Phân công / đổi GVHD</a>
+                    <form th:if="${row.status.name() == 'PENDING'}"
+                          th:action="@{/head/topics/{id}/approve(id=${row.id})}" method="post">
+                        <button type="submit">Duyệt</button>
+                    </form>
+                    <form th:if="${row.status.name() == 'PENDING'}"
+                          th:action="@{/head/topics/{id}/reject(id=${row.id})}" method="post">
+                        <input type="text" name="reason" placeholder="Lý do từ chối" class="reason" required>
+                        <button type="submit">Từ chối</button>
+                    </form>
+                    <form th:if="${row.status.name() == 'APPROVED'}"
+                          th:action="@{/head/topics/{id}/publish(id=${row.id})}" method="post">
+                        <button type="submit">Công bố</button>
+                    </form>
+                    <form th:if="${row.groupName == null}"
+                          th:action="@{/head/topics/{id}/delete(id=${row.id})}" method="post"
+                          style="display:inline"
+                          onsubmit="return confirm('Bạn chắc chắn muốn xóa đề tài này?');">
+                        <button type="submit">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="9">Chưa có đề tài nào.</td></tr>
+        </tbody>
+    </table></div>
+
+    <!-- Phân trang -->
+    <div class="inline" th:if="${totalPages != null and totalPages > 1}">
+        <a th:if="${currentPage > 0}"
+           th:href="@{/head/topics(status=${selectedStatus},departmentId=${selectedDepartmentId},
+                                   periodId=${selectedPeriodId},page=${currentPage - 1})}">&laquo; Trước</a>
+        <span th:text="${'Trang ' + (currentPage + 1) + ' / ' + totalPages}">Trang 1 / 1</span>
+        <a th:if="${currentPage + 1 < totalPages}"
+           th:href="@{/head/topics(status=${selectedStatus},departmentId=${selectedDepartmentId},
+                                   periodId=${selectedPeriodId},page=${currentPage + 1})}">Sau &raquo;</a>
+    </div>
+</div>
+</body>
+</html>

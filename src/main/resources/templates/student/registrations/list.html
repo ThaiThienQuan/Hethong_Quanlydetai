@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Đăng ký đề tài</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+    <h2>Đăng ký đề tài sinh viên</h2><a th:href="@{/}">&larr; Trang chủ</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+    <section th:if="${myGroup == null}" class="error"><p>Bạn cần tạo hoặc tham gia nhóm trước khi đăng ký đề tài.</p><a th:href="@{/student/groups}">Quản lý nhóm</a></section>
+    <section th:if="${myGroup != null and canRegister}">
+        <p>Nhóm: <strong th:text="${myGroup.name}"></strong>. Chỉ nhóm trưởng được gửi đăng ký.</p>
+        <form th:if="${!#lists.isEmpty(topics)}" th:action="@{/student/registrations}" th:object="${registrationForm}" method="post">
+            <label>Chọn đề tài đã công bố</label>
+            <select th:field="*{topicId}" required><option value="">-- Chọn đề tài --</option><option th:each="t : ${topics}" th:value="${t.id}" th:text="${t.title + ' — ' + t.departmentName}"></option></select>
+            <div class="field-error" th:errors="*{topicId}"></div><button type="submit">Gửi đăng ký</button>
+        </form>
+        <p th:if="${#lists.isEmpty(topics)}">Hiện không có đề tài nào đang mở đăng ký cho sinh viên trong đợt của nhóm bạn.</p>
+    </section>
+    <section th:if="${myGroup != null and !canRegister and !#lists.isEmpty(registrations)}">
+        <p>Nhóm: <strong th:text="${myGroup.name}"></strong>. Nhóm đã có đăng ký đang hiệu lực, không thể gửi thêm.</p>
+    </section>
+    <section th:if="${myGroup != null and !#lists.isEmpty(registrations)}">
+        <h3>Đăng ký của nhóm</h3>
+        <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Nhóm</th><th>Đề tài</th><th>Trạng thái</th><th>Lý do từ chối</th><th>Ngày đăng ký</th><th>Thao tác</th></tr></thead>
+            <tbody><tr th:each="r : ${registrations}"><td th:text="${r.groupName}"></td><td th:text="${r.topicTitle}"></td>
+                <td><span class="badge" th:classappend="${'st-' + r.status.name()}" th:text="${r.status}"></span></td>
+                <td th:text="${r.rejectReason}"></td><td th:text="${r.registeredAt != null ? #temporals.format(r.registeredAt, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                <td><form th:if="${myGroup.currentUserLeader and r.status.name() == 'PENDING'}"
+                          th:action="@{/student/registrations/{id}/cancel(id=${r.id})}" method="post"
+                          onsubmit="return confirm('Hủy đăng ký đề tài này?');">
+                    <button type="submit">Hủy đăng ký</button></form></td></tr></tbody>
+        </table></div>
+    </section>
+</div></body></html>

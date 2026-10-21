@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Chi tiết hội đồng</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body class="app-page">
+<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
+    <h2 th:text="${detail.council.name}">Hội đồng</h2><a th:href="@{/head/councils}">&larr; Danh sách hội đồng</a>
+    <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+    <p>Đợt: <strong th:text="${detail.council.periodName}"></strong> — Trạng thái: <strong th:text="${detail.council.status}"></strong></p>
+    <p>Ngày: <span th:text="${detail.council.defenseDate != null ? #temporals.format(detail.council.defenseDate, 'dd/MM/yyyy HH:mm') : ''}"></span> — Phòng: <span th:text="${detail.council.room}"></span></p>
+    <section th:if="${detail.council.status.name() == 'DRAFT'}">
+        <h3>Thêm giảng viên (hội đồng cần 3–5 người, một chủ tịch và một thư ký)</h3>
+        <form th:action="@{/head/councils/{id}/members(id=${detail.council.id})}" th:object="${memberForm}" method="post">
+            <label>Giảng viên</label><select th:field="*{lecturerId}" required><option value="">-- Chọn --</option><option th:each="l : ${detail.lecturerCandidates}" th:value="${l.id}" th:text="${l.fullName + ' (' + l.lecturerCode + ')'}"></option></select>
+            <label>Vai trò</label><select th:field="*{role}" required><option value="">-- Chọn --</option><option th:each="r : ${councilRoles}" th:value="${r}" th:text="${r.displayName}"></option></select>
+            <button type="submit">Thêm thành viên</button>
+        </form>
+        <h3>Xếp đề tài (cần có báo cáo và điểm GVPB)</h3>
+        <form th:if="${!#lists.isEmpty(detail.availableRegistrations)}" th:action="@{/head/councils/{id}/topics(id=${detail.council.id})}" method="post">
+            <select name="registrationId" required><option value="">-- Chọn nhóm / đề tài --</option><option th:each="r : ${detail.availableRegistrations}" th:value="${r.registrationId}" th:text="${r.groupName + ' — ' + r.topicTitle}"></option></select><button type="submit">Xếp đề tài</button>
+        </form><p th:if="${#lists.isEmpty(detail.availableRegistrations)}">Chưa có đề tài đủ điều kiện.</p>
+        <form th:action="@{/head/councils/{id}/activate(id=${detail.council.id})}" method="post"><button type="submit">Kiểm tra điều kiện và kích hoạt</button></form>
+    </section>
+    <h3>Thành viên</h3><div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Giảng viên</th><th>Mã</th><th>Vai trò</th><th>Thao tác</th></tr></thead><tbody>
+        <tr th:each="m : ${detail.members}"><td th:text="${m.fullName}"></td><td th:text="${m.lecturerCode}"></td><td th:text="${m.role.displayName}"></td>
+            <td><form th:if="${detail.council.status.name() == 'DRAFT'}" th:action="@{/head/councils/{id}/members/{memberId}/remove(id=${detail.council.id},memberId=${m.memberId})}" method="post" onsubmit="return confirm('Gỡ giảng viên này khỏi hội đồng nháp?');"><button type="submit">Gỡ</button></form></td></tr>
+        <tr th:if="${#lists.isEmpty(detail.members)}"><td colspan="4">Chưa có thành viên.</td></tr></tbody></table></div>
+    <h3>Đề tài trong hội đồng</h3>
+    <ul><li th:each="r : ${detail.assignedRegistrations}"><span th:text="${r.groupName + ' — ' + r.topicTitle}"></span>
+        <form th:if="${detail.council.status.name() == 'DRAFT'}" th:action="@{/head/councils/{id}/topics/{registrationId}/remove(id=${detail.council.id},registrationId=${r.registrationId})}" method="post" style="display:inline" onsubmit="return confirm('Gỡ đề tài này khỏi hội đồng nháp?');"><button type="submit">Gỡ</button></form>
+    </li></ul>
+</div></body></html>
