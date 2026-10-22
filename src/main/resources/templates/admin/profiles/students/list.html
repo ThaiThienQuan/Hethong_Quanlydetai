@@ -52,8 +52,7 @@
              khi bảng có hàng trăm trang. -->
         <nav th:if="${page != null and page.totalPages > 1}" class="pagination" aria-label="Phân trang hồ sơ sinh viên">
             <span class="info"
-                  th:text="'Hiển thị ' + (page.number * page.size + 1) + '–'
-                            + (page.number * page.size + students.size()) + ' trong ' + page.totalElements"></span>
+                  th:text="|Hiển thị ${page.number * page.size + 1}–${page.number * page.size + students.size()} trong ${page.totalElements}|"></span>
             <div class="pages">
                 <a class="page-link"
                    th:classappend="${page.first} ? 'is-disabled'"

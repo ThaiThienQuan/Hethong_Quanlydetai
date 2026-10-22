@@ -35,6 +35,16 @@ public interface ReviewResultRepository extends JpaRepository<ReviewResult, Long
 
     long countByPublishedTrue();
 
+    /** Số kết quả chưa công bố - "kết quả chờ công bố" của Trưởng khoa (mục 5.10). */
+    long countByPublishedFalse();
+
+    /** Số kết quả đã công bố của một đợt - dùng cho thanh tiến trình quy trình (mục 5.10). */
+    @Query("""
+            select count(rr) from ReviewResult rr
+            where rr.published = true and rr.topic.period.id = :periodId
+            """)
+    long countPublishedByPeriod(@Param("periodId") Long periodId);
+
     /**
      * Kết quả đã công bố của các đợt mà sinh viên có nhóm tham gia.
      * Nguồn cho trang "Kết quả của tôi" - danh sách đợt lấy từ group_members.period_id,

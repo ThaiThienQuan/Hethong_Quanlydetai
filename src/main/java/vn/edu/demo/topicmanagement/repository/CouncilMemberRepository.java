@@ -54,6 +54,18 @@ public interface CouncilMemberRepository extends JpaRepository<CouncilMember, Lo
             """)
     List<Council> findCouncilsOfLecturer(@Param("lecturerUserId") Long lecturerUserId);
 
+    /**
+     * Danh sách hội đồng mà giảng viên này làm CHỦ TỊCH (mục 5.10 - "việc cần làm"
+     * của GV là chủ tịch một hội đồng). "Chủ tịch" là quan hệ theo từng hội đồng.
+     */
+    @Query("""
+            select cm.council from CouncilMember cm
+            where cm.lecturer.user.id = :lecturerUserId
+              and cm.role = :role
+            """)
+    List<Council> findCouncilsWhereChairman(@Param("lecturerUserId") Long lecturerUserId,
+                                            @Param("role") CouncilRole role);
+
     /** Các đề tài mà giảng viên này tham gia hội đồng phản biện (tra theo username). */
     @Query("""
             select ct.topic.id from CouncilTopic ct

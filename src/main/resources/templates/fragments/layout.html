@@ -74,8 +74,9 @@
         </a>
       </section>
 
-      <!-- QUY TRÌNH ĐỀ TÀI -->
-      <section class="sidebar-group" sec:authorize="hasAnyRole('ADMIN','TRUONG_KHOA','GIANG_VIEN','SINH_VIEN')">
+      <!-- QUY TRÌNH ĐỀ TÀI — chỉ hiện với vai trò có ít nhất một mục bên dưới,
+           nếu không (ví dụ ADMIN) sẽ thành nhóm rỗng chỉ có tiêu đề -->
+      <section class="sidebar-group" sec:authorize="hasAnyRole('TRUONG_KHOA','GIANG_VIEN','SINH_VIEN')">
         <h2 class="sidebar-label">Quy trình đề tài</h2>
         <a class="sidebar-link" th:href="@{/periods}" sec:authorize="hasRole('TRUONG_KHOA')">
           <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>

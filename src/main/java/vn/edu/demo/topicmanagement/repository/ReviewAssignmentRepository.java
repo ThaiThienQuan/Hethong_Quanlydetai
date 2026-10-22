@@ -57,4 +57,36 @@ public interface ReviewAssignmentRepository extends JpaRepository<ReviewAssignme
             """)
     List<ReviewAssignment> findByCouncilAndTopic(@Param("councilId") Long councilId,
                                                  @Param("topicId") Long topicId);
+
+    /**
+     * Các phân công của giảng viên mà CHƯA có bản chấm - "đề tài cần chấm"
+     * trong bảng việc cần làm của Giảng viên (mục 5.10).
+     */
+    @Query("""
+            select ra from ReviewAssignment ra
+            join fetch ra.topic t
+            join fetch t.period p
+            where ra.lecturer.user.id = :lecturerUserId
+              and not exists (select 1 from Evaluation e where e.assignment = ra)
+            order by p.reviewDeadline asc nulls last, t.topicCode
+            """)
+    List<ReviewAssignment> findPendingScoringForLecturer(@Param("lecturerUserId") Long lecturerUserId);
+
+    /**
+     * Phân công chấm còn hạn (hạn chót GVPB trong tương lai) của giảng viên -
+     * "hạn chót sắp tới" trong bảng việc cần làm (mục 5.10).
+     */
+    @Query("""
+            select ra from ReviewAssignment ra
+            join fetch ra.topic t
+            join fetch t.period p
+            where ra.lecturer.user.id = :lecturerUserId
+              and not exists (select 1 from Evaluation e where e.assignment = ra)
+              and p.reviewDeadline is not null
+              and p.reviewDeadline between :now and :until
+            order by p.reviewDeadline asc
+            """)
+    List<ReviewAssignment> findUpcomingDeadlinesForLecturer(@Param("lecturerUserId") Long lecturerUserId,
+                                                            @Param("now") java.time.LocalDateTime now,
+                                                            @Param("until") java.time.LocalDateTime until);
 }

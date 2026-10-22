@@ -37,4 +37,11 @@ public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
     /** Bản chấm của một phân công cụ thể (dùng cho màn hình nhập điểm). */
     @Query("select e from Evaluation e where e.assignment = :assignment")
     Optional<Evaluation> findByAssignment(@Param("assignment") ReviewAssignment assignment);
+
+    /** Số bản chấm của một đợt - dùng cho thanh tiến trình quy trình (mục 5.10). */
+    @Query("""
+            select count(e) from Evaluation e
+            where e.assignment.topic.period.id = :periodId
+            """)
+    long countByPeriod(@Param("periodId") Long periodId);
 }

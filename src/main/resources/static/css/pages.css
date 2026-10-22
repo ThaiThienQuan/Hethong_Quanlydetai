@@ -187,6 +187,69 @@
 /* ===== Bố cục 2 cột dashboard ===== */
 .section-header { margin-bottom: 14px; }
 .support-text { color: var(--text-muted); font-size: 13.5px; margin: 0 0 14px; line-height: 1.6; }
+
+/* Vai trò hiển thị dưới lời chào */
+.hero-role {
+  font-size: 14px;
+  color: var(--on-brand-90);
+  margin: -6px 0 14px;
+}
+.hero-role strong {
+  color: var(--on-brand);
+  font-weight: 800;
+  margin-left: 4px;
+}
+
+/* Lưới: cột chính (việc cần làm) + cột phụ (thông báo mới) */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  align-items: start;
+}
+@media (max-width: 1023px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+/* Số lượng việc cần làm */
+.task-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+.task-count.tone-primary { background: var(--primary-soft);  border-color: transparent; color: var(--primary); }
+.task-count.tone-success { background: var(--success-bg);   border-color: transparent; color: var(--success); }
+.task-count.tone-warning { background: var(--highlight-soft); border-color: transparent; color: var(--highlight); }
+.task-count.tone-danger  { background: var(--danger-bg);    border-color: transparent; color: var(--danger); }
+.task-count.tone-info    { background: var(--info-bg);      border-color: transparent; color: var(--info); }
+
+/* Danh sách thông báo mới */
+.link-list .notice-item { min-width: 0; }
+.notice-item strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-strong);
+  line-height: 1.4;
+}
+.notice-item small {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.link-list a:hover .notice-item strong { color: var(--primary); }
 .dashboard-panels {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
@@ -314,14 +377,36 @@
   background: var(--grad-brand);
   box-shadow: 0 6px 18px var(--primary-glow);
 }
+/* Brand "UniResearch" + tagline, căn giữa (giống brand ở sidebar) */
+.auth-brand-name {
+  margin: 0;
+  line-height: 1.1;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-strong);
+}
+.auth-brand-name > .accent {
+  background: var(--grad-aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.auth-brand-name small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
 .auth-school {
   margin: 0;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: .04em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .02em;
   line-height: 1.45;
-  color: var(--text-strong);
-  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .auth-card {

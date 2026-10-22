@@ -6,19 +6,25 @@
 <div th:replace="~{fragments/nav :: nav}"></div>
 <main id="main-content" class="app-main">
 
-  <!-- ============ HERO ============ -->
+  <p class="ok" th:if="${message}" th:text="${message}"></p>
+  <p class="error" th:if="${error}" th:text="${error}"></p>
+
+  <!-- ============ LỜI CHÀO + VAI TRÒ ============ -->
   <section class="hero">
     <div class="hero-content">
       <span class="hero-eyebrow">
         <svg class="ui-icon" aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></svg>
         KHÔNG GIAN HỌC THUẬT TẬP TRUNG
       </span>
-      <h1>Chào mừng trở lại,<br><span sec:authentication="name">thành viên</span>.</h1>
+      <h1>Chào mừng trở lại,<br><span th:text="${displayName}">thành viên</span></h1>
+      <p class="hero-role">
+        Vai trò của bạn:
+        <strong sec:authorize="hasRole('ADMIN')">Quản trị viên</strong>
+        <strong sec:authorize="hasRole('TRUONG_KHOA')">Trưởng khoa</strong>
+        <strong sec:authorize="hasRole('GIANG_VIEN')">Giảng viên</strong>
+        <strong sec:authorize="hasRole('SINH_VIEN')">Sinh viên</strong>
+      </p>
       <p>Mọi quy trình quản lý đề tài, hướng dẫn và đánh giá nằm trong một không gian làm việc thống nhất – nhanh chóng và minh bạch.</p>
-      <a class="hero-action" th:href="@{/topics}">
-        Khám phá đề tài
-        <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
-      </a>
     </div>
     <div class="hero-visual" aria-hidden="true">
       <span class="hero-visual-orbit"></span>
@@ -38,62 +44,196 @@
     </div>
   </section>
 
-  <!-- ============ LỘ TRÌNH QUY TRÌNH ============ -->
-  <section class="card" aria-labelledby="roadmap-title">
+  <!-- ============ TIẾN TRÌNH QUY TRÌNH CỦA ĐỢT HIỆN HÀNH ============ -->
+  <section class="card" aria-labelledby="progress-title">
     <div class="card-header">
       <div>
         <p class="page-eyebrow">
           <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2.5 9.5 5-9.5 5-9.5-5 9.5-5Z"/><path d="m2.5 12 9.5 5 9.5-5"/><path d="m2.5 16.5 9.5 5 9.5-5"/></svg>
-          LỘ TRÌNH HỌC TẬP
+          TIẾN TRÌNH QUY TRÌNH
         </p>
-        <h2 class="card-title" id="roadmap-title">Hành trình thực hiện đề tài</h2>
-        <p class="card-sub">Sáu bước từ đề xuất đến công bố kết quả – mỗi vai trò tham gia ở đúng thời điểm.</p>
+        <h2 class="card-title" id="progress-title">
+          Đợt hiện hành:
+          <span th:if="${currentPeriodName != null}" th:text="${currentPeriodName}">Đợt hiện hành</span>
+          <span th:if="${currentPeriodName == null}">Chưa có đợt đăng ký nào</span>
+        </h2>
+        <p class="card-sub">Sáu bước từ đề xuất đề tài đến công bố kết quả – mỗi vai trò tham gia ở đúng thời điểm.</p>
       </div>
     </div>
-    <ol class="roadmap">
-      <li>
-        <div class="step">
-          <span class="step-num">01</span>
-          <span class="step-title">Đề xuất</span>
-          <span class="step-desc">Giảng viên đăng ký đề tài mới vào đợt</span>
-        </div>
-      </li>
-      <li>
-        <div class="step">
-          <span class="step-num">02</span>
-          <span class="step-title">Phê duyệt</span>
-          <span class="step-desc">Trưởng khoa duyệt và phân công GVHD</span>
-        </div>
-      </li>
-      <li>
-        <div class="step">
-          <span class="step-num">03</span>
-          <span class="step-title">Đăng ký</span>
-          <span class="step-desc">Nhóm sinh viên chọn đề tài đã công bố</span>
-        </div>
-      </li>
-      <li>
-        <div class="step">
-          <span class="step-num">04</span>
-          <span class="step-title">Thực hiện</span>
-          <span class="step-desc">Nhóm nộp báo cáo theo hạn đã định</span>
-        </div>
-      </li>
-      <li>
-        <div class="step">
-          <span class="step-num">05</span>
-          <span class="step-title">Phản biện</span>
-          <span class="step-desc">GV phản biện và hội đồng chấm điểm</span>
-        </div>
-      </li>
-      <li>
-        <div class="step">
-          <span class="step-num">06</span>
-          <span class="step-title">Công bố</span>
-          <span class="step-desc">Khoa công bố kết quả và gửi email</span>
+    <ol class="roadmap" th:if="${not #lists.isEmpty(steps)}">
+      <li th:each="step : ${steps}">
+        <div class="step" th:classappend="${step.cssClass()}">
+          <span class="step-num" th:text="${step.index}">01</span>
+          <span class="step-title" th:text="${step.title}">Bước</span>
+          <span class="step-desc" th:text="${step.description}">Mô tả bước</span>
         </div>
       </li>
     </ol>
+    <p class="support-text" th:if="${#lists.isEmpty(steps)}">
+      Hiện chưa có đợt đăng ký nào. Trưởng khoa tạo và công bố đợt để bắt đầu quy trình.
+    </p>
+  </section>
+
+  <!-- ============ VIỆC CẦN LÀM CỦA TÔI + CỘT PHỤ ============ -->
+  <div class="dashboard-grid">
+
+    <!-- Cột chính: việc cần làm -->
+    <section class="card" aria-labelledby="tasks-title">
+      <div class="card-header">
+        <div>
+          <p class="page-eyebrow">
+            <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            VIỆC CẦN LÀM CỦA TÔI
+          </p>
+          <h2 class="card-title" id="tasks-title">Danh sách công việc đang chờ bạn xử lý</h2>
+          <p class="card-sub">Các nhóm việc được lọc theo đúng vai trò của bạn trong hệ thống.</p>
+        </div>
+      </div>
+
+      <div class="table-scroll" th:if="${not #lists.isEmpty(tasks)}">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Việc cần làm</th>
+              <th scope="col">Mô tả</th>
+              <th scope="col" class="num">Số lượng</th>
+              <th scope="col" class="nowrap">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="task : ${tasks}">
+              <td data-label="Việc cần làm">
+                <strong th:text="${task.label}">Việc cần làm</strong>
+              </td>
+              <td data-label="Mô tả" class="muted" th:text="${task.description}">Mô tả</td>
+              <td data-label="Số lượng" class="num">
+                <span class="task-count"
+                      th:classappend="'tone-' + ${task.tone}"
+                      th:text="${task.count}">0</span>
+              </td>
+              <td data-label="Thao tác" class="actions">
+                <a class="btn btn-sm btn-soft-primary"
+                   th:href="${task.url}"
+                   th:attr="aria-label=${'Mở màn hình: ' + task.label}">
+                  Xem
+                  <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="support-text" th:if="${#lists.isEmpty(tasks)}">
+        Bạn không có việc nào đang chờ xử lý. Hãy tận hưởng những giai đoạn đã hoàn thành!
+      </p>
+    </section>
+
+    <!-- Cột phụ: thông báo mới -->
+    <aside class="card" aria-labelledby="notices-title">
+      <div class="card-header">
+        <div>
+          <p class="page-eyebrow">
+            <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+            THÔNG BÁO MỚI
+          </p>
+          <h2 class="card-title" id="notices-title">Tin tức mới nhất</h2>
+        </div>
+      </div>
+
+      <div class="link-list" th:if="${not #lists.isEmpty(notices)}">
+        <a th:each="notice : ${notices}" th:href="@{/announcements}">
+          <span class="notice-item">
+            <strong th:text="${notice.title}">Tiêu đề thông báo</strong>
+            <small>
+              <span class="badge" th:classappend="${notice.scopeLabel == 'Nhà trường' ? 'st-PUBLISHED' : 'st-active'}">
+                <span th:text="${notice.scopeLabel}">Khoa</span>
+              </span>
+              <span th:text="${notice.publishedAt}" th:if="${notice.publishedAt != ''}"></span>
+            </small>
+          </span>
+          <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+
+      <p class="support-text" th:if="${#lists.isEmpty(notices)}">
+        Chưa có thông báo mới dành cho vai trò của bạn.
+      </p>
+
+      <a class="btn btn-secondary btn-block" th:href="@{/announcements}">
+        <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+        Xem tất cả thông báo
+      </a>
+    </aside>
+  </div>
+
+  <!-- ============ SỐ LIỆU TỔNG (TRƯỞNG KHOA / ADMIN) ============ -->
+  <section aria-labelledby="stats-title"
+           sec:authorize="hasAnyRole('TRUONG_KHOA','ADMIN')">
+    <div class="page-header section-header">
+      <div>
+        <p class="page-eyebrow">
+          <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.5L20 7"/></svg>
+          TỔNG QUAN SỐ LIỆU
+        </p>
+        <h2 class="page-title" id="stats-title">Tình hình toàn khoa</h2>
+        <p class="page-desc">Số liệu tổng hợp của toàn hệ thống tại thời điểm hiện tại.</p>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card" th:each="stat : ${stats}" th:classappend="${stat.cssClass()}">
+        <div class="stat-label" th:text="${stat.label}">Nhãn</div>
+        <div class="stat-value" th:text="${stat.value}">0</div>
+        <div class="stat-hint" th:text="${stat.hint}">Ghi chú</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BẢNG ĐỢT ĐANG MỞ (Trưởng khoa / Admin) ============ -->
+  <section class="card" aria-labelledby="periods-title"
+           sec:authorize="hasAnyRole('TRUONG_KHOA','ADMIN')">
+    <div class="card-header">
+      <div>
+        <p class="page-eyebrow">
+          <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+          ĐỢT ĐANG MỞ
+        </p>
+        <h2 class="card-title" id="periods-title">Các đợt đăng ký hiện hành</h2>
+        <p class="card-sub">Giai đoạn hiện tại và các mốc thời gian của từng đợt.</p>
+      </div>
+    </div>
+
+    <div class="table-scroll" th:if="${not #lists.isEmpty(openPeriods)}">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Tên đợt</th>
+            <th scope="col">Loại</th>
+            <th scope="col">Giai đoạn hiện tại</th>
+            <th scope="col">GV đăng ký</th>
+            <th scope="col">SV đăng ký</th>
+            <th scope="col">Hạn chót GVPB</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="period : ${openPeriods}">
+            <td data-label="Tên đợt"><strong th:text="${period.name}">Tên đợt</strong></td>
+            <td data-label="Loại" class="muted" th:text="${period.typeLabel}">Loại</td>
+            <td data-label="Giai đoạn hiện tại">
+              <span class="badge st-ACTIVE_going" th:text="${period.phaseLabel}">Giai đoạn</span>
+            </td>
+            <td data-label="GV đăng ký" class="muted nowrap" th:text="${period.lecturerWindow}">-</td>
+            <td data-label="SV đăng ký" class="muted nowrap" th:text="${period.studentWindow}">-</td>
+            <td data-label="Hạn chót GVPB" class="muted nowrap" th:text="${period.reviewDeadline} ?: '—'">-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="support-text" th:if="${#lists.isEmpty(openPeriods)}">
+      Chưa có đợt đăng ký nào đang mở.
+    </p>
   </section>
 
   <!-- ============ TRUY CẬP NHANH ============ -->
@@ -310,7 +450,7 @@
     </div>
   </section>
 
-  <!-- ============ THIẾT LẬP CÁ NHÂN ============ -->
+  <!-- ============ THIẾT LẬP CÁ NHÂN + HỖ TRỢ ============ -->
   <section class="dashboard-panels">
     <div class="card">
       <div class="card-header">

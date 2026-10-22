@@ -76,4 +76,14 @@ public interface TopicRegistrationRepository extends JpaRepository<TopicRegistra
 
     /** Đăng ký của một nhóm, dùng để khôi phục trạng thái sau khi bị từ chối. */
     Optional<TopicRegistration> findFirstByGroupAndStatusOrderByIdDesc(StudentGroup group, RegistrationStatus status);
+
+    /**
+     * Số đăng ký được chấp thuận của một đợt - dùng cho thanh tiến trình quy trình (mục 5.10).
+     */
+    @Query("""
+            select count(r) from TopicRegistration r
+            where r.group.period.id = :periodId and r.status = :status
+            """)
+    long countApprovedByPeriod(@Param("periodId") Long periodId,
+                               @Param("status") RegistrationStatus status);
 }

@@ -20,8 +20,33 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     /** Mã đề tài đã có thuộc đề tài khác không - dùng khi GV sửa đề tài. */
     boolean existsByTopicCodeAndIdNot(String topicCode, Long id);
 
+    /** Số đề tài đã duyệt (đã công bố) của một đợt - dùng cho thanh tiến trình. */
+    @Query("""
+            select count(t) from Topic t
+            where t.period.id = :periodId
+              and t.status = :status
+              and t.published = true
+            """)
+    long countApprovedPublishedByPeriod(@Param("periodId") Long periodId,
+                                        @Param("status") TopicStatus status);
+
+    /**
+     * Đề tài đã duyệt nhưng chưa đủ giảng viên hướng dẫn (thiếu GVHD) - mục 5.10
+     * ("đề tài chưa đủ GVHD").
+     */
+    @Query("""
+            select count(t) from Topic t
+            where t.status = :status
+              and (select count(ts) from TopicSupervisor ts where ts.topic = t) < 1
+            """)
+    long countApprovedWithoutSupervisor(@Param("status") TopicStatus status);
+
+    /**
+     * Đề tài chờ duyệt - dùng cho bảng "việc cần làm" của Trưởng khoa (mục 5.10).
+     */
     long countByStatus(TopicStatus status);
 
+    /** Đề tài theo trạng thái, dùng thống kê tổng trên dashboard. */
     List<Topic> findByStatus(TopicStatus status);
 
     /** Số đề tài thuộc một đợt - dùng chặn sửa/xóa đợt đã có đề tài (mục 5.2). */

@@ -19,6 +19,18 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     boolean existsByGroupId(Long groupId);
 
     /** Nhóm có báo cáo đang ở trạng thái SUBMITTED (bản hiện lực). */
+    /** Số báo cáo theo trạng thái (SUBMITTED / SUPERSEDED) - dùng thống kê dashboard. */
+    long countByStatus(String status);
+
+    /** Số báo cáo đã nộp của một đợt - dùng cho thanh tiến trình quy trình (mục 5.10). */
+    @Query("""
+            select count(r) from Report r
+            where r.group.period.id = :periodId and r.status = :status
+            """)
+    long countByPeriodAndStatus(@Param("periodId") Long periodId,
+                                @Param("status") String status);
+
+    /** Báo cáo đã nộp của một nhóm (bản hiện lực). */
     boolean existsByGroupIdAndStatus(Long groupId, String status);
 
     /** Báo cáo đã nộp của một đề tài - dùng chặn phân công khi đề tài chưa có báo cáo. */
