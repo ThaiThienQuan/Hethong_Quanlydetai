@@ -2,16 +2,19 @@ package vn.edu.demo.topicmanagement.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /** Dữ liệu form giảng viên đăng ký / sửa đề tài. */
 public class TopicForm {
 
-    /** Mã đề tài do giảng viên tự đặt, phải duy nhất trong toàn hệ thống. */
-    @NotBlank(message = "Vui lòng nhập mã đề tài")
+    /**
+     * Mã đề tài do HỆ THỐNG cấp, không phải người dùng nhập. Form không có ô nhập
+     * mã; giá trị này được {@code TopicService.generateTopicCode} gán lúc lưu.
+     *
+     * <p>Giữ field để mã cũ vẫn hiện readonly khi sửa đề tài. Bỏ ràng buộc
+     * {@code @NotBlank} vì lúc tạo mới mã còn trống hoàn toàn.
+     */
     @Size(max = 30, message = "Mã đề tài tối đa 30 ký tự")
-    @Pattern(regexp = "[A-Za-z0-9._-]+", message = "Mã đề tài chỉ gồm chữ, số và các ký tự . _ -")
     private String topicCode;
 
     @NotBlank(message = "Vui lòng nhập tên đề tài")

@@ -61,9 +61,19 @@ public class LecturerTopicController {
         TopicService.MyDepartment dept = topicService.getMyDepartment(principal.getName());
         if (dept != null) form.setDepartmentId(dept.id());
         model.addAttribute("topicForm", form);
+        model.addAttribute("previewCode", topicService.previewTopicCode(form.getDepartmentId(), null));
         model.addAttribute("lecturers", topicService.getCoSupervisorCandidates(principal.getName(), null, null));
         setFormInfo(model, "/lecturer/topics/new", "Đề xuất đề tài mới");
+        model.addAttribute("editing", false);
         return "lecturer/topics/form";
+    }
+
+    /** Xem trước mã đề tài sẽ được cấp - form gọi qua fetch khi GV chọn đợt. */
+    @GetMapping("/preview-code")
+    @ResponseBody
+    public String previewCode(@RequestParam Long departmentId, @RequestParam Long periodId) {
+        String code = topicService.previewTopicCode(departmentId, periodId);
+        return code == null ? "" : code;
     }
 
     @PostMapping("/new")
@@ -75,6 +85,9 @@ public class LecturerTopicController {
             model.addAttribute("lecturers",
                     topicService.getCoSupervisorCandidates(principal.getName(), null, form.getPeriodId()));
             setFormInfo(model, "/lecturer/topics/new", "Đề xuất đề tài mới");
+            model.addAttribute("editing", false);
+            model.addAttribute("previewCode", topicService.previewTopicCode(
+                    form.getDepartmentId(), form.getPeriodId()));
             return "lecturer/topics/form";
         }
         try {
@@ -89,6 +102,9 @@ public class LecturerTopicController {
                     topicService.getCoSupervisorCandidates(principal.getName(), null, form.getPeriodId()));
             result.rejectValue("description", "db.constraint", dbMessage(e));
             setFormInfo(model, "/lecturer/topics/new", "Đề xuất đề tài mới");
+            model.addAttribute("editing", false);
+            model.addAttribute("previewCode", topicService.previewTopicCode(
+                    form.getDepartmentId(), form.getPeriodId()));
             return "lecturer/topics/form";
         }
         return "redirect:/lecturer/topics";
@@ -106,6 +122,7 @@ public class LecturerTopicController {
         model.addAttribute("lecturers",
                 topicService.getCoSupervisorCandidates(principal.getName(), id, null));
         setFormInfo(model, "/lecturer/topics/" + id + "/edit", "Sửa đề tài");
+        model.addAttribute("editing", true);
         return "lecturer/topics/form";
     }
 
@@ -119,6 +136,7 @@ public class LecturerTopicController {
             model.addAttribute("lecturers",
                     topicService.getCoSupervisorCandidates(principal.getName(), id, form.getPeriodId()));
             setFormInfo(model, "/lecturer/topics/" + id + "/edit", "Sửa đề tài");
+            model.addAttribute("editing", true);
             return "lecturer/topics/form";
         }
         try {
@@ -131,6 +149,7 @@ public class LecturerTopicController {
                     topicService.getCoSupervisorCandidates(principal.getName(), id, form.getPeriodId()));
             result.rejectValue("description", "db.constraint", dbMessage(e));
             setFormInfo(model, "/lecturer/topics/" + id + "/edit", "Sửa đề tài");
+            model.addAttribute("editing", true);
             return "lecturer/topics/form";
         }
         return "redirect:/lecturer/topics";

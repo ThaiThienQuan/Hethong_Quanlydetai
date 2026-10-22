@@ -22,14 +22,16 @@
     <section th:if="${detail.council.status.name() == 'DRAFT'}">
         <h3>Sửa hội đồng</h3>
         <form th:action="@{/head/councils/{id}/update(id=${detail.council.id})}" th:object="${editForm}" method="post">
+            <!-- Mã hội đồng do hệ thống cấp, không cho sửa (kể cả hội đồng DRAFT). -->
             <label>Mã hội đồng</label>
-            <!-- Dùng th:field để pre-fill từ editForm; KHÔNG dùng th:value vì nó bị th:field ghi đè. -->
-            <input th:field="*{councilCode}" maxlength="30">
+            <input type="text" th:value="${detail.council.councilCode}" readonly
+                   class="input-readonly" tabindex="-1">
+            <input type="hidden" th:field="*{councilCode}">
             <label>Tên hội đồng</label>
             <input th:field="*{councilName}" required maxlength="150">
             <label>Ngày báo cáo</label>
             <input type="datetime-local" th:field="*{reportDate}">
-            <!-- periodId giữ nguyên đợt của hội đồng, không cho đổi (chỉ khi DRAFT mới sửa được mã). -->
+            <!-- periodId giữ nguyên đợt của hội đồng, không cho đổi. -->
             <input type="hidden" th:field="*{periodId}">
             <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
         </form>

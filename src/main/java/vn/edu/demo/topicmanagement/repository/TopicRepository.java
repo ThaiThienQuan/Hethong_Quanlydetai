@@ -20,6 +20,23 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     /** Mã đề tài đã có thuộc đề tài khác không - dùng khi GV sửa đề tài. */
     boolean existsByTopicCodeAndIdNot(String topicCode, Long id);
 
+    /**
+     * Số mã đề tài đã sinh trong một bộ môn + đợt đăng ký - dùng cấp số thứ tự
+     * cho mã tự động ({@code MãBộMôn-MãĐợt-001}, {@code -002}, ...).
+     *
+     * <p>Đếm theo tiền tố {@code deptCode-periodToken-} nên đề tài đã có sẵn
+     * của các đợt trước vẫn được tính đúng, không đụng code khi tạo mới.
+     */
+    @Query("""
+            select count(t) from Topic t
+            where t.department.code = :deptCode
+              and t.period.id = :periodId
+              and t.topicCode like concat(:prefix, '%')
+            """)
+    long countByDepartmentAndPeriodAndCodePrefix(@Param("deptCode") String deptCode,
+                                                 @Param("periodId") Long periodId,
+                                                 @Param("prefix") String prefix);
+
     /** Số đề tài đã duyệt (đã công bố) của một đợt - dùng cho thanh tiến trình. */
     @Query("""
             select count(t) from Topic t

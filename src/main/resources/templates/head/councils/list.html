@@ -13,8 +13,6 @@
 
     <h3>Tạo hội đồng</h3>
     <form th:action="@{/head/councils}" th:object="${councilForm}" method="post">
-        <label>Mã hội đồng</label>
-        <input th:field="*{councilCode}" maxlength="30" placeholder="VD: HD-KLTN-25-A">
         <div class="field-error" th:errors="*{councilCode}"></div>
         <label>Tên hội đồng</label>
         <input th:field="*{councilName}" required maxlength="150">
@@ -54,6 +52,35 @@
     </div>
 </div>
 </main>
+
+<!-- Xem trước mã hội đồng sắp được cấp khi Trưởng khoa đổi đợt TLCN/KLTN. -->
+<script th:inline="javascript">
+    (function () {
+        var periodSelect = document.getElementById('periodId');
+        var preview = document.getElementById('previewCouncilCode');
+        var url = /*[[@{/head/councils/preview-code}]]*/ '';
+
+        function refresh() {
+            var periodId = periodSelect ? periodSelect.value : '';
+            if (!periodId) {
+                preview.value = '';
+                preview.placeholder = 'Chọn đợt TLCN/KLTN để xem mã';
+                return;
+            }
+            fetch(url + '?periodId=' + encodeURIComponent(periodId),
+                  { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.ok ? r.text() : ''; })
+                .then(function (code) {
+                    preview.value = (code || '').trim();
+                    if (!code) preview.placeholder = 'Không xem trước được mã, hệ thống sẽ tự cấp khi tạo';
+                })
+                .catch(function () { preview.placeholder = 'Không xem trước được mã, hệ thống sẽ tự cấp khi tạo'; });
+        }
+
+        if (periodSelect) periodSelect.addEventListener('change', refresh);
+        refresh();
+    })();
+</script>
 
 </body>
 </html>

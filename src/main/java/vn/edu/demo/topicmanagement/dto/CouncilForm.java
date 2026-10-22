@@ -8,7 +8,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 /** Dữ liệu tạo hội đồng cho một đợt TLCN/KLTN. */
 public class CouncilForm {
-    @NotBlank(message = "Vui lòng nhập mã hội đồng")
+    /**
+     * Mã hội đồng do HỆ THỐNG cấp, không phải người dùng nhập. Form không có ô
+     * nhập mã; giá trị này được {@code CouncilService.generateCouncilCode} gán
+     * lúc lưu.
+     *
+     * <p>Giữ field để mã cũ vẫn hiện readonly khi sửa hội đồng. Bỏ ràng buộc
+     * {@code @NotBlank} vì lúc tạo mới mã còn trống hoàn toàn.
+     */
     @Size(max = 30, message = "Mã hội đồng tối đa 30 ký tự")
     private String councilCode;
 

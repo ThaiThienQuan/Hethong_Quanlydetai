@@ -18,12 +18,6 @@
 
     <form th:action="@{${action}}" th:object="${topicForm}" method="post">
 
-        <label>Mã đề tài <span class="required">*</span>
-            <small>(duy nhất, gồm chữ, số và . _ -)</small></label>
-        <input type="text" th:field="*{topicCode}" maxlength="30"
-               pattern="[A-Za-z0-9._-]+" required>
-        <div class="field-error" th:if="${#fields.hasErrors('topicCode')}" th:errors="*{topicCode}"></div>
-
         <label>Tên đề tài <span class="required">*</span></label>
         <input type="text" th:field="*{topicName}" maxlength="200" required>
         <div class="field-error" th:if="${#fields.hasErrors('topicName')}" th:errors="*{topicName}"></div>
@@ -33,8 +27,7 @@
         <textarea th:field="*{description}" rows="5" maxlength="5000" required></textarea>
         <div class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
 
-        <label>Bộ môn <span class="required">*</span>
-            <small>(bộ môn của bạn - không thể chọn bộ môn khác)</small></label>
+        <label>Bộ môn <span class="required">*</span></label>
         <div th:if="${myDepartment != null}">
             <input type="hidden" th:field="*{departmentId}">
             <input type="text" th:value="${myDepartment.name()}" readonly
@@ -64,6 +57,39 @@
     </form>
 </div>
 </main>
+
+<!-- Xem trước mã đề tài sắp được cấp.
+     Bỗ Môn là cố định theo GV nên chỉ cần đổi Đợt đăng ký là mã đổi theo. -->
+<script th:if="${!editing}" th:inline="javascript">
+    (function () {
+        var periodSelect = document.getElementById('periodId');
+        var deptInput = document.getElementById('departmentId');
+        var preview = document.getElementById('previewCode');
+        var url = /*[[@{/lecturer/topics/preview-code}]]*/ '';
+
+        function refresh() {
+            var periodId = periodSelect ? periodSelect.value : '';
+            var deptId = deptInput ? deptInput.value : '';
+            if (!periodId || !deptId) {
+                preview.value = '';
+                preview.placeholder = 'Chọn Bỗ Môn và Đợt đăng ký để xem mã';
+                return;
+            }
+            fetch(url + '?departmentId=' + encodeURIComponent(deptId)
+                       + '&periodId=' + encodeURIComponent(periodId),
+                  { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.ok ? r.text() : ''; })
+                .then(function (code) {
+                    preview.value = (code || '').trim();
+                    if (!code) preview.placeholder = 'Không xem trước được mã, hệ thống sẽ tự cấp khi gửi';
+                })
+                .catch(function () { preview.placeholder = 'Không xem trước được mã, hệ thống sẽ tự cấp khi gửi'; });
+        }
+
+        if (periodSelect) periodSelect.addEventListener('change', refresh);
+        refresh();
+    })();
+</script>
 
 </body>
 </html>

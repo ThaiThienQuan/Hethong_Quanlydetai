@@ -62,6 +62,12 @@ public class CouncilService {
     private static final int MIN_MEMBERS = 3;
     private static final int MAX_MEMBERS = 5;
 
+    /**
+     * Số lần thử sinh lại mã hội đồng khi mã vừa tính bị trùng. Chỉ cần khi có
+     * tình huống tranh chấp hiếm (hai Trưởng khoa tạo hội đồng cùng một đợt).
+     */
+    private static final int MAX_CODE_ATTEMPTS = 20;
+
     private final CouncilRepository councilRepository;
     private final CouncilMemberRepository memberRepository;
     private final CouncilTopicRepository councilTopicRepository;
@@ -125,14 +131,10 @@ public class CouncilService {
                 && period.getPeriodType() != PeriodType.KLTN) {
             throw new IllegalArgumentException("Chỉ tạo hội đồng cho đợt TLCN/KLTN.");
         }
-        if (form.getCouncilCode() != null && !form.getCouncilCode().isBlank()
-                && councilRepository.existsByCouncilCode(form.getCouncilCode().trim())) {
-            throw new IllegalArgumentException("Mã hội đồng đã tồn tại.");
-        }
         Council council = new Council();
         council.setPeriod(period);
-        council.setCouncilCode(form.getCouncilCode() == null || form.getCouncilCode().isBlank()
-                ? "HD-" + System.currentTimeMillis() : form.getCouncilCode().trim());
+        // Mã hội đồng do hệ thống cấp, không lấy từ form (form không còn ô nhập mã).
+        council.setCouncilCode(generateCouncilCode(period));
         council.setCouncilName(form.getCouncilName() == null ? "" : form.getCouncilName().trim());
         // Mặc định ngày báo cáo: form trước; KLTN thì lấy theo period.councilReportDate (mục 5.6).
         LocalDateTime reportDate = form.getReportDate();
@@ -147,27 +149,71 @@ public class CouncilService {
         }
         Long id = councilRepository.save(council).getId();
         auditLogService.record(username, AuditLogService.COUNCIL_CREATE, "Council", id,
-                "Tạo hội đồng cho đợt " + period.getName());
+                "Tạo hội đồng " + council.getCouncilCode() + " cho đợt " + period.getName());
         return id;
     }
 
-    /** Sửa mã / tên / ngày báo cáo. Hội đồng DRAFT cho phép đổi tất cả;
-     *  hội đồng READY chỉ cho phép đổi tên và ngày báo cáo (không đổi mã, không đổi đợt). */
+    /**
+     * Sinh mã hội đồng tự động theo cấu trúc
+     * {@code HD-{Loại đợt}{2 năm}-{số thứ tự 3 chữ số}}.
+     *
+     * <p>Ví dụ đợt TLCN mở năm 2026, hội đồng thứ 2 của đợt đó sẽ ra
+     * {@code HD-TLCN26-002}. Số thứ tự tăng dần riêng cho từng đợt, nên mỗi đợt
+     * TLCN/KLTN bắt đầu lại từ {@code 001}.
+     *
+     * <p>Cách đếm: đếm số hội đồng đã có trong đúng đợt này với mã bắt đầu bằng
+     * tiền tố {@code HD-TLCN26-}, rồi cấp số kế tiếp. Hội đồng có sẵn trong DB
+     * (mã kiểu cũ {@code HD-KLTN-25-A}) không làm đụng số thứ tự mới.
+     */
+    private String generateCouncilCode(RegistrationPeriod period) {
+        String prefix = buildCouncilCodePrefix(period);
+        long next = councilRepository.countByPeriodAndCodePrefix(
+                period.getId(), prefix + "-") + 1;
+
+        // Vòng lặp để né trường hợp trùng mã do tình huống tranh chấp hiếm.
+        for (int attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
+            String candidate = String.format("%s-%03d", prefix, next);
+            if (!councilRepository.existsByCouncilCode(candidate)) return candidate;
+            next++;
+        }
+        throw new IllegalStateException(
+                "Không sinh được mã hội đồng tự động, vui lòng thử lại sau.");
+    }
+
+    /**
+     * Tiền tố mã hội đồng: {@code HD} + mã loại đợt + 2 chữ số cuối năm.
+     * Loại {@code TLCN} ra {@code TLCN26}, loại {@code KLTN} ra {@code KLTN26}.
+     * Năm lấy từ mốc bắt đầu cho giảng viên của đợt.
+     */
+    private String buildCouncilCodePrefix(RegistrationPeriod period) {
+        String typeToken = period.getPeriodType() == PeriodType.KLTN ? "KLTN" : "TLCN";
+        int year = period.getLecturerStartAt().getYear() % 100;
+        return "HD-" + typeToken + String.format("%02d", year);
+    }
+
+    /** Mã hội đồng dự kiến sẽ cấp - dùng cho màn hình xem trước khi bấm "Tạo hội đồng". */
+    @Transactional(readOnly = true)
+    public String previewCouncilCode(Long periodId) {
+        if (periodId == null) return null;
+        RegistrationPeriod period = periodRepository.findById(periodId).orElse(null);
+        if (period == null || (period.getPeriodType() != PeriodType.TLCN
+                && period.getPeriodType() != PeriodType.KLTN)) {
+            return null;
+        }
+        try {
+            return generateCouncilCode(period);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** Sửa tên / ngày báo cáo. Mã hội đồng do hệ thống cấp nên không cho sửa,
+     *  kể cả hội đồng DRAFT. Hội đồng READY cũng không đổi được đợt. */
     @Transactional
     public void update(Long councilId, CouncilForm form, String username) {
         Council council = getCouncil(councilId);
         if (council.getStatus() == CouncilStatus.FINISHED) {
             throw new IllegalStateException("Hội đồng đã hoàn tất, không thể sửa.");
-        }
-        if (council.getStatus() == CouncilStatus.DRAFT) {
-            if (form.getCouncilCode() != null && !form.getCouncilCode().isBlank()) {
-                String newCode = form.getCouncilCode().trim();
-                if (!newCode.equals(council.getCouncilCode())
-                        && councilRepository.existsByCouncilCode(newCode)) {
-                    throw new IllegalArgumentException("Mã hội đồng đã tồn tại.");
-                }
-                council.setCouncilCode(newCode);
-            }
         }
         if (form.getCouncilName() != null && !form.getCouncilName().isBlank()) {
             council.setCouncilName(form.getCouncilName().trim());

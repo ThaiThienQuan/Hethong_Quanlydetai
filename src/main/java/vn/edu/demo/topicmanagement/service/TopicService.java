@@ -60,6 +60,12 @@ public class TopicService {
     /** Số GVHD tối đa trên mỗi đề tài. */
     public static final int MAX_SUPERVISORS = 2;
 
+    /**
+     * Số lần thử sinh lại mã đề tài khi mã vừa tính bị trùng. Chỉ cần khi có
+     * tình huống tranh chấp hiếm (hai GV gửi đúng một khoảnh khắc).
+     */
+    private static final int MAX_CODE_ATTEMPTS = 20;
+
     private final TopicRepository topicRepository;
     private final TopicSupervisorRepository supervisorRepository;
     private final UserRepository userRepository;
@@ -203,15 +209,6 @@ public class TopicService {
             return errors;
         }
 
-        // Mã đề tài phải duy nhất (trừ chính đề tài đang sửa).
-        if (f.getTopicCode() != null && !f.getTopicCode().isBlank()) {
-            String code = f.getTopicCode().trim();
-            boolean exists = topicId == null
-                    ? topicRepository.existsByTopicCode(code)
-                    : topicRepository.existsByTopicCodeAndIdNot(code, topicId);
-            if (exists) errors.put("topicCode", "Mã đề tài đã tồn tại, vui lòng chọn mã khác");
-        }
-
         // Bộ môn phải là bộ môn của chính GV (đề bài: không được chọn bộ môn khác).
         if (f.getDepartmentId() != null && !f.getDepartmentId().equals(lecturer.getDepartment().getId())) {
             errors.put("departmentId", "Bạn chỉ được đề xuất đề tài thuộc bộ môn của mình.");
@@ -256,6 +253,73 @@ public class TopicService {
     // 5.3 - Tạo / sửa / xóa của GV
     // ------------------------------------------------------------------
 
+    /**
+     * Sinh mã đề tài tự động theo cấu trúc
+     * {@code {Mã bộ môn}-{Mã đợt}-{số thứ tự 3 chữ số}}.
+     *
+     * <p>Ví dụ bộ môn {@code KHMT} + đợt loại {@code TLCN} năm 2026, đề tài thứ 3
+     * của khoa trong đợt đó sẽ ra {@code KHMT-TLCN26-003}.
+     *
+     * <p>Cách đếm: đếm số đề tài đã tồn tại cùng bộ môn + cùng đợt có mã bắt đầu
+     * bằng tiền tố {@code KHMT-TLCN26-}, rồi cấp số kế tiếp. Nhờ vậy đề tài có
+     * sẵn trong DB (mã kiểu cũ {@code TLCN-26-001}) không làm đụng mã, và nếu
+     * có đề tài nào bị xoá thì số vẫn không bị dùng lại trong cùng đợt.
+     *
+     * <p>Vòng lặp thử tới {@value #MAX_CODE_ATTEMPTS} lần để né trường hợp hiếm:
+     * hai GV cùng bấm "Gửi" đúng lúc thì một người phải thử số kế tiếp.
+     */
+    private String generateTopicCode(Long departmentId, Long periodId) {
+        Department dept = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Bộ môn không tồn tại."));
+        RegistrationPeriod period = periodRepository.findById(periodId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Đợt đăng ký không tồn tại."));
+
+        String prefix = buildCodePrefix(dept.getCode(), period);
+        long next = topicRepository.countByDepartmentAndPeriodAndCodePrefix(
+                dept.getCode(), periodId, prefix + "-") + 1;
+
+        for (int attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
+            String candidate = String.format("%s-%03d", prefix, next);
+            if (!topicRepository.existsByTopicCode(candidate)) return candidate;
+            next++;
+        }
+        throw new IllegalStateException(
+                "Không sinh được mã đề tài tự động, vui lòng thử lại sau.");
+    }
+
+    /**
+     * Tiền tố mã đề tài: mã bộ môn + mã đợt.
+     *
+     * <p>Mã đợt ghép từ loại đợt và 2 chữ số cuối của năm bắt đầu giai đoạn 1, ví dụ
+     * loại {@code TLCN} mở năm 2026 ra {@code TLCN26}. Loại {@code MON_HOC} viết
+     * tắt thành {@code DA} cho ngắn gọn, đúng như mã cũ {@code DA-MH-26-001}.
+     */
+    private String buildCodePrefix(String deptCode, RegistrationPeriod period) {
+        String typeToken = switch (period.getPeriodType()) {
+            case MON_HOC -> "DA";
+            case NCKH -> "NCKH";
+            case TLCN -> "TLCN";
+            case KLTN -> "KLTN";
+        };
+        int year = period.getLecturerStartAt().getYear() % 100;
+        return deptCode + "-" + typeToken + String.format("%02d", year);
+    }
+
+    /** Mã đề tài dự kiến sẽ cấp - dùng cho màn hình xem trước khi bấm "Gửi". */
+    @Transactional(readOnly = true)
+    public String previewTopicCode(Long departmentId, Long periodId) {
+        if (departmentId == null || periodId == null) return null;
+        if (!departmentRepository.existsById(departmentId)) return null;
+        if (!periodRepository.existsById(periodId)) return null;
+        try {
+            return generateTopicCode(departmentId, periodId);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     @Transactional
     public void create(TopicForm f, String username) {
         User me = userRepository.findByUsername(username).orElse(null);
@@ -263,6 +327,9 @@ public class TopicService {
         if (lecturer == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chỉ giảng viên được tạo đề tài.");
         }
+
+        // Mã đề tài do hệ thống cấp, không lấy từ form (form không còn ô nhập mã).
+        f.setTopicCode(generateTopicCode(f.getDepartmentId(), f.getPeriodId()));
 
         Topic t = new Topic();
         copyFormToTopic(f, t);
@@ -304,6 +371,12 @@ public class TopicService {
     @Transactional
     public void update(Long id, TopicForm f, String username) {
         Topic t = loadOwnedEditable(id, username);
+        // Mã đề tài đã cấp là bất biến: form chỉ gửi lại mã cũ để hiển thị,
+        // nhưng nếu rỗng (form cũ, dữ liệu cũ) thì giữ nguyên mã đang có
+        // để không làm mất mã của đề tài đã duyệt.
+        if (f.getTopicCode() == null || f.getTopicCode().isBlank()) {
+            f.setTopicCode(t.getTopicCode());
+        }
         copyFormToTopic(f, t);
         // Gửi lại Trưởng khoa duyệt (đề bài: "gửi lại sau khi bị từ chối" - A8).
         t.setStatus(TopicStatus.PENDING);

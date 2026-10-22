@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vn.edu.demo.topicmanagement.dto.CouncilDetailView;
 import vn.edu.demo.topicmanagement.dto.CouncilForm;
@@ -40,18 +41,26 @@ public class HeadCouncilController {
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("periods", councilService.getPeriodsForCouncil());
-        model.addAttribute("councils", councilService.getCouncils());
-        model.addAttribute("councilForm", new CouncilForm());
+        addListPage(model, new CouncilForm());
         return "head/councils/list";
+    }
+
+    /** Xem trước mã hội đồng sẽ được cấp - form gọi qua fetch khi chọn đợt. */
+    @GetMapping("/preview-code")
+    @ResponseBody
+    public String previewCode(@RequestParam Long periodId) {
+        String code = councilService.previewCouncilCode(periodId);
+        return code == null ? "" : code;
     }
 
     @PostMapping
     public String create(@Valid @ModelAttribute("councilForm") CouncilForm form, BindingResult result,
-                         Principal principal, RedirectAttributes redirect) {
+                         Principal principal, Model model, RedirectAttributes redirect) {
         if (result.hasErrors()) {
-            redirect.addFlashAttribute("error", "Vui lòng nhập đầy đủ thông tin hợp lệ.");
-            return "redirect:/head/councils";
+            // Trả về thẳng form để hiện lỗi đúng ô, thay vì redirect làm mất
+            // lỗi chi tiết và dữ liệu vừa nhập.
+            addListPage(model, form);
+            return "head/councils/list";
         }
         try {
             Long id = councilService.create(form, principal.getName());
@@ -61,6 +70,14 @@ public class HeadCouncilController {
             redirect.addFlashAttribute("error", e.getMessage());
             return "redirect:/head/councils";
         }
+    }
+
+    /** Nạp lại dữ liệu trang danh sách khi form tạo hội đồng có lỗi. */
+    private void addListPage(Model model, CouncilForm form) {
+        model.addAttribute("councilForm", form);
+        model.addAttribute("periods", councilService.getPeriodsForCouncil());
+        model.addAttribute("councils", councilService.getCouncils());
+        model.addAttribute("previewCode", councilService.previewCouncilCode(form.getPeriodId()));
     }
 
     @PostMapping("/{id}/update")
