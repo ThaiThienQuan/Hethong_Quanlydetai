@@ -7,6 +7,7 @@ import vn.edu.demo.topicmanagement.entity.CouncilStatus;
 /** Bản trình bày hội đồng với danh sách thành viên/đề tài đã chuyển thành chuỗi. */
 public class CouncilSummaryView {
     private final Long id;
+    private final Long periodId;
     private final String councilCode;
     private final String name;
     private final String periodName;
@@ -18,13 +19,19 @@ public class CouncilSummaryView {
 
     public CouncilSummaryView(Long id, String name, String periodName, LocalDateTime reportDate, String room,
                               CouncilStatus status, List<String> members, List<String> topics) {
-        this(id, null, name, periodName, reportDate, room, status, members, topics);
+        this(id, null, null, name, periodName, reportDate, room, status, members, topics);
     }
 
     public CouncilSummaryView(Long id, String councilCode, String name, String periodName,
                               LocalDateTime reportDate, String room, CouncilStatus status,
                               List<String> members, List<String> topics) {
-        this.id = id; this.councilCode = councilCode; this.name = name;
+        this(id, null, councilCode, name, periodName, reportDate, room, status, members, topics);
+    }
+
+    public CouncilSummaryView(Long id, Long periodId, String councilCode, String name, String periodName,
+                              LocalDateTime reportDate, String room, CouncilStatus status,
+                              List<String> members, List<String> topics) {
+        this.id = id; this.periodId = periodId; this.councilCode = councilCode; this.name = name;
         this.periodName = periodName; this.reportDate = reportDate;
         this.room = room; this.status = status;
         this.members = members == null ? List.of() : List.copyOf(members);
@@ -33,6 +40,7 @@ public class CouncilSummaryView {
 
     public Long getId() { return id; }
     public Long getCouncilId() { return id; }
+    public Long getPeriodId() { return periodId; }
     public String getCouncilCode() { return councilCode == null ? "" : councilCode; }
     public String getName() { return name; }
     public String getPeriodName() { return periodName; }

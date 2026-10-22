@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.edu.demo.topicmanagement.dto.CouncilDetailView;
 import vn.edu.demo.topicmanagement.dto.CouncilForm;
 import vn.edu.demo.topicmanagement.dto.CouncilMemberForm;
 import vn.edu.demo.topicmanagement.entity.CouncilRole;
@@ -89,10 +90,24 @@ public class HeadCouncilController {
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("detail", councilService.getDetail(id));
+        var detail = councilService.getDetail(id);
+        model.addAttribute("detail", detail);
         model.addAttribute("memberForm", new CouncilMemberForm());
-        model.addAttribute("editForm", new CouncilForm());
+        // Pre-fill form Sửa từ dữ liệu hội đồng hiện tại, nếu không form sẽ rỗng và
+        // @Valid bắt buộc nhập lại từ đầu (trước đây điền bằng new CouncilForm()).
+        model.addAttribute("editForm", toEditForm(detail));
         return "head/councils/detail";
+    }
+
+    /** Dựng CouncilForm từ hội đồng để form Sửa hiển thị đúng giá trị đang lưu. */
+    private CouncilForm toEditForm(CouncilDetailView detail) {
+        var council = detail.getCouncil();
+        CouncilForm form = new CouncilForm();
+        form.setCouncilCode(council.getCouncilCode());
+        form.setCouncilName(council.getName());
+        form.setPeriodId(council.getPeriodId());
+        form.setReportDate(council.getReportDate());
+        return form;
     }
 
     @PostMapping("/{id}/members")

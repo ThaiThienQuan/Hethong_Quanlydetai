@@ -398,6 +398,16 @@ public class CouncilService {
                 .filter(ct -> ct.getTopic() != null)
                 .map(ct -> ct.getTopic().getId())
                 .collect(Collectors.toSet());
+        // Đề tài đã nằm trong HỘI ĐỒNG KHÁC (bất kể hội đồng đó READY/FINISHED) thì không thể
+        // xếp vào hội đồng này: DB có UNIQUE(topic_id) và addTopic() cũng chặn vậy. Trước đây
+        // chỉ lọc đề tài đã ở chính hội đồng này, nên dropdown vẫn liệt kê đề tài của hội đồng
+        // khác và người dùng bấm vào thì nhận "đã thuộc một hội đồng khác".
+        Set<Long> topicsTakenByOtherCouncils = councilTopicRepository.findAll().stream()
+                .filter(ct -> ct.getTopic() != null
+                        && ct.getCouncil() != null
+                        && !ct.getCouncil().getId().equals(councilId))
+                .map(ct -> ct.getTopic().getId())
+                .collect(Collectors.toSet());
 
         // Đề tài trong hội đồng kèm tiến độ chấm
         List<CouncilTopicProgressView> topicViews = new ArrayList<>();
@@ -421,6 +431,7 @@ public class CouncilService {
                 .toList();
         for (TopicRegistration r : candidates) {
             if (assignedTopicIds.contains(r.getTopic().getId())) continue;
+            if (topicsTakenByOtherCouncils.contains(r.getTopic().getId())) continue;
             available.add(new CouncilRegistrationOption(r.getId(),
                     r.getGroup().getGroupName(), r.getTopic().getTopicName()));
         }
@@ -460,7 +471,9 @@ public class CouncilService {
                 .map(m -> m.getRole().getDisplayName() + ": " + m.getLecturer().getUser().getFullName()).toList();
         List<String> topicNames = councilTopicRepository.findByCouncilId(council.getId()).stream()
                 .map(ct -> ct.getTopic().getTopicName()).toList();
-        return new CouncilSummaryView(council.getId(), council.getCouncilCode(),
+        return new CouncilSummaryView(council.getId(),
+                council.getPeriod() == null ? null : council.getPeriod().getId(),
+                council.getCouncilCode(),
                 council.getCouncilName(),
                 council.getPeriod() == null ? null : council.getPeriod().getName(),
                 council.getReportDate(), null, council.getStatus(), memberNames, topicNames);

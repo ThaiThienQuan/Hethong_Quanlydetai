@@ -18,17 +18,19 @@
     <p>Ngày báo cáo:
         <span th:text="${detail.council.reportDate != null ? #temporals.format(detail.council.reportDate, 'dd/MM/yyyy HH:mm') : ''}"></span></p>
 
-    <!-- Sửa hội đồng -->
+    <!-- Sửa hội đồng: chỉ hiện với hội đồng DRAFT -->
     <section th:if="${detail.council.status.name() == 'DRAFT'}">
         <h3>Sửa hội đồng</h3>
         <form th:action="@{/head/councils/{id}/update(id=${detail.council.id})}" th:object="${editForm}" method="post">
             <label>Mã hội đồng</label>
-            <input th:field="*{councilCode}" th:value="${detail.council.councilCode}" maxlength="30">
+            <!-- Dùng th:field để pre-fill từ editForm; KHÔNG dùng th:value vì nó bị th:field ghi đè. -->
+            <input th:field="*{councilCode}" maxlength="30">
             <label>Tên hội đồng</label>
             <input th:field="*{councilName}" required maxlength="150">
             <label>Ngày báo cáo</label>
             <input type="datetime-local" th:field="*{reportDate}">
-            <input type="hidden" th:field="*{periodId}" th:value="${detail.council.id}">
+            <!-- periodId giữ nguyên đợt của hội đồng, không cho đổi (chỉ khi DRAFT mới sửa được mã). -->
+            <input type="hidden" th:field="*{periodId}">
             <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
         </form>
     </section>
@@ -66,7 +68,10 @@
             <button class="btn btn-secondary" type="submit">Xếp đề tài</button>
         </form>
         <p th:if="${#lists.isEmpty(detail.availableRegistrations)}">
-            Chưa có đề tài cùng đợt với hội đồng đã có báo cáo.</p>
+            Không còn đề tài nào đủ điều kiện để xếp vào hội đồng này. Đề tài phải thuộc đúng đợt
+            <strong th:text="${detail.council.periodName}"></strong>, đăng ký đã được duyệt, đã nộp báo cáo
+            và chưa nằm trong hội đồng nào khác.
+        </p>
         <form th:action="@{/head/councils/{id}/activate(id=${detail.council.id})}" method="post"
               onsubmit="return confirm('Kích hoạt hội đồng? Sau khi kích hoạt chỉ gỡ thành viên khi đảm bảo ≥3 người, không làm mất chủ tịch/thư ký.');">
             <button class="btn btn-primary" type="submit">Kiểm tra điều kiện và kích hoạt (DRAFT → READY)</button>
