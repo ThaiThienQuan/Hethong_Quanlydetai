@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.demo.topicmanagement.config.PermissionCatalog;
+import vn.edu.demo.topicmanagement.dto.CurrentUserView;
 import vn.edu.demo.topicmanagement.dto.DashboardNoticeView;
 import vn.edu.demo.topicmanagement.dto.DashboardStatView;
 import vn.edu.demo.topicmanagement.dto.DashboardTaskView;
@@ -25,6 +26,7 @@ import vn.edu.demo.topicmanagement.entity.ReviewAssignment;
 import vn.edu.demo.topicmanagement.entity.TopicRegistration;
 import vn.edu.demo.topicmanagement.entity.TopicStatus;
 import vn.edu.demo.topicmanagement.entity.User;
+import vn.edu.demo.topicmanagement.entity.UserRole;
 import vn.edu.demo.topicmanagement.repository.CouncilMemberRepository;
 import vn.edu.demo.topicmanagement.repository.CouncilRepository;
 import vn.edu.demo.topicmanagement.repository.CouncilTopicRepository;
@@ -124,14 +126,25 @@ public class DashboardService {
     // Thông báo mới (mọi vai trò)
     // =====================================================================================
 
-    /** Họ tên hiển thị trên lời chào (fallback về username nếu không tìm thấy). */
+    /**
+     * Người dùng đang đăng nhập: họ tên + mã vai trò + nhãn vai trò.
+     * Dùng để hiển thị "tên + chức vụ" ở lời chào và ở thanh trên cùng.
+     */
     @Transactional(readOnly = true)
-    public String getDisplayName(String username) {
-        if (username == null) return "";
+    public CurrentUserView getCurrentUser(String username) {
+        if (username == null) {
+            return new CurrentUserView("", "", "");
+        }
         return userRepository.findByUsername(username)
-                .map(User::getFullName)
-                .filter(name -> name != null && !name.isBlank())
-                .orElse(username);
+                .map(u -> {
+                    UserRole role = u.getRole();
+                    String label = role == null ? "" : role.getLabel();
+                    return new CurrentUserView(
+                            u.getFullName() == null || u.getFullName().isBlank() ? username : u.getFullName(),
+                            role == null ? "" : role.name(),
+                            label);
+                })
+                .orElseGet(() -> new CurrentUserView(username, "", ""));
     }
 
     /** 5 thông báo mới nhất mà người đọc được phép xem. */

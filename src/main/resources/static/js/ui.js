@@ -146,10 +146,20 @@
     active.classList.add('is-active');
   }
 
-  var headline = doc.querySelector('[data-page-title], .page-title-block h1, .box > h2:first-child, .hero h1');
+  // Tiêu đề trang: ưu tiên thẻ tiêu đề đầu tiên trong vùng nội dung chính.
+  // Lưu ý: các trang dùng cấu trúc .box > .box-head > h2 (h2 nằm trong .box-head,
+  // KHÔNG phải con trực tiếp của .box) nên phải dùng `.box-head h2`.
+  var headline = doc.querySelector(
+    '[data-page-title], .page-title-block h1, .box .box-head h2, .box-head h2, .greeting h1'
+  );
   var crumb = doc.getElementById('current-page-crumb');
   var title = doc.getElementById('current-page-title');
-  var pageName = headline ? headline.textContent.trim().replace(/\s+/g, ' ') : 'Tổng quan';
+  var pageName = headline ? headline.textContent.trim().replace(/\s+/g, ' ') : '';
+  if (!pageName) {
+    // Dự phòng: lấy chữ của mục sidebar đang active.
+    var activeLabel = active ? active.querySelector('span') : null;
+    pageName = activeLabel ? activeLabel.textContent.trim() : 'Tổng quan';
+  }
   if (path === '/') pageName = 'Tổng quan';
   if (pageName.length > 62) pageName = pageName.slice(0, 59) + '…';
   if (crumb) crumb.textContent = pageName;

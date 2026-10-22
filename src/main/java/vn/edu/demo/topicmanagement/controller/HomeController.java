@@ -27,7 +27,6 @@ public class HomeController {
     @GetMapping("/")
     public String home(Principal principal, Model model) {
         String username = principal == null ? null : principal.getName();
-        model.addAttribute("displayName", dashboardService.getDisplayName(username));
         model.addAttribute("tasks", dashboardService.getMyTasks(username));
         model.addAttribute("notices", dashboardService.getRecentNotices(username));
         model.addAttribute("steps", dashboardService.getWorkflowSteps());

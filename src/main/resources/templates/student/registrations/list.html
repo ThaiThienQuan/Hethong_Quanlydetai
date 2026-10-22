@@ -9,7 +9,22 @@
         <h2>Đăng ký đề tài sinh viên</h2>
     </div>
     <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
-    <section th:if="${myGroup == null}" class="error"><p>Bạn cần tạo hoặc tham gia nhóm trước khi đăng ký đề tài.</p><a th:href="@{/student/groups}">Quản lý nhóm</a></section>
+    <section th:if="${myGroup == null}" class="empty-state">
+        <svg class="illust" viewBox="0 0 160 160" aria-hidden="true" fill="none">
+            <circle cx="80" cy="80" r="62" stroke="var(--primary)" stroke-width="2" opacity=".2"/>
+            <circle cx="80" cy="80" r="44" stroke="var(--accent)" stroke-width="2" opacity=".25" stroke-dasharray="6 8"/>
+            <g stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="62" cy="66" r="12"/><path d="M44 112v-4a18 18 0 0 1 18-18h0a18 18 0 0 1 18 18v4"/>
+                <circle cx="102" cy="72" r="10"/><path d="M88 112v-3a14 14 0 0 1 14-14h0a14 14 0 0 1 14 14v3"/>
+            </g>
+        </svg>
+        <h3>Bạn cần tạo hoặc tham gia nhóm trước</h3>
+        <p>Chỉ nhóm trưởng mới được gửi đăng ký đề tài. Hãy tạo nhóm mới hoặc tham gia một nhóm đang nhận thành viên.</p>
+        <a class="btn btn-primary" th:href="@{/student/groups}">
+            <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Quản lý nhóm
+        </a>
+    </section>
     <section th:if="${myGroup != null and canRegister}">
         <p>Nhóm: <strong th:text="${myGroup.name}"></strong>. Chỉ nhóm trưởng được gửi đăng ký.</p>
         <form th:if="${!#lists.isEmpty(topics)}" th:action="@{/student/registrations}" th:object="${registrationForm}" method="post">

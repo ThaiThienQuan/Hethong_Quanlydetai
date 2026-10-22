@@ -49,6 +49,11 @@ public class SecurityConfig {
                 // Trang đăng nhập và tài nguyên tĩn: ai cũng truy cập được.
                 .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/error/**").permitAll()
 
+                // Trang trợ giúp & liên hệ: xem được cả khi CHƯA đăng nhập, vì
+                // người quên mật khẩu / bị khoá tài khoản không đăng nhập được mà
+                // vẫn phải biết liên hệ ai, ở đâu, số điện thoại nào.
+                .requestMatchers("/support/**").permitAll()
+
                 // ---------- Phân quyền theo URL (mục 5.2 / 5.3 / ...) ----------
                 // Dùng hasAuthority(<PERMISSION>) khớp với bảng role_permissions trong
                 // database/HT_QLDT.sql, nên đổi phân quyền trên màn hình "Vai trò &

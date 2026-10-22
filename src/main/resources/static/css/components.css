@@ -677,6 +677,15 @@ textarea.is-invalid {
 .error::before { content: "\26A0"; font-weight: 800; line-height: 1.4; }
 .ok a, .error a { color: inherit; text-decoration: underline; font-weight: 700; }
 
+/* .ok / .error là hộp cảnh báo dùng chung: mặc định là 1 đoạn chữ.
+   Khi cần nhiều dòng (tiêu đề + mô tả + nút), bọc nội dung trong 1 thẻ <div>
+   để icon ⚠ nằm cạnh khối nội dung thay vì đẩy từng phần tử sang cạnh nhau. */
+.ok > div, .error > div { min-width: 0; display: block; }
+.ok > div > *:first-child, .error > div > *:first-child { margin-top: 0; }
+.ok > div > *:last-child,  .error > div > *:last-child  { margin-bottom: 0; }
+.error > div > p, .ok > div > p { margin: 0 0 8px; }
+.error > div > .btn, .ok > div > .btn { margin-top: 2px; }
+
 .supervisor-link {
   display: inline-flex;
   align-items: center;

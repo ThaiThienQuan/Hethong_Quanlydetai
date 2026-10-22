@@ -194,6 +194,10 @@
           <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 8.5-8.5 2 2-3 3 2 2-3 3-2-2-3 3"/></svg>
           <span>Đổi mật khẩu</span>
         </a>
+        <a class="sidebar-link" th:href="@{/support}">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2 1-1.2 1.8"/><path d="M12 17h.01"/></svg>
+          <span>Trợ giúp &amp; liên hệ</span>
+        </a>
       </section>
     </nav>
 
@@ -225,10 +229,7 @@
     <div class="topbar-right">
       <span class="role-pill">
         <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 22 8-4V6l-8-4-8 4v12l8 4Z"/><path d="m9 12 2 2 4-4"/></svg>
-        <span sec:authorize="hasRole('ADMIN')">Quản trị viên</span>
-        <span sec:authorize="hasRole('TRUONG_KHOA')">Trưởng khoa</span>
-        <span sec:authorize="hasRole('GIANG_VIEN')">Giảng viên</span>
-        <span sec:authorize="hasRole('SINH_VIEN')">Sinh viên</span>
+        <span th:text="${currentUser.roleLabel}">Chức vụ</span>
       </span>
 
       <!-- Nút chuyển theme: Sáng / Tối / Theo hệ thống -->
@@ -258,8 +259,11 @@
       <!-- Menu người dùng (chứa nút Đăng xuất POST + CSRF) -->
       <div class="user-menu">
         <button class="user-menu-trigger" type="button" data-user-menu-toggle aria-expanded="false" aria-haspopup="true">
-          <span class="profile-avatar" sec:authentication="name" th:text="${#strings.substring(#strings.toUpperCase(#authentication.name), 0, 1)}">U</span>
-          <span class="profile-name" sec:authentication="name">Tài khoản</span>
+          <span class="profile-avatar"
+                th:text="${#strings.substring(#strings.toUpperCase(currentUser.fullName), 0, 1)}"
+                th:if="${!#strings.isEmpty(currentUser.fullName)}">U</span>
+          <span class="profile-avatar" th:if="${#strings.isEmpty(currentUser.fullName)}">U</span>
+          <span class="profile-name" th:text="${currentUser.fullName}">Tài khoản</span>
           <svg class="ui-icon chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="user-menu-list" data-user-menu role="menu" aria-label="Menu người dùng">

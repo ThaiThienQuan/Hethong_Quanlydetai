@@ -40,7 +40,7 @@
     <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table class="table-wide">
         <thead>
             <tr><th>#</th><th>Tên đăng nhập</th><th>Họ tên</th><th>Vai trò</th><th>Mã SV/GV</th>
-                <th>Bộ môn</th><th>Email</th><th>Trạng thái</th><th>Thao tác</th></tr>
+                <th>Email</th><th>Trạng thái</th><th>Thao tác</th></tr>
         </thead>
         <tbody>
             <tr th:each="u, stat : ${users}">
@@ -49,7 +49,6 @@
                 <td class="nowrap" th:text="${u.fullName != null ? u.fullName : ''}">Họ tên</td>
                 <td class="nowrap" th:text="${u.role != null ? u.role.label : '—'}">Vai trò</td>
                 <td class="nowrap" th:text="${u.studentCode != null ? u.studentCode : (u.lecturerCode != null ? u.lecturerCode : '')}">Mã</td>
-                <td class="nowrap" th:text="${u.departmentName != null ? u.departmentName : ''}">Bộ môn</td>
                 <td class="nowrap" th:text="${u.email != null ? u.email : ''}">Email</td>
                 <td>
                     <span class="badge"
