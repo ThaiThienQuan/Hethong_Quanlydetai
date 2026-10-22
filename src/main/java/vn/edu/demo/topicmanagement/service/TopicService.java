@@ -345,6 +345,7 @@ public class TopicService {
     @Transactional(readOnly = true)
     public HeadSupervisorInfo getHeadSupervisorInfo(Long topicId) {
         Topic topic = topicRepository.findById(topicId).orElseThrow();
+        assertSupervisorsEditable(topic);
         List<TopicSupervisor> assigned = supervisorRepository.findByTopicIdWithLecturer(topicId);
         Long main = null;
         Long secondary = null;
@@ -403,6 +404,10 @@ public class TopicService {
         if (t.getStatus() != TopicStatus.APPROVED) {
             throw new IllegalStateException("Chỉ công bố đề tài đã duyệt.");
         }
+        // Đã công bố rồi thì không công bố lại lần nữa (nút "Công bố" chỉ hiện 1 lần).
+        if (t.isPublished()) {
+            throw new IllegalStateException("Đề tài này đã được công bố.");
+        }
         t.setPublished(true);
         topicRepository.save(t);
         auditLogService.record(username, AuditLogService.TOPIC_PUBLISH, "topics", id,
@@ -417,6 +422,7 @@ public class TopicService {
         }
         List<Topic> approved = topicRepository.findByStatus(TopicStatus.APPROVED).stream()
                 .filter(t -> t.getPeriod().getId().equals(periodId))
+                .filter(t -> !t.isPublished())   // bỏ qua đề tài đã công bố từ trước
                 .toList();
         for (Topic t : approved) {
             t.setPublished(true);
@@ -446,6 +452,11 @@ public class TopicService {
     public void updateSupervisorsByHead(Long topicId, HeadSupervisorForm form, String username) {
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đề tài"));
+
+        // Chỉ được phân công / đổi GVHD khi đề tài còn đang chờ duyệt, hoặc đã duyệt
+        // nhưng chưa công bố. Đề tài bị từ chối (GV sẽ sửa và gửi duyệt lại) hoặc đã
+        // công bố thì không đổi GVHD được nữa.
+        assertSupervisorsEditable(topic);
 
         Long primaryId = form.getPrimarySupervisorId();
         if (primaryId == null) {
@@ -490,6 +501,23 @@ public class TopicService {
     // ------------------------------------------------------------------
     // Nội bộ
     // ------------------------------------------------------------------
+
+    /**
+     * Kiểm tra đề tài còn cho phép phân công / đổi GVHD hay không.
+     * Chỉ được đổi GVHD khi đề tài đang chờ duyệt (PENDING) hoặc đã duyệt nhưng
+     * chưa công bố. Đề tài bị từ chối (GV sẽ sửa rồi gửi duyệt lại) hoặc đã công bố
+     * thì không được đổi GVHD nữa.
+     */
+    private void assertSupervisorsEditable(Topic topic) {
+        if (topic.getStatus() == TopicStatus.REJECTED) {
+            throw new IllegalStateException(
+                    "Đề tài đã bị từ chối nên không thể phân công lại giảng viên hướng dẫn.");
+        }
+        if (topic.isPublished()) {
+            throw new IllegalStateException(
+                    "Đề tài đã công bố nên không thể đổi giảng viên hướng dẫn.");
+        }
+    }
 
     private void assertNotAssignedAsReviewer(Long topicId, Long lecturerId) {
         List<ReviewAssignmentRef> refs = assignmentRepository.findByTopicId(topicId).stream()
@@ -591,6 +619,7 @@ public class TopicService {
         v.setDescription(t.getDescription());
         v.setStatus(t.getStatus());
         v.setRejectReason(t.getRejectReason());
+        v.setPublished(t.isPublished());
         if (t.getDepartment() != null) {
             v.setDepartmentId(t.getDepartment().getId());
             v.setDepartmentName(t.getDepartment().getName());

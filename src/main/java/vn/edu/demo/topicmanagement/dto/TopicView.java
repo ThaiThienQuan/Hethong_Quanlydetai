@@ -28,6 +28,8 @@ public class TopicView {
     private String rejectReason;
     private String groupName;
     private String groupCode;
+    /** Đề tài đã công bố cho sinh viên hay chưa (cờ topics.published). */
+    private boolean published;
 
     public TopicView() {}
 
@@ -57,6 +59,8 @@ public class TopicView {
     public void setTopic(Topic topic) { this.topic = topic; }
     public String getSupervisors() { return supervisorsText; }
     public boolean isEditable() { return editable; }
+    public boolean isPublished() { return published; }
+    public void setPublished(boolean published) { this.published = published; }
     public String getSupervisorsText() { return supervisorsText; }
     public Long getId() { return id; }
     public String getTopicCode() { return topicCode; }

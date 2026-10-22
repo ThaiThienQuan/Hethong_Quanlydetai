@@ -103,10 +103,6 @@
       <!-- PHẢN BIỆN & CHẤM ĐIỂM -->
       <section class="sidebar-group" sec:authorize="hasAnyRole('TRUONG_KHOA','GIANG_VIEN')">
         <h2 class="sidebar-label">Phản biện &amp; chấm điểm</h2>
-        <a class="sidebar-link" th:href="@{/head/reviewers}" sec:authorize="hasRole('TRUONG_KHOA')">
-          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-          <span>Phân công phản biện</span>
-        </a>
         <a class="sidebar-link" th:href="@{/head/councils}" sec:authorize="hasRole('TRUONG_KHOA')">
           <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7M4 10h16M6 10v9M10 10v9M14 10v9M18 10v9M3 21h18"/></svg>
           <span>Hội đồng đánh giá</span>

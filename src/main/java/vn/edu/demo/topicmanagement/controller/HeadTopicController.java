@@ -55,16 +55,23 @@ public class HeadTopicController {
     /** Phân công GVHD - quyền riêng SUPERVISOR_ASSIGN (A11), không cần TOPIC_APPROVE. */
     @GetMapping("/{id}/supervisors")
     @PreAuthorize("hasAuthority('SUPERVISOR_ASSIGN')")
-    public String supervisorForm(@PathVariable Long id, Model model) {
-        var info = topicService.getHeadSupervisorInfo(id);
-        HeadSupervisorForm form = new HeadSupervisorForm();
-        form.setPrimarySupervisorId(info.primarySupervisorId());
-        form.setCoSupervisorId(info.coSupervisorId());
-        model.addAttribute("info", info);
-        model.addAttribute("id", id);
-        model.addAttribute("form", form);
-        model.addAttribute("lecturers", topicService.getActiveLecturerOptions());
-        return "head/topics/supervisors";
+    public String supervisorForm(@PathVariable Long id, Model model,
+                                 RedirectAttributes redirect) {
+        try {
+            var info = topicService.getHeadSupervisorInfo(id);
+            HeadSupervisorForm form = new HeadSupervisorForm();
+            form.setPrimarySupervisorId(info.primarySupervisorId());
+            form.setCoSupervisorId(info.coSupervisorId());
+            model.addAttribute("info", info);
+            model.addAttribute("id", id);
+            model.addAttribute("form", form);
+            model.addAttribute("lecturers", topicService.getActiveLecturerOptions());
+            return "head/topics/supervisors";
+        } catch (IllegalStateException e) {
+            // Đề tài đã bị từ chối / đã công bố → không cho mở form phân công GVHD.
+            redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/head/topics";
+        }
     }
 
     @PostMapping("/{id}/supervisors")

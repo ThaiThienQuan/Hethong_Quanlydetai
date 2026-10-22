@@ -10,10 +10,9 @@
    ---------------------------------------------------------------------
      1. Xóa database cũ (nếu có):        DROP DATABASE student_topic_management;
      2. Nạp schema:                       database\HT_QLDT.sql
-     3. Nạp danh mục quyền:               database\HT_QLDT_01_danh_muc_quyen.sql
-     4. Nạp dữ liệu demo kịch bản này:    database\HT_QLDT_02_du_lieu_demo_day_du.sql
-     5. Tạo tệp báo cáo mẫu (PDF thật):   python database\tao_bao_cao_demo_day_du.py .\storage\reports
-     6. Sinh mật khẩu BCrypt cho các tài khoản:
+     3. Nạp dữ liệu demo kịch bản này:    database\HT_QLDT_02_du_lieu_demo_day_du.sql
+     4. Tạo tệp báo cáo mẫu (PDF thật):   python database\tao_bao_cao_demo_day_du.py .\storage\reports
+     5. Sinh mật khẩu BCrypt cho các tài khoản:
             powershell -File scripts\reset-passwords.ps1 -Password 123456
 
      Hoặc chạy một lệnh:
@@ -599,43 +598,15 @@ UNION ALL SELECT 'audit_logs',          COUNT(*) FROM audit_logs;
 SELECT v.council_id, v.member_count, v.chairman_count, v.secretary_count, v.is_valid
 FROM v_council_validity v ORDER BY v.council_id;
 
-/* Điểm trung bình theo đề tài (đối chiếu với review_results) */
-SELECT ra.council_id, ra.topic_id, ra.assigned_count, s.evaluated_count, s.average_score
-FROM review_assignments ra
-JOIN council_topics ct ON ct.topic_id = ra.topic_id AND ct.council_id = ra.council_id
-JOIN (SELECT ra2.council_id, ra2.topic_id, COUNT(ev.id) AS evaluated_count, ROUND(AVG(ev.score), 2) AS average_score
-      FROM review_assignments ra2
-      LEFT JOIN evaluations ev ON ev.assignment_id = ra2.id AND ev.status = 'SUBMITTED'
-      GROUP BY ra2.council_id, ra2.topic_id) s
-  ON s.council_id = ra.council_id AND s.topic_id = ra.topic_id
-GROUP BY ra.council_id, ra.topic_id, ra.assigned_count, s.evaluated_count, s.average_score
-ORDER BY ra.council_id, ra.topic_id;
-
-/* Kết quả: điểm cuối phải khớp trung bình thành phần, ĐẠT khi >= 5,00 */
-SELECT rr.id, t.topic_code, g.group_name, rr.final_score, rr.result, rr.published
-FROM review_results rr
-JOIN topics t ON t.id = rr.topic_id
-JOIN student_groups g ON g.id = rr.group_id
-ORDER BY rr.id;
-
-
-/* =====================================================================
-   11. KỊCH BẢN DEMO - THỨ TỰ THỰC HIỆN (đọc khi trình bày)
-
-   ĐĂNG NHẬP: mọi tài khoản mật khẩu 123456
-     admin · truongkhoa · gv01..gv08 · sv01..sv24  (sv24 bị khóa)
-
-   ── GIAI ĐOẠN 1: GV đề xuất đề tài  (đợt 1, đang mở cho GV) ─────────────
-     1. Đăng nhập gv01 → Đề xuất đề tài mới, lưu  -> trạng thái "Chờ duyệt"
-     2. Đăng nhập truongkhoa → Đề tài → lọc "Chờ duyệt"
-        · Duyệt đề tài t1, t2, t5        -> trạng thái "Đã duyệt"
-        · Từ chối đề tài (thử với đề tài mới) -> phải nhập lý do
-     3. Công bố danh sách đề tài (đề tài t3 đã duyệt sẵn nhưng chưa công bố)
-
-   ── GIAI ĐOẠN 2: SV lập nhóm và đăng ký  (đợt 2, đang mở cho SV) ─────────
-     4. Đăng nhập sv06 (chưa có nhóm) → Lập nhóm "Môn học mới" (g3 sẵn có)
-        · Thêm thành viên tối đa 3 người (app.group.max-size = 3)
-     5. Nhóm trưởng chọn 1 đề tài đã công bố → Đăng ký
+/* Điểm trung bình theo đề tài (đối chiếu với review_results)
+   LƯU Ý: review_assignments KHÔNG có cột assigned_count — đó là cột TÍNH TOÁN
+   trong view v_topic_score_summary. Query cũ (ra.assigned_count) gây lỗi 1054. */
+SELECT v.council_id, v.topic_id, v.assigned_count, v.evaluated_count, v.average_score
+FROM v_topic_score_summary v
+JOIN council_topics ct ON ct.council_id = v.council_id AND ct.topic_id = v.topic_id
+ORDER BY v.council_id, v.topic_id;
+.topic_id;
+→ Đăng ký
         · Thử đăng ký lần thứ hai  -> phải bị từ chối
      6. Đăng nhập gv03 (GVHD của t7) → Xác nhận đăng ký của nhóm g2
      7. Nhóm g4 từng bị từ chối → thử đăng ký lại đề tài TLCN-26-003

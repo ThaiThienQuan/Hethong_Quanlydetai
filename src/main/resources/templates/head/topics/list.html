@@ -74,32 +74,42 @@
                           th:text="${row.groupCode + ' - ' + row.groupName}">Nhóm</span>
                     <span th:if="${row.groupName == null}">—</span>
                 </td>
-                <td><span class="badge" th:classappend="${'st-' + row.status.name()}" th:text="${
+                <td>
+                    <span class="badge" th:classappend="${'st-' + row.status.name()}" th:text="${
                                   row.status.name() == 'PENDING' ? 'Chờ duyệt' :
                                   row.status.name() == 'APPROVED' ? 'Đã duyệt' :
-                                  row.status.name() == 'REJECTED' ? 'Bị từ chối' : row.status.name()}">Chờ duyệt</span></td>
-                <td class="actions">
-                    <a th:href="@{/head/topics/{id}/supervisors(id=${row.id})}"
-                       class="supervisor-link">Phân công / đổi GVHD</a>
-                    <form th:if="${row.status.name() == 'PENDING'}"
-                          th:action="@{/head/topics/{id}/approve(id=${row.id})}" method="post">
-                        <button class="btn btn-soft-success btn-sm" type="submit">Duyệt</button>
-                    </form>
-                    <form th:if="${row.status.name() == 'PENDING'}"
-                          th:action="@{/head/topics/{id}/reject(id=${row.id})}" method="post">
-                        <input type="text" name="reason" placeholder="Lý do từ chối" class="reason" required>
-                        <button class="btn btn-soft-danger btn-sm" type="submit">Từ chối</button>
-                    </form>
-                    <form th:if="${row.status.name() == 'APPROVED'}"
-                          th:action="@{/head/topics/{id}/publish(id=${row.id})}" method="post">
-                        <button class="btn btn-soft-primary btn-sm" type="submit">Công bố</button>
-                    </form>
-                    <form th:if="${row.groupName == null}"
-                          th:action="@{/head/topics/{id}/delete(id=${row.id})}" method="post"
-                          class="form-inline"
-                          onsubmit="return confirm('Bạn chắc chắn muốn xóa đề tài này?');">
-                        <button class="btn btn-soft-danger btn-sm" type="submit">Xóa</button>
-                    </form>
+                                  row.status.name() == 'REJECTED' ? 'Bị từ chối' : row.status.name()}">Chờ duyệt</span>
+                    <span class="badge st-PUBLISHED" th:if="${row.published}">Đã công bố</span>
+                </td>
+                <td class="actions action-cell">
+                    <!-- Ô thao tác chia 2 dòng: dòng 1 = quyết định, dòng 2 = thao tác phụ.
+                         Cách này giữ cột "Thao tác" hẹp, các cột khác không bị ép lại.
+                         Lý do từ chối nằm trong modal nên không chiếm chỗ ngang.
+
+                         Mỗi hành động chỉ hiện khi còn hợp lệ:
+                           · Duyệt / Từ chối : đề tài đang chờ duyệt (PENDING)
+                           · Công bố         : đề tài đã duyệt (APPROVED) và CHƯA công bố
+                           · Phân công GVHD  : đề tài chưa bị từ chối và chưa công bố -->
+                    <div class="action-stack">
+                        <div class="action-row">
+                            <form th:if="${row.status.name() == 'PENDING'}"
+                                  th:action="@{/head/topics/{id}/approve(id=${row.id})}" method="post">
+                                <button class="btn btn-soft-success btn-sm" type="submit">Duyệt</button>
+                            </form>
+                            <button th:if="${row.status.name() == 'PENDING'}" type="button"
+                                    class="btn btn-soft-danger btn-sm"
+                                    th:attr="data-modal-open='reject-modal-' + ${row.id}">Từ chối</button>
+                            <form th:if="${row.status.name() == 'APPROVED' and !row.published}"
+                                  th:action="@{/head/topics/{id}/publish(id=${row.id})}" method="post">
+                                <button class="btn btn-soft-primary btn-sm" type="submit">Công bố</button>
+                            </form>
+                        </div>
+                        <div class="action-row">
+                            <a th:if="${row.status.name() != 'REJECTED' and !row.published}"
+                               th:href="@{/head/topics/{id}/supervisors(id=${row.id})}"
+                               class="supervisor-link">Phân công GVHD</a>
+                        </div>
+                    </div>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(rows)}"><td colspan="9">Chưa có đề tài nào.</td></tr>
@@ -116,8 +126,40 @@
            th:href="@{/head/topics(status=${selectedStatus},departmentId=${selectedDepartmentId},
                                    periodId=${selectedPeriodId},page=${currentPage + 1})}">Sau &raquo;</a>
     </div>
-</div>
+    </div>
 </main>
+
+<!-- ============ MODAL: TỪ CHỐI ĐỀ TÀI ============
+     Mỗi đề tài chờ duyệt có một hộp thoại riêng. Lý do từ chối được nhập
+     TRONG modal thay vì nằm sẵn trong bảng, nhờ vậy cột "Thao tác" hẹp lại
+     và các cột khác (Tên đề tài, Nhóm, Trạng thái) không bị ép.
+
+     Lưu ý: .modal-backdrop dùng position:fixed nên được đặt trực tiếp làm con
+     của <body> — không bọc trong thẻ div, vì body.app-page là CSS Grid và mọi
+     con trực tiếp khác sẽ bị xếp vào ô grid, làm vỡ bố cục trang. -->
+<div th:each="row : ${rows}" th:if="${row.status.name() == 'PENDING'}"
+     class="modal-backdrop" th:id="'reject-modal-' + ${row.id}" role="presentation">
+    <div class="modal" role="dialog" aria-modal="true"
+         th:attr="aria-labelledby='reject-title-' + ${row.id}">
+        <h2 th:id="'reject-title-' + ${row.id}">Từ chối đề tài</h2>
+        <p class="modal-intro"
+           th:text="${'Đề tài ' + row.topicCode + ' – ' + row.topicName}">Đề tài</p>
+
+        <form method="post" th:action="@{/head/topics/{id}/reject(id=${row.id})}">
+            <div class="form-group">
+                <label th:for="'reject-reason-' + ${row.id}">Lý do từ chối</label>
+                <textarea th:id="'reject-reason-' + ${row.id}" name="reason" rows="4"
+                          required maxlength="500"
+                          placeholder="Nhập lý do từ chối đề tài"></textarea>
+                <small>Lý do này sẽ hiển thị cho giảng viên đề xuất đề tài.</small>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn" data-modal-close>Hủy bỏ</button>
+                <button type="submit" class="btn btn-danger">Từ chối đề tài</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 </body>
 </html>

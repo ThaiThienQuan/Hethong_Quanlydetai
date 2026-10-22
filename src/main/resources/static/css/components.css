@@ -680,6 +680,39 @@ td.actions > form { display: inline-flex; align-items: center; gap: 4px; margin:
 td.actions > form button { margin: 0 !important; }
 td.actions > a { display: inline-flex; align-items: center; margin: 3px 4px 0 0; vertical-align: middle; }
 
+/* ===== Ô thao tác chia nhiều dòng (action-stack) =====
+   Bảng duyệt đề tài có nhiều hành động trong 1 ô (Duyệt / Từ chối / Công bố /
+   Phân công GVHD). Xếp tất cả trên 1 dòng làm cột "Thao tác" phình to, đẩy các
+   cột khác (Tên đề tài, Nhóm, Trạng thái) bị ép lại. Ta chia làm 2 dòng:
+     dòng 1 = quyết định của trưởng khoa (Duyệt / Từ chối / Công bố)
+     dòng 2 = thao tác phụ (Phân công GVHD)
+   Nhờ vậy cột giữ được độ rộng nhỏ, các cột khác có đủ chỗ hiển thị. */
+td.action-cell { white-space: normal; }
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+.action-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+/* Trong action-stack, các form/button không được kế thừa margin của td.actions */
+.action-stack > .action-row > form,
+.action-stack > .action-row > button,
+.action-stack > .action-row > a {
+  margin: 0 !important;
+  display: inline-flex;
+  align-items: center;
+}
+.action-stack .btn-sm { min-height: 30px; padding: 5px 11px; font-size: 12.5px; }
+.action-stack .supervisor-link { margin: 0; }
+
 /* Bảng dạng thẻ trên điện thoại (<= 700px) */
 @media (max-width: 700px) {
   .table-scroll table,
