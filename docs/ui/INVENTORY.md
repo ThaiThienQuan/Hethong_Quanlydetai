@@ -113,7 +113,6 @@ Quyền chi tiết (`hasAuthority`) được khai báo trong `SecurityConfig` v�
 |---|---|
 | `fragments/layout.html` | Khung duy nhất. Fragment `head(pageTitle)` (tiêu đề, meta, 4 file CSS, `theme.js` nạp đồng bộ) và fragment `nav` (sidebar + topbar). |
 | `fragments/nav.html` | Fragment ủy quyền: `th:fragment="nav"` → `th:replace="~{fragments/layout :: nav}"`. Giữ tương thích cho template gọi `~{fragments/nav :: nav}`. |
-| `fragments/icons.html` | Sprite SVG (`<defs>` + `#i-*`), ẩn bằng `.svg-sprite`. Icon vẽ tay, dùng `currentColor`. |
 | `fragments/error.html` | Fragment `errorPage(code, title, message, hint)` dùng cho 403/404/500. |
 
 Mọi trang nghiệp vụ có cùng khuôn:
@@ -138,8 +137,8 @@ Mọi trang nghiệp vụ có cùng khuôn:
 |---|---|
 | `static/css/theme.css` | **Toàn bộ design token.** Biến `:root` (sáng) và `:root[data-theme="dark"]`. Gradient, bóng đổ, bo góc, font, màu trạng thái. |
 | `static/css/layout.css` | Khung ứng dụng (CSS Grid 2 vùng), sidebar, topbar, vùng nội dung, phân trang trang, in ấn. |
-| `static/css/components.css` | Thư viện thành phần: card, box, nút, biểu mẫu, bảng, badge, chip, stat, progress, score, empty-state, modal, tabs, avatar, tooltip, detail-list, article, split-layout, utility. |
-| `static/css/pages.css` | Phần riêng từng nhóm trang: hero dashboard, quick-grid, trang đăng nhập (auth), bảng điểm, file-drop, perm-grid, style guide. |
+| `static/css/components.css` | Thư viện thành phần: card, box, nút, biểu mẫu, bảng, badge, chip, stat, progress, score, empty-state, modal, detail-list, article, split-layout, utility. |
+| `static/css/pages.css` | Phần riêng từng nhóm trang: dashboard, quick-grid, trang đăng nhập (auth), perm-grid, style guide. |
 | `static/js/theme.js` | Nạp **đồng bộ** trong `<head>`: đọc `localStorage`, đặt `data-theme` / `data-theme-pref` trước khi vẽ → **không FOUC**. Cũng cấp `window.setTheme(pref)`. |
 | `static/js/ui.js` | Ngăn kéo sidebar, thu gọn sidebar, menu user/theme, tự ẩn flash, hộp xác nhận thay `confirm()`, hiện/ẩn mật khẩu, bảng → thẻ ở mobile (`data-label`), chống bấm đúp submit. |
 
@@ -173,21 +172,19 @@ Mọi mã màu cứng trong `layout.css` / `components.css` / `pages.css` đã �
 | Nhóm | Class | Ghi chú |
 |---|---|---|
 | Khung | `.box`, `.box.narrow/.wide/.xwide/.formbox`, `.card`, `.card-header/.card-title/.card-sub` | `.box` giữ tương thích với template cũ |
-| Tiêu đề trang | `.page-title-block`, `.page-header`, `.page-eyebrow`, `.page-title`, `.page-desc` | |
+| Tiêu đề trang | `.page-title-block`, `.page-eyebrow` | |
 | Nút | `.btn` + `.btn-primary/.btn-secondary/.btn-ghost/.btn-danger/.btn-success`, `.btn-sm/.btn-lg/.btn-block`, `.icon-btn` | Tương thích thêm `.btn.primary` / `.btn.secondary` |
-| Biểu mẫu | `.form-grid`, `.form-row`, `.form-group`, `.form-label`, `.form-hint`, `.field-error`, `.required`, `.form-actions` (+`.sticky`) | |
-| Thanh công cụ | `.toolbar`, `.search-wrap`, `.filter-bar` | |
-| Bảng | `.table-scroll`, `.table-wide`, `.table-empty-row`, `.pagination`, `.page-link` | ≤700px: bảng → thẻ, nhãn cột lấy từ `<th>` (JS gắn `data-label`) |
+| Biểu mẫu | `.form-grid`, `.form-row`, `.form-group`, `.form-hint`, `.field-error`, `.required`, `.form-actions` | |
+| Bảng | `.table-scroll`, `.table-wide`, `.pagination`, `.page-link` | ≤700px: bảng → thẻ, nhãn cột lấy từ `<th>` (JS gắn `data-label`) |
 | Huy hiệu | `.badge` + `.st-DRAFT/.st-OPEN/.st-CLOSED/.st-PENDING/.st-RUNNING/.st-sys/.st-HIGHLIGHT`, `.chip` | |
 | Số liệu | `.stat-grid`, `.stat-card` (+`.is-accent/.is-success/.is-warning/.is-danger`), `.stat-label/.stat-value/.stat-hint` | |
 | Tiến trình | `.progress`, `.progress-label` | |
 | Điểm | `.score-badge` (+`.is-pass/.is-fail`) | |
 | Rỗng | `.empty-state` | |
 | Modal | `.modal-backdrop`, `.modal`, `.modal-actions` | `ui.js` dựng hộp xác nhận thay `confirm()` |
-| Tabs | `.tabs`, `.tab` | |
-| Khác | `.avatar`, `.tooltip`, `.detail-list/.detail-card`, `.article`, `.split-layout`, `.roadmap`, `.score-list`, `.file-drop`, `.perm-grid/.perm-card`, `.system-warn` | |
+| Khác | `.detail-list/.detail-card`, `.article`, `.split-layout`, `.roadmap`, `.perm-grid/.perm-card`, `.system-warn` | |
 | Icon | `.ui-icon` (`display:inline-block; flex-shrink:0; vertical-align:middle`) | Áp dụng cho mọi SVG nội tuyến |
-| Utility | `.u-muted/.u-strong/.u-nowrap/.u-num/.u-mt-2/.u-mt-4/.u-mb-2/.u-mb-4/.u-flex/.u-gap-2/.u-items-center/.u-justify-between/.u-wrap/.u-text-right`, `.sr-only` | |
+| Utility | `.u-mt-4`, `.sr-only` | |
 
 ---
 

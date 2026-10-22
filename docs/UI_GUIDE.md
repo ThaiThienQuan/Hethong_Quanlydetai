@@ -33,7 +33,6 @@ src/main/resources/
    ├─ fragments/
    │  ├─ layout.html      ← Khung duy nhất: head(pageTitle) + nav
    │  ├─ nav.html         ← Fragment ủy quyền → layout::nav
-   │  ├─ icons.html       ← Sprite SVG
    │  └─ error.html       ← Fragment errorPage(...)
    ├─ ui/style-guide.html ← Trang Style Guide (chỉ profile "demo", ADMIN)
    └─ …                  ← 50 template nghiệp vụ
@@ -278,7 +277,7 @@ Thêm thông điệp riêng:
 
 - Mọi icon là **SVG nội tuyến** với `class="ui-icon"` → `display:inline-block; flex-shrink:0; vertical-align:middle`.
 - Icon dùng `stroke="currentColor"` nên tự đổi màu theo ngữ cảnh.
-- Sprite dùng chung nằm ở `fragments/icons.html` (`#i-book`, `#i-users`, …).
+- Không dùng sprite chung: mỗi icon được vẽ nội tuyến tại nơi dùng.
 
 ---
 
@@ -287,12 +286,12 @@ Thêm thông điệp riêng:
 | Mốc | Hành vi |
 |---|---|
 | **≤ 480px** (375–412px) | Sidebar thành ngăn kéo; `.form-grid` 1 cột; bảng → thẻ; `.roadmap` 1 cột; `.quick-grid` 1 cột; modal thành **bottom sheet** (bo góc dưới, `env(safe-area-inset-bottom)`) |
-| **≤ 600px** | `.toolbar` xuống dòng, mỗi trường 100%; `.filter-bar` 1 cột; `.workflow-steps` 2 cột |
+| **≤ 600px** | `.filter-bar` 1 cột |
 | **≤ 700px** | Bảng → thẻ; `.table-scroll table { min-width: 0 }` |
 | **≤ 768px** (tablet) | `.form-grid` 2 cột; `.detail-list` 1 cột → 2 cột từ 640px |
 | **≤ 900px** | Hero ẩn phần minh họa; trang đăng nhập chuyển 1 cột, ẩn panel showcase |
 | **≤ 1023px** | Sidebar off-canvas; grid 1 cột; `.dashboard-panels` 1 cột |
-| **≥ 1024px** (laptop) | Sidebar cố định + thu gọn được; `.split-layout` 2 cột; `.roadmap` 6 cột; `.workflow-steps` 4 cột |
+| **≥ 1024px** (laptop) | Sidebar cố định + thu gọn được; `.split-layout` 2 cột; `.roadmap` 6 cột |
 | **≥ 1440px** | Nội dung giới hạn `--container-max: 1440px`, căn giữa |
 
 **Nguyên tắc chống tràn ngang:** mọi track grid dùng `minmax(0, 1fr)`; mọi vùng con có `min-width: 0`; bảng luôn trong `.table-scroll`; văn bản dài dùng `overflow-wrap: anywhere`.

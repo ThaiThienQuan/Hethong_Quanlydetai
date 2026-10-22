@@ -51,6 +51,11 @@ testrun.log
 e2e_out.txt
 cj8.txt
 
+### JVM crash dump sinh ra khi chạy/demo ###
+hs_err_pid*.log
+replay_pid*.log
+*.hprof
+
 ### Script kiểm thử tạm (tạo trong lúc test, không commit) ###
 t[0-9]*.ps1
 testhelpers.ps1
