@@ -46,15 +46,14 @@
         </select>
         <div class="field-error" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
 
-        <label>Đợt đăng ký <span class="required">*</span>
-            <small>(chỉ hiện các đợt đang mở cho giảng viên)</small></label>
+        <label>Đợt đăng ký <span class="required">*</span></label>
         <select th:field="*{periodId}" required>
             <option value="">-- Chọn đợt --</option>
             <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}">Đợt</option>
         </select>
         <div class="field-error" th:if="${#fields.hasErrors('periodId')}" th:errors="*{periodId}"></div>
 
-        <label>GVHD thứ hai <small>(không bắt buộc; bạn là GVHD chính, tối đa 2 GVHD)</small></label>
+        <label>GVHD thứ hai</label>
         <select th:field="*{coSupervisorId}">
             <option value="">-- Không có --</option>
             <option th:each="l : ${lecturers}" th:value="${l.id}" th:text="${l.fullName}">Giảng viên</option>

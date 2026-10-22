@@ -54,7 +54,7 @@
 
     <!-- Xếp đề tài (chỉ DRAFT) -->
     <section th:if="${detail.council.status.name() == 'DRAFT'}">
-        <h3>Xếp đề tài (cùng đợt với hội đồng và đã có báo cáo)</h3>
+        <h3>Xếp đề tài</h3>
         <form th:if="${!#lists.isEmpty(detail.availableRegistrations)}"
               th:action="@{/head/councils/{id}/topics(id=${detail.council.id})}" method="post">
             <select name="registrationId" required>

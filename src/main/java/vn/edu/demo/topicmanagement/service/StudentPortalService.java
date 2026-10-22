@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import vn.edu.demo.topicmanagement.config.AppProperties;
 import vn.edu.demo.topicmanagement.dto.PendingRegistrationView;
+import vn.edu.demo.topicmanagement.dto.StudentCandidateView;
 import vn.edu.demo.topicmanagement.dto.StudentGroupMemberView;
 import vn.edu.demo.topicmanagement.dto.StudentGroupView;
 import vn.edu.demo.topicmanagement.dto.StudentRegistrationView;
@@ -40,7 +42,9 @@ import vn.edu.demo.topicmanagement.repository.UserRepository;
 public class StudentPortalService {
     private static final Logger log = LoggerFactory.getLogger(StudentPortalService.class);
     private static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
-    private static final int MAX_GROUP_SIZE = 3;
+    /** Số thành viên tối đa khi không đọc được cấu hình (fallback của {@code app.group.max-size}). */
+    private static final int FALLBACK_MAX_GROUP_SIZE = 3;
+    private static final int FALLBACK_MIN_GROUP_SIZE = 1;
 
     private final StudentGroupRepository groupRepository;
     private final GroupMemberRepository memberRepository;
@@ -50,6 +54,7 @@ public class StudentPortalService {
     private final StudentRepository studentRepository;
     private final RegistrationPeriodRepository periodRepository;
     private final EntityManager entityManager;
+    private final AppProperties props;
 
     public StudentPortalService(StudentGroupRepository groupRepository,
                                 GroupMemberRepository memberRepository,
@@ -58,7 +63,8 @@ public class StudentPortalService {
                                 UserRepository userRepository,
                                 StudentRepository studentRepository,
                                 RegistrationPeriodRepository periodRepository,
-                                EntityManager entityManager) {
+                                EntityManager entityManager,
+                                AppProperties props) {
         this.groupRepository = groupRepository;
         this.memberRepository = memberRepository;
         this.registrationRepository = registrationRepository;
@@ -67,6 +73,19 @@ public class StudentPortalService {
         this.studentRepository = studentRepository;
         this.periodRepository = periodRepository;
         this.entityManager = entityManager;
+        this.props = props;
+    }
+
+    /** Số thành viên tối đa của một nhóm (A9) đọc từ {@code app.group.max-size}. */
+    private int maxGroupSize() {
+        return (props != null && props.getGroup().getMaxSize() > 0)
+                ? props.getGroup().getMaxSize() : FALLBACK_MAX_GROUP_SIZE;
+    }
+
+    /** Số thành viên tối thiểu của một nhóm đọc từ {@code app.group.min-size}. */
+    private int minGroupSize() {
+        return (props != null && props.getGroup().getMinSize() > 0)
+                ? props.getGroup().getMinSize() : FALLBACK_MIN_GROUP_SIZE;
     }
 
     @Transactional(readOnly = true)
@@ -84,7 +103,7 @@ public class StudentPortalService {
             if (g.getStatus() != vn.edu.demo.topicmanagement.entity.GroupStatus.DRAFT
                     && g.getStatus() != vn.edu.demo.topicmanagement.entity.GroupStatus.REGISTERED) continue;
             if (registrationRepository.findByGroupIdAndStatusIn(g.getId(), List.of(RegistrationStatus.APPROVED, RegistrationStatus.PENDING)).isPresent()) continue;
-            if (memberRepository.countByGroupId(g.getId()) >= MAX_GROUP_SIZE) continue;
+            if (memberRepository.countByGroupId(g.getId()) >= maxGroupSize()) continue;
             views.add(toGroupView(g, username, false));
         }
         return views;
@@ -131,8 +150,8 @@ public class StudentPortalService {
                 "Tài khoản chưa có hồ sơ sinh viên, vui lòng liên hệ quản trị viên để được bổ sung.");
         StudentGroup group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhóm."));
-        if (memberRepository.countByGroupId(groupId) >= MAX_GROUP_SIZE) {
-            throw new IllegalStateException("Nhóm đã đủ tối đa 3 thành viên.");
+        if (memberRepository.countByGroupId(groupId) >= maxGroupSize()) {
+            throw new IllegalStateException("Nhóm đã đủ tối đa " + maxGroupSize() + " thành viên.");
         }
         GroupMember gm = new GroupMember();
         gm.setGroup(group);
@@ -368,34 +387,52 @@ public class StudentPortalService {
         List<StudentGroupMemberView> list = new ArrayList<>();
         for (GroupMember gm : memberRepository.findByGroupIdWithStudent(groupId)) {
             Student s = gm.getStudent();
-            list.add(new StudentGroupMemberView(s.getId(), s.getUser().getFullName(), s.getStudentCode()));
+            list.add(new StudentGroupMemberView(s.getId(), s.getUser().getFullName(),
+                    s.getStudentCode(), gm.isLeader()));
         }
         return list;
+    }
+
+    /**
+     * Sinh viên chưa thuộc nhóm nào trong cùng đợt của nhóm đang xét.
+     * Chỉ nhóm trưởng mới thấy danh sách này; nhóm đã đủ người thì không cần gợi ý.
+     */
+    private List<StudentCandidateView> collectCandidates(StudentGroup group, boolean leader) {
+        if (!leader) return List.of();
+        if (memberRepository.countByGroupId(group.getId()) >= maxGroupSize()) return List.of();
+        RegistrationPeriod period = group.getPeriod();
+        if (period == null) return List.of();
+        List<StudentCandidateView> candidates = new ArrayList<>();
+        for (Student s : studentRepository.findStudentsWithoutGroupInPeriod(period.getId(), null)) {
+            candidates.add(new StudentCandidateView(s.getId(), s.getStudentCode(),
+                    s.getUser().getFullName(), s.getClassName()));
+        }
+        return candidates;
     }
 
     private StudentGroupView toGroupView(StudentGroup group, String username, boolean selfLeader) {
         List<String> memberNames = new ArrayList<>();
         List<StudentGroupMemberView> members = new ArrayList<>();
+        Long leaderStudentId = null;
+        boolean leader = selfLeader;
         for (GroupMember gm : memberRepository.findByGroupIdWithStudent(group.getId())) {
             Student s = gm.getStudent();
             memberNames.add(s.getUser().getFullName());
-            members.add(new StudentGroupMemberView(s.getId(), s.getUser().getFullName(), s.getStudentCode()));
-        }
-        boolean leader = selfLeader;
-        if (!leader) {
-            // Có thể group có leader khác; check theo is_leader
-            for (GroupMember gm : memberRepository.findByGroupId(group.getId())) {
-                if (gm.isLeader() && gm.getStudent().getUser().getUsername().equals(username)) {
-                    leader = true;
-                    break;
-                }
+            members.add(new StudentGroupMemberView(s.getId(), s.getUser().getFullName(),
+                    s.getStudentCode(), gm.isLeader()));
+            if (gm.isLeader()) {
+                leaderStudentId = s.getId();
+                if (s.getUser() != null && username.equals(s.getUser().getUsername())) leader = true;
             }
         }
-        boolean hasRegistration = registrationRepository.findByGroupIdAndStatusIn(group.getId(),
-                List.of(RegistrationStatus.APPROVED, RegistrationStatus.PENDING)).isPresent();
+        // Nhóm đã có đăng ký đề tài hiệu lực (PENDING/APPROVED) thì khoá mọi thao tác
+        // đổi người - tránh việc điểm số thay đổi giữa kỳ.
+        boolean canManageMembers = leader && !hasActiveRegistration(group.getId());
+        boolean canTransfer = canManageMembers && members.size() > 1;
         return new StudentGroupView(group.getId(), group.getGroupName(),
-                leaderNameOf(group), memberNames, members, leader,
-                leader && !hasRegistration && members.size() > 1);
+                leaderNameOf(group), leaderStudentId, memberNames, members,
+                collectCandidates(group, canManageMembers), leader, canManageMembers,
+                canTransfer, minGroupSize(), maxGroupSize());
     }
 
     /** Đợt đang mở cho sinh viên mà nhóm phải gắn vào (nếu có). */
@@ -411,34 +448,125 @@ public class StudentPortalService {
         return p == null ? null : p.getId();
     }
 
-    /** Nhóm trưởng chuyển quyền nhóm trưởng cho thành viên khác. */
+    /**
+     * Nhóm trưởng chuyển quyền nhóm trưởng cho thành viên khác trong nhóm.
+     *
+     * <p>Chỉ thực hiện được khi nhóm chưa có đăng ký đề tài hiệu lực (PENDING/APPROVED)
+     * để tránh việc đổi người chịu trách nhiệm sau khi đã đăng ký.
+     */
     @Transactional
     public void transferGroupLeadership(Long groupId, Long newLeaderStudentId, String currentUsername) {
-        StudentGroup group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhóm."));
-        // Lấy user hiện tại
-        User me = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng."));
-        // Lấy leader hiện tại (group member với isLeader = true) của group
-        GroupMember currentLeader = null;
-        for (GroupMember m : memberRepository.findByGroupId(group.getId())) {
-            if (m.isLeader()) { currentLeader = m; break; }
-        }
-        if (currentLeader == null || currentLeader.getStudent() == null
-                || currentLeader.getStudent().getUser() == null
-                || !me.getUsername().equals(currentLeader.getStudent().getUser().getUsername())) {
-            throw new IllegalStateException("Chỉ nhóm trưởng mới được chuyển quyền.");
+        GroupMember currentLeader = requireLeaderOf(groupId, currentUsername);
+        if (hasActiveRegistration(groupId)) {
+            throw new IllegalStateException("Chỉ chuyển được quyền nhóm trưởng trước khi nhóm đăng ký đề tài.");
         }
         GroupMember newLeader = null;
-        for (GroupMember m : memberRepository.findByGroupId(group.getId())) {
+        for (GroupMember m : memberRepository.findByGroupIdWithStudent(groupId)) {
             if (m.getStudent() != null && m.getStudent().getId().equals(newLeaderStudentId)) {
-                newLeader = m; break;
+                newLeader = m;
+                break;
             }
         }
         if (newLeader == null) throw new IllegalArgumentException("Sinh viên không thuộc nhóm.");
+        if (newLeader.isLeader()) {
+            throw new IllegalStateException("Người được chọn đã là nhóm trưởng hiện tại.");
+        }
         currentLeader.setLeader(false);
         newLeader.setLeader(true);
         memberRepository.save(currentLeader);
         memberRepository.save(newLeader);
+    }
+
+    /**
+     * Nhóm trưởng thêm một sinh viên chưa có nhóm vào nhóm của mình.
+     *
+     * <p>Điều kiện kiểm tra:
+     * <ul>
+     *   <li>Người gọi phải là nhóm trưởng của nhóm này.</li>
+     *   <li>Nhóm chưa có đăng ký đề tài hiệu lực (PENDING/APPROVED).</li>
+     *   <li>Nhóm còn chỗ trống (chưa đạt {@code app.group.max-size}).</li>
+     *   <li>Sinh viên được thêm phải có hồ sơ và chưa thuộc nhóm nào trong cùng đợt
+     *       (ràng buộc UNIQUE {@code (student_id, period_id)} ở CSDL).</li>
+     * </ul>
+     */
+    @Transactional
+    public void addMemberToGroup(Long groupId, Long studentId, String currentUsername) {
+        GroupMember currentLeader = requireLeaderOf(groupId, currentUsername);
+        StudentGroup group = currentLeader.getGroup();
+        if (hasActiveRegistration(group.getId())) {
+            throw new IllegalStateException(
+                    "Chỉ thay đổi thành viên nhóm được trước khi nhóm đăng ký đề tài.");
+        }
+        if (memberRepository.countByGroupId(group.getId()) >= maxGroupSize()) {
+            throw new IllegalStateException("Nhóm đã đủ tối đa " + maxGroupSize() + " thành viên.");
+        }
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên."));
+        Long periodId = group.getPeriod().getId();
+        if (memberRepository.existsByStudentIdAndPeriodId(student.getId(), periodId)) {
+            throw new IllegalStateException(
+                    "Sinh viên này đã thuộc một nhóm khác trong đợt đăng ký hiện tại.");
+        }
+        GroupMember gm = new GroupMember();
+        gm.setGroup(group);
+        gm.setStudent(student);
+        gm.setPeriodId(periodId);
+        gm.setLeader(false);
+        memberRepository.save(gm);
+    }
+
+    /**
+     * Nhóm trưởng gỡ một thành viên (khác chính mình) khỏi nhóm.
+     *
+     * <p>Không xóa được nhóm trưởng: muốn đổi người phụ trách thì dùng chức năng
+     * chuyển quyền nhóm trưởng. Nhóm không được xuống dưới {@code app.group.min-size}.
+     */
+    @Transactional
+    public void removeMemberFromGroup(Long groupId, Long studentId, String currentUsername) {
+        GroupMember currentLeader = requireLeaderOf(groupId, currentUsername);
+        StudentGroup group = currentLeader.getGroup();
+        if (hasActiveRegistration(group.getId())) {
+            throw new IllegalStateException(
+                    "Chỉ thay đổi thành viên nhóm được trước khi nhóm đăng ký đề tài.");
+        }
+        GroupMember target = null;
+        for (GroupMember m : memberRepository.findByGroupIdWithStudent(group.getId())) {
+            if (m.getStudent() != null && m.getStudent().getId().equals(studentId)) {
+                target = m;
+                break;
+            }
+        }
+        if (target == null) throw new IllegalArgumentException("Sinh viên không thuộc nhóm.");
+        if (target.isLeader()) {
+            throw new IllegalStateException(
+                    "Không thể gỡ nhóm trưởng. Hãy dùng chức năng Chuyển quyền nhóm trưởng.");
+        }
+        if (memberRepository.countByGroupId(group.getId()) <= minGroupSize()) {
+            throw new IllegalStateException("Nhóm phải có tối thiểu " + minGroupSize() + " thành viên.");
+        }
+        memberRepository.delete(target);
+    }
+
+    /** Nhóm có đăng ký đề tài đang hiệu lực (PENDING hoặc APPROVED) hay không. */
+    private boolean hasActiveRegistration(Long groupId) {
+        return registrationRepository.findByGroupIdAndStatusIn(groupId,
+                List.of(RegistrationStatus.PENDING, RegistrationStatus.APPROVED)).isPresent();
+    }
+
+    /**
+     * Xác nhận người đang đăng nhập là nhóm trưởng của nhóm và trả về membership của họ.
+     * Dùng chung cho mọi thao tác quản lý thành viên để chỗ kiểm tra quyền tập trung.
+     */
+    private GroupMember requireLeaderOf(Long groupId, String currentUsername) {
+        StudentGroup group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhóm."));
+        GroupMember leader = memberRepository.findByGroupIdAndLeaderTrue(group.getId())
+                .orElseThrow(() -> new IllegalStateException("Nhóm chưa có nhóm trưởng."));
+        Student leaderStudent = leader.getStudent();
+        if (leaderStudent == null || leaderStudent.getUser() == null
+                || !currentUsername.equals(leaderStudent.getUser().getUsername())) {
+            throw new IllegalStateException("Chỉ nhóm trưởng mới được thực hiện thao tác này.");
+        }
+        return leader;
     }
 }

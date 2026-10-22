@@ -60,4 +60,30 @@ public class StudentGroupController {
         }
         return "redirect:/student/groups";
     }
+
+    /** Nhóm trưởng thêm sinh viên chưa có nhóm vào nhóm của mình. */
+    @PostMapping("/{id}/members")
+    public String addMember(@PathVariable Long id, @RequestParam Long studentId,
+                            Principal principal, RedirectAttributes redirect) {
+        try {
+            studentService.addMemberToGroup(id, studentId, principal.getName());
+            redirect.addFlashAttribute("message", "Đã thêm sinh viên vào nhóm.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/student/groups";
+    }
+
+    /** Nhóm trưởng gỡ một thành viên (không phải nhóm trưởng) khỏi nhóm. */
+    @PostMapping("/{id}/members/{studentId}/remove")
+    public String removeMember(@PathVariable Long id, @PathVariable Long studentId,
+                               Principal principal, RedirectAttributes redirect) {
+        try {
+            studentService.removeMemberFromGroup(id, studentId, principal.getName());
+            redirect.addFlashAttribute("message", "Đã gỡ sinh viên khỏi nhóm.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/student/groups";
+    }
 }

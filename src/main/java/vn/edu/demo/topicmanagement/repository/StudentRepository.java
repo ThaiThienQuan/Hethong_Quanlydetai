@@ -35,13 +35,17 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     /**
      * Gợi ý sinh viên chưa thuộc nhóm nào trong đợt đang xét (mục 5.4).
-     * Dùng cho ô tìm kiếm khi lập nhóm.
+     * Dùng cho ô chọn "Thêm thành viên" của nhóm trưởng.
+     *
+     * <p>{@code join fetch s.user} vì {@code open-in-view=false}: tên hiển thị và lớp
+     * được đọc ngay trong service, không được để lazy load ngoài transaction.
      */
     @Query("""
             select s from Student s
+            join fetch s.user u
             where (:kw is null
                    or lower(s.studentCode) like :kw
-                   or lower(s.user.fullName) like :kw)
+                   or lower(u.fullName) like :kw)
               and not exists (
                   select 1 from GroupMember gm
                   where gm.student = s and gm.periodId = :periodId)

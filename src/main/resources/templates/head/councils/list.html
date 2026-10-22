@@ -25,7 +25,7 @@
             <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name + ' (' + p.periodType.displayName + ')'}"></option>
         </select>
         <div class="field-error" th:errors="*{periodId}"></div>
-        <label>Ngày báo cáo hội đồng (để trống: với đợt KLTN sẽ lấy theo ngày báo cáo hội đồng của đợt)</label>
+        <label>Ngày báo cáo hội đồng</label>
         <input type="datetime-local" th:field="*{reportDate}">
         <button class="btn btn-primary" type="submit">Tạo hội đồng</button>
     </form>

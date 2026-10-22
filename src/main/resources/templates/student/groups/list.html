@@ -9,33 +9,99 @@
         <h2>Nhóm sinh viên</h2>
     </div>
     <p class="ok" th:if="${message}" th:text="${message}"></p><p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <!-- ===================== CÓ NHÓM ===================== -->
     <section th:if="${myGroup != null}">
         <h3 th:text="${myGroup.name}">Nhóm</h3>
         <p>Nhóm trưởng: <strong th:text="${myGroup.leaderName}"></strong></p>
-        <p>Thành viên (<span th:text="${myGroup.memberCount}"></span>/3): <span th:text="${#strings.listJoin(myGroup.memberNames, ', ')}"></span></p>
+        <p>Sĩ số: <strong th:text="${myGroup.memberCount + '/' + myGroup.maxSize}"></strong>
+            (tối thiểu <span th:text="${myGroup.minSize}"></span> thành viên)</p>
+        <p th:if="${!myGroup.currentUserLeader}" class="desc">
+            Bạn là thành viên của nhóm. Nhóm trưởng
+            <strong th:text="${myGroup.leaderName}"></strong> chịu trách nhiệm thêm hoặc gỡ thành viên,
+            và đăng ký đề tài cho nhóm.
+        </p>
+
+        <!-- Danh sách thành viên -->
+        <h4>Danh sách thành viên</h4>
+        <div class="table-scroll" role="region" tabindex="0" aria-label="Danh sách thành viên nhóm">
+            <table>
+                <thead><tr><th>Họ tên</th><th>Mã sinh viên</th><th>Vai trò</th><th>Thao tác</th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${myGroup.members}">
+                    <td th:text="${m.fullName}"></td>
+                    <td th:text="${m.studentCode}"></td>
+                    <td>
+                        <span class="badge st-APPROVED" th:if="${m.leader}">Nhóm trưởng</span>
+                        <span class="desc" th:unless="${m.leader}">Thành viên</span>
+                    </td>
+                    <td>
+                        <!-- Nhóm trưởng gỡ thành viên (không gỡ được chính mình) -->
+                        <form th:if="${myGroup.canManageMembers and !m.leader}"
+                              th:action="@{/student/groups/{id}/members/{sid}/remove(id=${myGroup.id},sid=${m.studentId})}"
+                              method="post" class="form-inline"
+                              onsubmit="return confirm('Gỡ sinh viên này khỏi nhóm? Sinh viên sẽ trở lại danh sách chưa có nhóm.');">
+                            <button class="btn btn-soft-danger btn-sm" type="submit">Gỡ khỏi nhóm</button>
+                        </form>
+                        <span class="desc" th:if="${myGroup.canManageMembers and m.leader}">Không thể gỡ nhóm trưởng</span>
+                        <span class="desc" th:unless="${myGroup.canManageMembers}">&mdash;</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Nhóm trưởng: thêm sinh viên chưa có nhóm -->
+        <section th:if="${myGroup.canManageMembers}">
+            <h4>Thêm thành viên vào nhóm</h4>
+            <form th:if="${myGroup.hasVacancy and !#lists.isEmpty(myGroup.availableCandidates)}"
+                  th:action="@{/student/groups/{id}/members(id=${myGroup.id})}" method="post">
+                <label for="student-candidate">Sinh viên chưa có nhóm</label>
+                <select id="student-candidate" name="studentId" required>
+                    <option value="">-- Chọn sinh viên --</option>
+                    <option th:each="c : ${myGroup.availableCandidates}"
+                            th:value="${c.studentId}" th:text="${c.label}"></option>
+                </select>
+                <button class="btn btn-primary" type="submit">Thêm vào nhóm</button>
+                <p class="desc">Mỗi sinh viên chỉ được ở trong một nhóm trong mỗi đợt đăng ký.
+                    Nhóm chỉ nhận tối đa <span th:text="${myGroup.maxSize}"></span> thành viên.</p>
+            </form>
+            <p class="desc" th:if="${myGroup.canManageMembers and !myGroup.hasVacancy}">
+                Nhóm đã đủ <span th:text="${myGroup.maxSize}"></span> thành viên, không thể thêm thêm.
+            </p>
+            <p class="desc" th:if="${myGroup.canManageMembers and myGroup.hasVacancy and #lists.isEmpty(myGroup.availableCandidates)}">
+                Không còn sinh viên nào chưa có nhóm trong đợt đăng ký hiện tại.
+            </p>
+        </section>
+
+        <!-- Chuyển quyền nhóm trưởng (tùy chọn) -->
         <form th:if="${myGroup.canTransferLeadership}" th:action="@{/student/groups/{id}/leader(id=${myGroup.id})}" method="post">
-            <label>Chuyển quyền nhóm trưởng</label>
-            <select name="studentId" required>
+            <label for="new-leader">Chuyển quyền nhóm trưởng</label>
+            <select id="new-leader" name="studentId" required>
                 <option value="">-- Chọn thành viên --</option>
-                <option th:each="member : ${myGroup.members}" th:if="${member.fullName != myGroup.leaderName}"
+                <option th:each="member : ${myGroup.members}" th:if="${!member.leader}"
                         th:value="${member.studentId}" th:text="${member.fullName + ' (' + member.studentCode + ')'}"></option>
             </select>
             <button class="btn btn-secondary" type="submit">Chuyển nhóm trưởng</button>
             <p class="desc">Chỉ thực hiện được trước khi nhóm đăng ký đề tài.</p>
         </form>
+        <p class="desc" th:if="${myGroup.currentUserLeader and !myGroup.canManageMembers}">
+            Nhóm đã đăng ký đề tài nên không thể thay đổi thành viên hay chuyển nhóm trưởng.
+        </p>
     </section>
+
+    <!-- ===================== CHƯA CÓ NHÓM ===================== -->
     <section th:if="${myGroup == null}">
         <h3>Tạo nhóm mới</h3>
         <form th:action="@{/student/groups}" method="post"><label>Tên nhóm</label><input name="name" maxlength="255" required><button class="btn btn-primary" type="submit">Tạo nhóm</button></form>
         <h3>Hoặc tham gia nhóm đang nhận thành viên</h3>
         <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table><thead><tr><th>Nhóm</th><th>Nhóm trưởng</th><th>Sĩ số</th><th>Thao tác</th></tr></thead>
-            <tbody><tr th:each="g : ${joinableGroups}"><td th:text="${g.name}"></td><td th:text="${g.leaderName}"></td><td th:text="${g.memberCount + '/3'}"></td>
+            <tbody><tr th:each="g : ${joinableGroups}"><td th:text="${g.name}"></td><td th:text="${g.leaderName}"></td><td th:text="${g.memberCount + '/' + g.maxSize}"></td>
                 <td><form th:action="@{/student/groups/{id}/join(id=${g.id})}" method="post"><button class="btn btn-soft-primary btn-sm" type="submit">Tham gia</button></form></td></tr>
                 <tr th:if="${#lists.isEmpty(joinableGroups)}"><td colspan="4">Chưa có nhóm nào đang nhận thành viên.</td></tr></tbody>
         </table></div>
     </section>
 </div>
 </main>
-
 </body>
 </html>

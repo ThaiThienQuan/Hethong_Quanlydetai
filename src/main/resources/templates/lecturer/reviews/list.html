@@ -60,7 +60,7 @@
                         <label>Nhận xét (bắt buộc)</label>
                         <textarea name="comment" maxlength="1000" required
                                   placeholder="Nhập nhận xét cho đề tài này..."></textarea>
-                        <label>Lý do ghi đè quá hạn (chỉ admin)</label>
+                        <label>Lý do ghi đè quá hạn</label>
                         <input name="overrideReason" maxlength="500" placeholder="Để trống nếu trong hạn">
                         <button class="btn btn-primary" type="submit" th:text="${task.submitted} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
                     </form>

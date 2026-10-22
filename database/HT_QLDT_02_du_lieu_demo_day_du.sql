@@ -605,8 +605,25 @@ SELECT v.council_id, v.topic_id, v.assigned_count, v.evaluated_count, v.average_
 FROM v_topic_score_summary v
 JOIN council_topics ct ON ct.council_id = v.council_id AND ct.topic_id = v.topic_id
 ORDER BY v.council_id, v.topic_id;
-.topic_id;
-→ Đăng ký
+
+
+/* =====================================================================
+   11. KỊCH BẢN DEMO - THỨ TỰ THỰC HIỆN (đọc khi trình bày)
+
+   ĐĂNG NHẬP: mọi tài khoản mật khẩu 123456
+     admin · truongkhoa · gv01..gv08 · sv01..sv24  (sv24 bị khóa)
+
+   ── GIAI ĐOẠN 1: GV đề xuất đề tài  (đợt 1, đang mở cho GV) ─────────────
+     1. Đăng nhập gv01 → Đề xuất đề tài mới, lưu  -> trạng thái "Chờ duyệt"
+     2. Đăng nhập truongkhoa → Đề tài → lọc "Chờ duyệt"
+        · Duyệt đề tài t1, t2, t5        -> trạng thái "Đã duyệt"
+        · Từ chối đề tài (thử với đề tài mới) -> phải nhập lý do
+     3. Công bố danh sách đề tài (đề tài t3 đã duyệt sẵn nhưng chưa công bố)
+
+   ── GIAI ĐOẠN 2: SV lập nhóm và đăng ký  (đợt 2, đang mở cho SV) ─────────
+     4. Đăng nhập sv06 (chưa có nhóm) → Lập nhóm "Môn học mới" (g3 sẵn có)
+        · Thêm thành viên tối đa 3 người (app.group.max-size = 3)
+     5. Nhóm trưởng chọn 1 đề tài đã công bố → Đăng ký
         · Thử đăng ký lần thứ hai  -> phải bị từ chối
      6. Đăng nhập gv03 (GVHD của t7) → Xác nhận đăng ký của nhóm g2
      7. Nhóm g4 từng bị từ chối → thử đăng ký lại đề tài TLCN-26-003

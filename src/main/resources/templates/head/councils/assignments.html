@@ -31,7 +31,7 @@
                 <td th:text="${a.fullName}"></td>
                 <td th:text="${a.lecturerCode}"></td>
                 <td>
-                    <span class="badge" th:if="${a.supervisor}">GVHD - không hợp lệ (chặn ở service)</span>
+                    <span class="badge" th:if="${a.supervisor}">GVHD - không hợp lệ</span>
                     <span class="badge st-SCORED" th:if="${a.submitted}">Đã nộp điểm</span>
                     <span class="badge st-PENDING" th:if="${!a.submitted}">Chưa chấm</span>
                 </td>
@@ -50,7 +50,7 @@
         </table>
     </div>
 
-    <h3 th:if="${view.ready}">Thêm GVPB (chỉ chọn được thành viên hội đồng, không phải GVHD/người tạo đề tài)</h3>
+    <h3 th:if="${view.ready}">Thêm GVPB</h3>
     <form th:if="${view.ready && !#lists.isEmpty(view.candidates)}"
           th:action="@{/head/councils/{id}/topics/{ctId}/assignments(id=${view.councilId},ctId=${view.councilTopicId})}"
           method="post">
@@ -62,15 +62,7 @@
         </select>
         <button class="btn btn-primary" type="submit">Phân công</button>
     </form>
-    <p th:if="${view.ready && #lists.isEmpty(view.candidates)}">
-        Không còn ứng viên hợp lệ (tất cả thành viên hội đồng đều là GVHD/người tạo hoặc đã được phân công).
-    </p>
     <p th:if="${!view.ready}">Chỉ được phân công khi hội đồng ở trạng thái READY.</p>
-
-    <p class="u-mt-4"><small>
-        Quy tắc (mục 5.7): GV phải thuộc hội đồng; hội đồng và đề tài cùng đợt; đề tài đã có báo cáo;
-        GV không là GVHD; không trùng phân công; mỗi đề tài cần ít nhất 1 người chấm. Không xóa phân công đã có điểm.
-    </small></p>
 </div>
 </main>
 

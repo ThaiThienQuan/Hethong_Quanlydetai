@@ -34,7 +34,7 @@
             <button class="btn btn-primary" type="submit" th:text="${item.myScore != null} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
         </form>
         <p th:if="${!item.canScore}">
-            Bạn không thể chấm đề tài này (GVHD không tự chấm, đã quá hạn, hoặc kết quả đã công bố).
+            Bạn không thể chấm đề tài này.
         </p>
 
         <section th:if="${item.canFinalize}">
