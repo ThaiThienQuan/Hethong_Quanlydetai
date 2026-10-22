@@ -12,6 +12,9 @@
   /* Màu thanh trình duyệt (được theme.js đọc để cập nhật <meta theme-color>) */
   --theme-color:    #F5F7FF;
 
+  /* Nền trang đăng nhập: luôn trắng ở theme sáng, nền tối ở theme tối */
+  --auth-bg:        #FFFFFF;
+
   /* === Bảng màu nền tảng === */
   --bg:           #F5F7FF;
   --surface:      #FFFFFF;
@@ -136,7 +139,11 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --theme-color:    #0B1020;
+    --theme-color:    #0B1020;
+    --auth-bg:        #0B1020;
+
+  /* Nền trang đăng nhập ở theme tối */
+  --auth-bg:        #0B1020;
 
   --bg:           #0B1020;
   --surface:      #121936;

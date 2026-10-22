@@ -241,8 +241,43 @@
 .auth-page {
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--surface);
+  background: var(--auth-bg);
 }
+
+/* Nút đổi giao diện: đặt trong thẻ đăng nhập, góc trên bên phải của thẻ.
+   Bấm → nền trắng (light), bấm lại → nền dark mode. */
+.auth-card { position: relative; }
+.auth-theme-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: color .15s ease, background .15s ease, border-color .15s ease, transform .12s ease;
+}
+.auth-theme-toggle:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+.auth-theme-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.auth-theme-toggle svg { width: 17px; height: 17px; display: block; }
+/* Icon sun/moon: mặc định ẩn, JS bỏ thuộc tính hidden theo theme hiện tại */
+.auth-theme-toggle .ico-sun,
+.auth-theme-toggle .ico-moon { display: none; }
+.auth-theme-toggle .ico-sun:not([hidden]),
+.auth-theme-toggle .ico-moon:not([hidden]) { display: inline; }
 .auth-layout {
   display: flex;
   align-items: center;
@@ -258,7 +293,7 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  background: var(--surface);
+  background: transparent;
 }
 .auth-form-wrap { width: 100%; max-width: 440px; margin: 0 auto; }
 

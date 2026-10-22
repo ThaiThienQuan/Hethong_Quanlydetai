@@ -35,21 +35,21 @@
 
  :: Spring Boot ::                (v4.1.1)
 
-2026-10-22T10:01:50.864+07:00  INFO 24084 --- [topicmanagement] [           main] v.e.d.t.TopicmanagementApplication       : Starting TopicmanagementApplication using Java 25.0.4.1 with PID 24084 (C:\Users\ducma\Desktop\Web_vhvl\Hethong_Quanlydetai\target\classes started by ducma in C:\Users\ducma\Desktop\Web_vhvl\Hethong_Quanlydetai)
-2026-10-22T10:01:50.872+07:00  INFO 24084 --- [topicmanagement] [           main] v.e.d.t.TopicmanagementApplication       : No active profile set, falling back to 1 default profile: "default"
-2026-10-22T10:01:52.480+07:00  INFO 24084 --- [topicmanagement] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-10-22T10:01:52.807+07:00  INFO 24084 --- [topicmanagement] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 312 ms. Found 22 JPA repository interfaces.
-2026-10-22T10:01:54.192+07:00  INFO 24084 --- [topicmanagement] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
-2026-10-22T10:01:54.220+07:00  INFO 24084 --- [topicmanagement] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-10-22T10:01:54.220+07:00  INFO 24084 --- [topicmanagement] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-10-22T10:01:54.321+07:00  INFO 24084 --- [topicmanagement] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3384 ms
-2026-10-22T10:01:54.680+07:00  INFO 24084 --- [topicmanagement] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-10-22T10:01:54.759+07:00  INFO 24084 --- [topicmanagement] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
-2026-10-22T10:01:56.324+07:00  INFO 24084 --- [topicmanagement] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-10-22T10:01:56.425+07:00  INFO 24084 --- [topicmanagement] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-10-22T10:01:56.836+07:00  INFO 24084 --- [topicmanagement] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@275902e1
-2026-10-22T10:01:56.841+07:00  INFO 24084 --- [topicmanagement] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-10-22T10:01:57.045+07:00  INFO 24084 --- [topicmanagement] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-10-22T10:13:42.611+07:00  INFO 11464 --- [topicmanagement] [           main] v.e.d.t.TopicmanagementApplication       : Starting TopicmanagementApplication using Java 25.0.4.1 with PID 11464 (C:\Users\ducma\Desktop\Web_vhvl\Hethong_Quanlydetai\target\classes started by ducma in C:\Users\ducma\Desktop\Web_vhvl\Hethong_Quanlydetai)
+2026-10-22T10:13:42.615+07:00  INFO 11464 --- [topicmanagement] [           main] v.e.d.t.TopicmanagementApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-10-22T10:13:45.445+07:00  INFO 11464 --- [topicmanagement] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-22T10:13:45.694+07:00  INFO 11464 --- [topicmanagement] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 224 ms. Found 22 JPA repository interfaces.
+2026-10-22T10:13:47.644+07:00  INFO 11464 --- [topicmanagement] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-10-22T10:13:47.724+07:00  INFO 11464 --- [topicmanagement] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-22T10:13:47.729+07:00  INFO 11464 --- [topicmanagement] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-22T10:13:48.042+07:00  INFO 11464 --- [topicmanagement] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 5293 ms
+2026-10-22T10:13:48.825+07:00  INFO 11464 --- [topicmanagement] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-22T10:13:49.032+07:00  INFO 11464 --- [topicmanagement] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-22T10:13:50.912+07:00  INFO 11464 --- [topicmanagement] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-22T10:13:51.035+07:00  INFO 11464 --- [topicmanagement] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-22T10:13:51.494+07:00  INFO 11464 --- [topicmanagement] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@98722ef
+2026-10-22T10:13:51.499+07:00  INFO 11464 --- [topicmanagement] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-22T10:13:51.905+07:00  INFO 11464 --- [topicmanagement] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [jdbc:mysql://127.0.0.1:3306/student_topic_management?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh]
 	Database driver: MySQL Connector/J
 	Database dialect: MySQLDialect
@@ -61,13 +61,13 @@
 	Pool: DataSourceConnectionProvider
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-10-22T10:01:59.499+07:00  INFO 24084 --- [topicmanagement] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-10-22T10:01:59.610+07:00  INFO 24084 --- [topicmanagement] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-10-22T10:01:59.738+07:00  INFO 24084 --- [topicmanagement] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-10-22T10:02:03.642+07:00  INFO 24084 --- [topicmanagement] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
-2026-10-22T10:02:04.798+07:00  INFO 24084 --- [topicmanagement] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
-2026-10-22T10:02:04.811+07:00  INFO 24084 --- [topicmanagement] [           main] v.e.d.t.TopicmanagementApplication       : Started TopicmanagementApplication in 14.626 seconds (process running for 15.27)
-2026-10-22T10:02:05.111+07:00  INFO 24084 --- [topicmanagement] [           main] v.e.d.t.config.DataInitializer           : Đã nạp 22 quyền vào danh mục.
-2026-10-22T10:02:05.197+07:00  INFO 24084 --- [topicmanagement] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-10-22T10:02:05.199+07:00  INFO 24084 --- [topicmanagement] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-10-22T10:02:05.203+07:00  INFO 24084 --- [topicmanagement] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-10-22T10:13:54.916+07:00  INFO 11464 --- [topicmanagement] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-22T10:13:55.053+07:00  INFO 11464 --- [topicmanagement] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-22T10:13:55.212+07:00  INFO 11464 --- [topicmanagement] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-22T10:13:58.295+07:00  INFO 11464 --- [topicmanagement] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-22T10:13:59.256+07:00  INFO 11464 --- [topicmanagement] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-10-22T10:13:59.266+07:00  INFO 11464 --- [topicmanagement] [           main] v.e.d.t.TopicmanagementApplication       : Started TopicmanagementApplication in 17.523 seconds (process running for 18.421)
+2026-10-22T10:13:59.523+07:00  INFO 11464 --- [topicmanagement] [           main] v.e.d.t.config.DataInitializer           : Đã nạp 22 quyền vào danh mục.
+2026-10-22T10:13:59.702+07:00  INFO 11464 --- [topicmanagement] [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-22T10:13:59.703+07:00  INFO 11464 --- [topicmanagement] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-22T10:13:59.705+07:00  INFO 11464 --- [topicmanagement] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms

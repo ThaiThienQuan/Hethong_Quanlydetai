@@ -118,6 +118,15 @@
   });
   syncThemeUI();
 
+  /* Nút đổi nhanh sáng ⇄ tối (dùng ở trang đăng nhập, không có topbar) */
+  doc.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      if (window.setTheme) window.setTheme(isDark ? 'light' : 'dark');
+      syncThemeUI();
+    });
+  });
+
   /* ------------------------------------------------------------------
      4. ĐƯỜNG DẪN → TIÊU ĐỀ TOPBAR + aria-current
   ------------------------------------------------------------------ */

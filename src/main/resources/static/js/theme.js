@@ -11,12 +11,16 @@
     try { return localStorage.getItem(KEY) || 'system'; } catch (_) { return 'system'; }
   }
 
-  /* Đồng bộ icon nút đổi theme: sun khi sáng, moon khi tối */
+  /* Đồng bộ icon nút đổi theme: sun khi sáng, moon khi tối
+     (áp dụng cho nút trên topbar và nút ở trang đăng nhập) */
   function syncThemeIcons(isDark) {
-    var sun = document.querySelector('.theme-trigger .ico-sun');
-    var moon = document.querySelector('.theme-trigger .ico-moon');
-    if (sun) sun.toggleAttribute('hidden', isDark);
-    if (moon) moon.toggleAttribute('hidden', !isDark);
+    var triggers = document.querySelectorAll('.theme-trigger, .auth-theme-toggle');
+    triggers.forEach(function (trigger) {
+      var sun = trigger.querySelector('.ico-sun');
+      var moon = trigger.querySelector('.ico-moon');
+      if (sun) sun.toggleAttribute('hidden', isDark);
+      if (moon) moon.toggleAttribute('hidden', !isDark);
+    });
   }
 
   function apply(pref) {
