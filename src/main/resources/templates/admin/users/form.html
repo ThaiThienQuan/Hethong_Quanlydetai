@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${pageTitle}">Tài khoản</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box formbox">
-    <h2 th:text="${pageTitle}">Tài khoản</h2>
-    <a th:href="@{/admin/users}">&larr; Về danh sách</a>
+<main id="main-content" class="app-main"><div class="box formbox">
+    <div class="box-head">
+        <h2 th:text="${pageTitle}">Tài khoản</h2>
+        <div class="box-head-actions">
+            <a class="back-link" th:href="@{/admin/users}">&larr; Về danh sách</a>
+        </div>
+    </div>
 
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
@@ -73,17 +73,17 @@
         </select>
         <div class="field-error" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
 
-        <button type="submit">Lưu</button>
+        <button class="btn btn-primary" type="submit">Lưu</button>
     </form>
 
     <!-- ============ Khi SỬA: đặt lại mật khẩu & gán vai trò (mục 5.1) ============ -->
-    <div th:if="${editing}" style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem">
+    <div th:if="${editing}" class="form-section">
         <h3>Thao tác quản trị</h3>
 
         <form th:action="@{/admin/users/{id}/reset-password(id=${userId})}" method="post"
               onsubmit="return confirm('Đặt lại mật khẩu tài khoản này về mật khẩu mặc định?');">
             <label>Đặt lại mật khẩu <small>(về mật khẩu mặc định, người dùng tự đổi sau khi đăng nhập)</small></label>
-            <button type="submit">Đặt lại</button>
+            <button class="btn btn-secondary" type="submit">Đặt lại</button>
         </form>
 
         <form th:action="@{/admin/users/{id}/assign-role(id=${userId})}" method="post">
@@ -92,9 +92,11 @@
                 <option value="">-- Chọn vai trò --</option>
                 <option th:each="r : ${roles}" th:value="${r.name()}" th:text="${r.label}"></option>
             </select>
-            <button type="submit">Gán vai trò</button>
+            <button class="btn btn-secondary" type="submit">Gán vai trò</button>
         </form>
     </div>
 </div>
+</main>
+
 </body>
 </html>

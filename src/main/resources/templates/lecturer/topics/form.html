@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${pageTitle}">Đề tài</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box formbox">
-    <h2 th:text="${pageTitle}">Đề xuất đề tài</h2>
-    <a th:href="@{/lecturer/topics}">&larr; Về danh sách</a>
+<main id="main-content" class="app-main"><div class="box formbox">
+    <div class="box-head">
+        <h2 th:text="${pageTitle}">Đề xuất đề tài</h2>
+        <div class="box-head-actions">
+            <a class="back-link" th:href="@{/lecturer/topics}">&larr; Về danh sách</a>
+        </div>
+    </div>
 
     <p class="error" th:if="${#lists.isEmpty(periods)}">
         Hiện chưa có đợt đăng ký nào đang mở cho giảng viên.
@@ -38,7 +38,7 @@
         <div th:if="${myDepartment != null}">
             <input type="hidden" th:field="*{departmentId}">
             <input type="text" th:value="${myDepartment.name()}" readonly
-                   style="background:#f3f4f6;cursor:not-allowed;" tabindex="-1">
+                   class="input-readonly" tabindex="-1">
         </div>
         <select th:if="${myDepartment == null}" th:field="*{departmentId}" required>
             <option value="">-- Chọn bộ môn --</option>
@@ -61,8 +61,10 @@
         </select>
         <div class="field-error" th:if="${#fields.hasErrors('coSupervisorId')}" th:errors="*{coSupervisorId}"></div>
 
-        <button type="submit">Gửi đề tài</button>
+        <button class="btn btn-primary" type="submit">Gửi đề tài</button>
     </form>
 </div>
+</main>
+
 </body>
 </html>

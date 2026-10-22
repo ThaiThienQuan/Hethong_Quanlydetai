@@ -118,6 +118,9 @@ public class SecurityConfig {
                 // Danh sách đề tài công bố + thông báo: mọi vai trò đã đăng nhập đều xem được.
                 .requestMatchers("/topics/**", "/announcements/**").authenticated()
 
+                // Style Guide (UI-3) - chỉ ADMIN, chỉ tồn tại ở profile "demo".
+                .requestMatchers("/ui/**").hasRole("ADMIN")
+
                 // Mọi trang còn lại đều yêu cầu đã đăng nhập.
                 .anyRequest().authenticated())
             .formLogin(form -> form

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Style Guide')}"></head>
+<body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main">
+  <div class="page-title-block">
+    <p class="page-eyebrow">AURORA ACADEMY</p>
+    <h1>Style Guide</h1>
+    <p>Danh mục thiết kế dùng chung của UniResearch: màu sắc, chữ, nút, biểu mẫu, bảng, huy hiệu, thẻ và trạng thái rỗng. Trang này chỉ tồn tại ở profile <code>demo</code> và chỉ ADMIN được xem.</p>
+  </div>
+
+  <!-- ============ MÀU SẮC ============ -->
+  <section class="card" id="mau-sac">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Màu sắc</h2>
+        <p class="card-sub">Token trong <code>theme.css</code> — đổi theme sáng/tối không cần sửa component.</p>
+      </div>
+    </div>
+    <div class="sg-swatches">
+      <div class="sg-swatch"><span class="sg-chip sg-token-primary" data-token="--primary"></span><strong>primary</strong><code class="token-value" data-token="--primary">primary</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-primary-hover" data-token="--primary-hover"></span><strong>primary-hover</strong><code class="token-value" data-token="--primary-hover">primary-hover</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-primary-soft" data-token="--primary-soft"></span><strong>primary-soft</strong><code class="token-value" data-token="--primary-soft">primary-soft</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-accent" data-token="--accent"></span><strong>accent</strong><code class="token-value" data-token="--accent">accent</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-accent-soft" data-token="--accent-soft"></span><strong>accent-soft</strong><code class="token-value" data-token="--accent-soft">accent-soft</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-highlight" data-token="--highlight"></span><strong>highlight</strong><code class="token-value" data-token="--highlight">highlight</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-success" data-token="--success"></span><strong>success</strong><code class="token-value" data-token="--success">success</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-warning" data-token="--warning"></span><strong>warning</strong><code class="token-value" data-token="--warning">warning</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-danger" data-token="--danger"></span><strong>danger</strong><code class="token-value" data-token="--danger">danger</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-info" data-token="--info"></span><strong>info</strong><code class="token-value" data-token="--info">info</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-bg" data-token="--bg"></span><strong>bg</strong><code class="token-value" data-token="--bg">bg</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-surface" data-token="--surface"></span><strong>surface</strong><code class="token-value" data-token="--surface">surface</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-surface-2" data-token="--surface-2"></span><strong>surface-2</strong><code class="token-value" data-token="--surface-2">surface-2</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-border-strong" data-token="--border-strong"></span><strong>border-strong</strong><code class="token-value" data-token="--border-strong">border-strong</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-text" data-token="--text"></span><strong>text</strong><code class="token-value" data-token="--text">text</code></div>
+      <div class="sg-swatch"><span class="sg-chip sg-token-text-muted" data-token="--text-muted"></span><strong>text-muted</strong><code class="token-value" data-token="--text-muted">text-muted</code></div>
+    </div>
+    <h3>Gradient</h3>
+    <div class="sg-gradients">
+      <div class="sg-gradient sg-token-grad-brand" data-token="--grad-brand"><span>--grad-brand</span></div>
+      <div class="sg-gradient sg-token-grad-aurora" data-token="--grad-aurora"><span>--grad-aurora</span></div>
+      <div class="sg-gradient sg-token-grad-soft" data-token="--grad-soft"><span>--grad-soft</span></div>
+    </div>
+  </section>
+
+  <!-- ============ CHỮ ============ -->
+  <section class="card" id="chu">
+    <div class="card-header"><div><h2 class="card-title">Chữ</h2><p class="card-sub">Inter (UI) + JetBrains Mono (mã).</p></div></div>
+    <div class="sg-type">
+      <p class="sg-type-line sg-type-h1">Tiêu đề 800 — 32px</p>
+      <p class="sg-type-line sg-type-h2">Tiêu đề phụ 800 — 24px</p>
+      <p class="sg-type-line sg-type-h3">Tiêu đề card 750 — 20px</p>
+      <p class="sg-type-line sg-type-h4">Tiêu đề section 700 — 16px</p>
+      <p class="sg-type-line sg-type-body">Nội dung thường 400 — 15px / dòng cao 1.65</p>
+      <p class="sg-type-line sg-type-muted">Nội dung phụ 400 — 13px, màu muted</p>
+      <p class="sg-type-line sg-type-label">Nhãn đề mục 800 — 11.5px</p>
+      <p class="sg-type-line sg-type-mono"><code>--font-mono: JetBrains Mono</code></p>
+    </div>
+  </section>
+
+  <!-- ============ NÚT ============ -->
+  <section class="card" id="nut">
+    <div class="card-header"><div><h2 class="card-title">Nút</h2><p class="card-sub">Chiều cao tối thiểu 44px (44px cho chạm), bo góc theo token.</p></div></div>
+    <div class="sg-row">
+      <button class="btn btn-primary" type="button">
+        <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Nút chính
+      </button>
+      <button class="btn btn-secondary" type="button">Nút phụ</button>
+      <button class="btn" type="button">Nút mặc định</button>
+      <button class="btn btn-outline" type="button">Nút viền</button>
+      <button class="btn btn-ghost" type="button">Nút phụ mờ</button>
+      <button class="btn btn-success" type="button">Thành công</button>
+      <button class="btn btn-warning" type="button">Cảnh báo</button>
+      <button class="btn btn-danger" type="button">Nguy hiểm</button>
+      <button class="btn btn-primary" type="button" disabled>Vô hiệu</button>
+    </div>
+    <h3>Biến thể mềm (dùng cho ô thao tác trong bảng)</h3>
+    <div class="sg-row">
+      <button class="btn btn-soft-primary btn-sm" type="button">Sửa</button>
+      <button class="btn btn-soft-success btn-sm" type="button">Duyệt</button>
+      <button class="btn btn-soft-warning btn-sm" type="button">Khóa</button>
+      <button class="btn btn-soft-danger btn-sm" type="button">Xóa</button>
+    </div>
+    <h3>Kích thước</h3>
+    <div class="sg-row">
+      <button class="btn btn-primary btn-sm" type="button">Nhỏ</button>
+      <button class="btn btn-primary" type="button">Vừa</button>
+      <button class="btn btn-primary btn-lg" type="button">Lớn</button>
+      <button class="icon-btn" type="button" aria-label="Chỉnh sửa">
+        <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H5.5a2 2 0 0 0-2 2v12.5a2 2 0 0 0 2 2H18a2 2 0 0 0 2-2V13"/><path d="M18.4 2.6a2 2 0 0 1 2.8 2.8L12 14.6l-4 1 1-4 9.4-9Z"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ HUY HIỆU ============ -->
+  <section class="card" id="huy-hieu">
+    <div class="card-header"><div><h2 class="card-title">Huy hiệu &amp; chip</h2><p class="card-sub">Trạng thái nghiệp vụ dùng class <code>st-*</code>.</p></div></div>
+    <div class="sg-row">
+      <span class="badge st-DRAFT">DRAFT</span>
+      <span class="badge st-OPEN">OPEN</span>
+      <span class="badge st-CLOSED">CLOSED</span>
+      <span class="badge st-PENDING">PENDING</span>
+      <span class="badge st-RUNNING">RUNNING</span>
+      <span class="badge st-sys">Hệ thống</span>
+      <span class="badge st-HIGHLIGHT">Nổi bật</span>
+      <span class="chip">
+        <svg class="ui-icon" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        Chip thông tin
+      </span>
+    </div>
+  </section>
+
+  <!-- ============ BIỂU MẪU ============ -->
+  <section class="card" id="bieu-mau">
+    <div class="card-header"><div><h2 class="card-title">Biểu mẫu</h2><p class="card-sub">Nhãn luôn hiển thị (không dùng placeholder thay nhãn), lỗi gắn sát trường.</p></div></div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label for="sg-text">Văn bản <span class="required">*</span></label>
+        <input id="sg-text" type="text" placeholder="Nhập văn bản">
+        <span class="form-hint">Gợi ý giúp người dùng hiểu định dạng.</span>
+      </div>
+      <div class="form-row">
+        <label for="sg-invalid">Trường lỗi</label>
+        <input id="sg-invalid" type="text" value="Giá trị sai" class="is-invalid">
+        <div class="field-error">
+          <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg>
+          Thông báo lỗi cụ thể.
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="sg-select">Danh sách</label>
+        <select id="sg-select"><option>Tuỳ chọn 1</option><option>Tuỳ chọn 2</option></select>
+      </div>
+      <div class="form-row">
+        <label for="sg-textarea">Vùng văn bản</label>
+        <textarea id="sg-textarea" placeholder="Nhập nội dung dài"></textarea>
+      </div>
+      <div class="form-row">
+        <label for="sg-disabled">Vô hiệu</label>
+        <input id="sg-disabled" type="text" value="Không sửa được" disabled>
+      </div>
+      <div class="form-row">
+        <label>Điều kiện</label>
+        <label class="sg-check"><input type="checkbox" checked> Đã chọn</label>
+        <label class="sg-check"><input type="radio" name="sg-radio" checked> Chọn A</label>
+        <label class="sg-check"><input type="radio" name="sg-radio"> Chọn B</label>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="button">Lưu</button>
+      <a class="btn btn-secondary" href="#">Hủy</a>
+    </div>
+  </section>
+
+  <!-- ============ BẢNG ============ -->
+  <section class="card" id="bang">
+    <div class="card-header"><div><h2 class="card-title">Bảng</h2><p class="card-sub">Trên điện thoại (&le;700px) bảng tự chuyển sang dạng thẻ, nhãn cột lấy từ <code>&lt;th&gt;</code>.</p></div></div>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng mẫu">
+      <table>
+        <thead><tr><th>#</th><th>Tên đề tài</th><th>Bộ môn</th><th>Trạng thái</th><th class="num">Điểm</th><th>Thao tác</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Ứng dụng AI trong chẩn đoán y khoa</strong><div class="muted">DT-2026-001</div></td><td>Công nghệ thông tin</td><td><span class="badge st-OPEN">OPEN</span></td><td class="num">8.5</td><td class="actions"><a href="#">Sửa</a></td></tr>
+          <tr><td>2</td><td><strong>Nền tảng chia sẻ học liệu mở</strong><div class="muted">DT-2026-002</div></td><td>Hệ thống thông tin</td><td><span class="badge st-PENDING">PENDING</span></td><td class="num">—</td><td class="actions"><a href="#">Sửa</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Phân trang</h3>
+    <nav class="pagination" aria-label="Phân trang mẫu">
+      <span class="info">Hiển thị 1–10 trong 42</span>
+      <div class="pages">
+        <a class="page-link is-disabled" href="#">Trước</a>
+        <a class="page-link is-current" href="#">1</a>
+        <a class="page-link" href="#">2</a>
+        <a class="page-link" href="#">3</a>
+        <a class="page-link" href="#">Sau</a>
+      </div>
+    </nav>
+  </section>
+
+  <!-- ============ THẺ & THỐNG KÊ ============ -->
+  <section class="card" id="the">
+    <div class="card-header"><div><h2 class="card-title">Thẻ &amp; thống kê</h2><p class="card-sub">Thẻ số liệu có dải màu bên trái theo trạng thái.</p></div></div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">
+          <svg class="ui-icon" aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+          Tổng đề tài
+        </div>
+        <div class="stat-value">128</div>
+        <div class="stat-hint">Tăng 12% so với kỳ trước</div>
+      </div>
+      <div class="stat-card is-success">
+        <div class="stat-label">Đã duyệt</div>
+        <div class="stat-value">86</div>
+        <div class="stat-hint">67% tổng số</div>
+      </div>
+      <div class="stat-card is-warning">
+        <div class="stat-label">Chờ xử lý</div>
+        <div class="stat-value">31</div>
+        <div class="stat-hint">Cần Trưởng khoa duyệt</div>
+      </div>
+      <div class="stat-card is-danger">
+        <div class="stat-label">Từ chối</div>
+        <div class="stat-value">11</div>
+        <div class="stat-hint">Đã gửi phản hồi cho GV</div>
+      </div>
+    </div>
+    <h3>Thanh tiến trình</h3>
+    <div class="progress-label"><span>Tiến độ hồ sơ</span><span>72%</span></div>
+    <div class="progress"><span class="w-72"></span></div>
+    <h3>Điểm</h3>
+    <div class="sg-row">
+      <div class="score-badge is-pass"><span class="score-value">8.5</span><span class="score-label">Đạt</span></div>
+      <div class="score-badge is-fail"><span class="score-value">4.2</span><span class="score-label">Chưa đạt</span></div>
+    </div>
+  </section>
+
+  <!-- ============ THÔNG BÁO & RỖNG ============ -->
+  <section class="card" id="thong-bao">
+    <div class="card-header"><div><h2 class="card-title">Thông báo &amp; trạng thái rỗng</h2></div></div>
+    <p class="ok">Thao tác đã được ghi nhận thành công.</p>
+    <p class="error">Không thể lưu: vượt quá số ký tự cho phép.</p>
+    <div class="empty-state">
+      <svg class="illust" viewBox="0 0 160 160" aria-hidden="true" fill="none">
+        <circle cx="80" cy="80" r="62" stroke="var(--primary)" stroke-width="2" opacity=".2"/>
+        <circle cx="80" cy="80" r="44" stroke="var(--accent)" stroke-width="2" opacity=".25" stroke-dasharray="6 8"/>
+        <g stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M44 66 80 46l36 20"/><path d="M52 72v38h56V72"/><path d="M70 110V88h20v22"/>
+        </g>
+      </svg>
+      <h3>Chưa có dữ liệu</h3>
+      <p>Chưa có đề tài nào được công bố. Hãy bắt đầu bằng việc tạo đợt đăng ký mới.</p>
+      <button class="btn btn-primary" type="button">Tạo đợt đăng ký</button>
+    </div>
+  </section>
+
+  <!-- ============ LỘ TRÌNH ============ -->
+  <section class="card" id="lo-trinh">
+    <div class="card-header"><div><h2 class="card-title">Lộ trình quy trình</h2><p class="card-sub">6 bước, tự co lại theo bề rộng.</p></div></div>
+    <ol class="roadmap">
+      <li><div class="step is-done"><span class="step-num">01</span><span class="step-title">Đề xuất</span><span class="step-desc">GV đăng ký đề tài mới</span></div></li>
+      <li><div class="step is-done"><span class="step-num">02</span><span class="step-title">Phê duyệt</span><span class="step-desc">Trưởng khoa duyệt, phân công GVHD</span></div></li>
+      <li><div class="step is-current"><span class="step-num">03</span><span class="step-title">Đăng ký</span><span class="step-desc">Nhóm SV chọn đề tài</span></div></li>
+      <li><div class="step"><span class="step-num">04</span><span class="step-title">Thực hiện</span><span class="step-desc">Nộp báo cáo theo hạn</span></div></li>
+      <li><div class="step"><span class="step-num">05</span><span class="step-title">Phản biện</span><span class="step-desc">GV phản biện & chấm điểm</span></div></li>
+      <li><div class="step"><span class="step-num">06</span><span class="step-title">Công bố</span><span class="step-desc">Khoa công bố kết quả</span></div></li>
+    </ol>
+  </section>
+
+  <!-- ============ CHIA SẺ MẠNG XÃ HỘI ============ -->
+  <section class="card" id="chia-se">
+    <div class="card-header"><div><h2 class="card-title">Chia sẻ &amp; phân tách</h2><p class="card-sub">Dùng cho trang chi tiết: nội dung chính + cột phụ.</p></div></div>
+    <div class="split-layout">
+      <div class="card card-flat">
+        <h3 class="card-title">Nội dung chính</h3>
+        <p>Cột rộng dùng cho bảng và biểu mẫu dài. Trên màn hình hẹp tự xếp dọc.</p>
+      </div>
+      <div class="card card-flat">
+        <h3 class="card-title">Cột phụ</h3>
+        <p>Tóm tắt, hành động nhanh, thông tin liên quan.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* Hiển thị giá trị thực tế của token, đọc trực tiếp từ theme.css (đổi theme là đổi số) */
+(function () {
+  'use strict';
+  document.querySelectorAll('.token-value[data-token]').forEach(function (el) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(el.dataset.token).trim();
+    if (v) el.textContent = v;
+  });
+})();
+</script>
+</body>
+</html>

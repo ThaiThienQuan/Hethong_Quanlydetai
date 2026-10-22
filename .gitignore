@@ -40,3 +40,22 @@ build/
 # Thư mục lưu tệp thật ngoài static (đặc tả 5.5), sinh ra khi chạy/demo
 storage/
 uploads/
+
+### Log runtime sinh ra khi chạy/demo ###
+*.log
+*.err
+*.err.log
+logs-auth.txt
+logs-auth.txt.err
+testrun.log
+e2e_out.txt
+cj8.txt
+
+### Script kiểm thử tạm (tạo trong lúc test, không commit) ###
+t[0-9]*.ps1
+testhelpers.ps1
+
+### Dependency / artifact sinh ra ###
+node_modules/
+tools/out/
+docs/ui/after/

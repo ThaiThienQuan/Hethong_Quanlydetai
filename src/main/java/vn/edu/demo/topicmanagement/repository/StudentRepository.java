@@ -2,6 +2,8 @@ package vn.edu.demo.topicmanagement.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,9 +22,12 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     /**
      * Màn hình hồ sơ SV (mục 5.1b) cần user ngay trong view.
      * open-in-view=false nên phải fetch join trước khi transaction đóng.
+     * Có thể đếm trực tiếp (Page) vì join fetch chỉ áp dụng cho OneToOne user -
+     * không có quan hệ collection nào làm loãng bản ghi.
      */
-    @Query("select s from Student s join fetch s.user u order by s.studentCode")
-    List<Student> findAllForProfileList();
+    @Query(value = "select s from Student s join fetch s.user u order by s.studentCode",
+            countQuery = "select count(s) from Student s")
+    Page<Student> findAllForProfileList(Pageable pageable);
 
     /** Lấy 1 SV kèm user, dùng cho trang chi tiết/sửa (open-in-view=false). */
     @Query("select s from Student s join fetch s.user u where s.id = :id")

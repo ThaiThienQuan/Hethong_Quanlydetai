@@ -1,16 +1,23 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Thông báo</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<head th:replace="~{fragments/layout :: head('Thông báo')}"></head>
 <body class="app-page">
-<div th:replace="~{fragments/nav :: nav}"></div><div class="box wide">
-    <h2>Thông báo chính thức</h2><a th:href="@{/}">&larr; Trang chủ</a>
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main"><div class="box wide">
+    <div class="box-head">
+        <h2>Thông báo chính thức</h2>
+    </div>
     <article th:each="a : ${announcements}">
         <h3 th:text="${a.title}"></h3>
         <p><small th:text="${a.scope + (a.departmentName != null ? ' — ' + a.departmentName : '') + ' | ' + a.authorName}"></small></p>
-        <p style="white-space: pre-line" th:text="${a.content}"></p>
+        <p class="pre-line" th:text="${a.content}"></p>
         <small th:if="${a.publishedAt != null}" th:text="${#temporals.format(a.publishedAt, 'dd/MM/yyyy HH:mm')}"></small>
         <hr>
     </article>
     <p th:if="${#lists.isEmpty(announcements)}">Chưa có thông báo mới.</p>
-</div></body></html>
+</div>
+</main>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 package vn.edu.demo.topicmanagement.dto;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import vn.edu.demo.topicmanagement.entity.Topic;
@@ -18,6 +19,8 @@ public class TopicView {
     private Long periodId;
     private String periodName;
     private String createdByLecturerName;
+    /** createdAt của bảng topics — dùng cho cột "Ngày tạo" ở trang danh sách công bố. */
+    private LocalDateTime createdAt;
     private List<LecturerOption> supervisors = new ArrayList<>();
     private boolean owner;
     private boolean editable;
@@ -65,6 +68,7 @@ public class TopicView {
     public Long getPeriodId() { return periodId; }
     public String getPeriodName() { return periodName; }
     public String getCreatedByLecturerName() { return createdByLecturerName; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
     public List<LecturerOption> getSupervisorList() { return supervisors; }
     public boolean isOwner() { return owner; }
     public String getRejectReason() { return rejectReason; }
@@ -81,6 +85,7 @@ public class TopicView {
     public void setPeriodId(Long periodId) { this.periodId = periodId; }
     public void setPeriodName(String periodName) { this.periodName = periodName; }
     public void setCreatedByLecturerName(String createdByLecturerName) { this.createdByLecturerName = createdByLecturerName; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setSupervisors(List<LecturerOption> supervisors) { this.supervisors = supervisors; }
     public void setSupervisorsText(String supervisors) { this.supervisorsText = supervisors; }
     public void setOwner(boolean owner) { this.owner = owner; }

@@ -2,6 +2,8 @@ package vn.edu.demo.topicmanagement.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,15 +27,23 @@ public interface LecturerRepository extends JpaRepository<Lecturer, Long> {
     /**
      * Màn hình hồ sơ GV (mục 5.1b) cần user + department ngay trong view.
      * open-in-view=false nên phải fetch join trước khi transaction đóng.
+     *
+     * Có thể đếm trực tiếp (Page) vì join fetch chỉ áp dụng cho các quan hệ
+     * đơn giá (OneToOne user, ManyToOne department) - không có quan hệ
+     * collection nào làm loãng bản ghi, nên phân trang thực hiện ở tầng DB.
      */
-    @Query("""
+    @Query(value = """
             select l from Lecturer l
             join fetch l.user u
             join fetch l.department d
             where (:departmentId is null or d.id = :departmentId)
             order by l.lecturerCode
+            """,
+            countQuery = """
+            select count(l) from Lecturer l
+            where (:departmentId is null or l.department.id = :departmentId)
             """)
-    List<Lecturer> findAllForProfileList(@Param("departmentId") Long departmentId);
+    Page<Lecturer> findAllForProfileList(@Param("departmentId") Long departmentId, Pageable pageable);
 
     /** Lấy 1 GV kèm user + department, dùng cho trang chi tiết/sửa (open-in-view=false). */
     @Query("select l from Lecturer l join fetch l.user u join fetch l.department d where l.id = :id")

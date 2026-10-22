@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Thông tin tài khoản</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Thông tin tài khoản')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box formbox">
-    <h2>Thông tin tài khoản của tôi</h2>
-    <a th:href="@{/}">← Về trang chủ</a>
+<main id="main-content" class="app-main"><div class="box formbox">
+    <div class="box-head">
+        <h2>Thông tin tài khoản của tôi</h2>
+    </div>
     <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
         <tbody>
         <tr><th>Tên đăng nhập</th><td th:text="${profile.username}"></td></tr>
@@ -26,6 +23,16 @@
         </tbody>
     </table></div>
     <p class="desc">Để đổi mật khẩu, vào <a th:href="@{/account/password}">Đổi mật khẩu</a>.</p>
+    <div class="notice">
+        <svg class="ui-icon" aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16h.01M12 13.5c0-1.2.9-2 2-2s2 .8 2 2c0 1.6-2 2-2 3.5"/></svg>
+        <div>
+            Cần <strong>chỉnh sửa hoặc thêm mật khẩu</strong> mà không nhớ mật khẩu hiện tại?
+            Vui lòng liên hệ Admin theo thông tin bên dưới để được đặt lại mật khẩu mặc định.
+        </div>
+    </div>
+    <div th:replace="~{fragments/contact :: contact}"></div>
 </div>
+</main>
+
 </body>
 </html>

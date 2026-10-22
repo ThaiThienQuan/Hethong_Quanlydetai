@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${pageTitle}">Tạo/Sửa vai trò</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
 <body class="app-page">
-    <div th:replace="~{fragments/nav :: nav}"></div>
-    <div class="box narrow">
-        <h2 th:text="${pageTitle}">Tạo/Sửa vai trò</h2>
-        <a th:href="@{/roles}">&larr; Quay lại danh sách vai trò</a>
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main"><div class="box narrow">
+        <div class="box-head">
+            <h2 th:text="${pageTitle}">Tạo/Sửa vai trò</h2>
+            <div class="box-head-actions">
+                <a class="back-link" th:href="@{/roles}">&larr; Quay lại danh sách vai trò</a>
+            </div>
+        </div>
 
         <p class="error" th:if="${error}" th:text="${error}"></p>
 
@@ -40,5 +40,7 @@
             </div>
         </form>
     </div>
+</main>
+
 </body>
 </html>

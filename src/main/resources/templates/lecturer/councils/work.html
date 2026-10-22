@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Chấm điểm hội đồng</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<head th:replace="~{fragments/layout :: head('Chấm điểm hội đồng')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box xwide">
-    <h2>Chấm điểm và tổng hợp kết quả hội đồng</h2>
-    <a th:href="@{/}">&larr; Trang chủ</a>
+<main id="main-content" class="app-main"><div class="box xwide">
+    <div class="box-head">
+        <h2>Chấm điểm và tổng hợp kết quả hội đồng</h2>
+    </div>
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
     <article th:each="item : ${work}">
@@ -30,7 +31,7 @@
                       th:text="${item.myComment}"></textarea>
             <label>Lý do ghi đè quá hạn (chỉ admin)</label>
             <input name="overrideReason" maxlength="500" placeholder="Để trống nếu trong hạn">
-            <button type="submit" th:text="${item.myScore != null} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
+            <button class="btn btn-primary" type="submit" th:text="${item.myScore != null} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
         </form>
         <p th:if="${!item.canScore}">
             Bạn không thể chấm đề tài này (GVHD không tự chấm, đã quá hạn, hoặc kết quả đã công bố).
@@ -44,7 +45,7 @@
                 <label>Nhận xét tổng hợp của chủ tịch</label>
                 <textarea name="councilComment" rows="3" maxlength="2000"
                           placeholder="Để trống nếu không cần thêm"></textarea>
-                <button type="submit">Tổng hợp kết quả</button>
+                <button class="btn btn-primary" type="submit">Tổng hợp kết quả</button>
             </form>
         </section>
 
@@ -59,5 +60,7 @@
     </article>
     <p th:if="${#lists.isEmpty(work)}">Bạn chưa được phân công vào hội đồng đang hoạt động.</p>
 </div>
+</main>
+
 </body>
 </html>

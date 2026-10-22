@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Quản lý hội đồng</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<head th:replace="~{fragments/layout :: head('Quản lý hội đồng')}"></head>
 <body class="app-page">
-<div th:replace="~{fragments/nav :: nav}"></div><div class="box xwide">
-    <h2>Quản lý hội đồng phản biện</h2><a th:href="@{/}">&larr; Trang chủ</a>
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main"><div class="box xwide">
+    <div class="box-head">
+        <h2>Quản lý hội đồng phản biện</h2>
+    </div>
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
 
@@ -24,7 +27,7 @@
         <div class="field-error" th:errors="*{periodId}"></div>
         <label>Ngày báo cáo hội đồng (để trống: với đợt KLTN sẽ lấy theo ngày báo cáo hội đồng của đợt)</label>
         <input type="datetime-local" th:field="*{reportDate}">
-        <button type="submit">Tạo hội đồng</button>
+        <button class="btn btn-primary" type="submit">Tạo hội đồng</button>
     </form>
 
     <h3>Danh sách hội đồng</h3>
@@ -49,4 +52,8 @@
             </tbody>
         </table>
     </div>
-</div></body></html>
+</div>
+</main>
+
+</body>
+</html>

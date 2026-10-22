@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${editing} ? 'Sửa đợt đăng ký' : 'Tạo đợt đăng ký'">Đợt đăng ký</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Đợt đăng ký')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box formbox">
-    <h2 th:text="${editing} ? 'Sửa đợt đăng ký nháp' : 'Tạo đợt đăng ký'">Đợt đăng ký</h2>
-    <a th:href="@{/periods}">&larr; Về danh sách</a>
+<main id="main-content" class="app-main"><div class="box formbox">
+    <div class="box-head">
+        <h2 th:text="${editing} ? 'Sửa đợt đăng ký nháp' : 'Tạo đợt đăng ký'">Đợt đăng ký</h2>
+        <div class="box-head-actions">
+            <a class="back-link" th:href="@{/periods}">&larr; Về danh sách</a>
+        </div>
+    </div>
     <form th:action="${editing} ? @{/periods/{id}/edit(id=${periodId})} : @{/periods/new}" th:object="${periodForm}" method="post">
         <label>Tên đợt</label><input th:field="*{name}" required>
         <div class="field-error" th:errors="*{name}"></div>
@@ -30,8 +30,10 @@
         <label>Ngày báo cáo hội đồng (chỉ KLTN)</label><input type="datetime-local" th:field="*{defenseDate}">
         <div class="field-error" th:errors="*{defenseDate}"></div>
         <p class="desc">Đợt mới được tạo ở trạng thái nháp. Sau khi kiểm tra thông tin, Trưởng khoa có thể mở đợt từ danh sách.</p>
-        <button type="submit" th:text="${editing} ? 'Lưu thay đổi' : 'Tạo đợt'">Tạo đợt</button>
+        <button class="btn btn-primary" type="submit" th:text="${editing} ? 'Lưu thay đổi' : 'Tạo đợt'">Tạo đợt</button>
     </form>
 </div>
+</main>
+
 </body>
 </html>

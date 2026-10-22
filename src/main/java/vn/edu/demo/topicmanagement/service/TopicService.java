@@ -602,6 +602,7 @@ public class TopicService {
         if (t.getCreatedByLecturer() != null && t.getCreatedByLecturer().getUser() != null) {
             v.setCreatedByLecturerName(t.getCreatedByLecturer().getUser().getFullName());
         }
+        v.setCreatedAt(t.getCreatedAt());
         List<LecturerOption> sups = new ArrayList<>();
         StringBuilder names = new StringBuilder();
         for (TopicSupervisor ts : supervisorRepository.findByTopicIdWithLecturer(t.getId())) {

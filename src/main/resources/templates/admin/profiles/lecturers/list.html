@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hồ sơ giảng viên</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Hồ sơ giảng viên')}"></head>
 <body class="app-page">
-    <div th:replace="~{fragments/nav :: nav}"></div>
-    <div class="box xwide">
-        <h2>Hồ sơ giảng viên</h2>
-        <a th:href="@{/}">&larr; Về trang chủ</a>
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main"><div class="box xwide">
+        <div class="box-head">
+            <h2>Hồ sơ giảng viên</h2>
+        </div>
 
         <p class="ok" th:if="${message}" th:text="${message}"></p>
         <p class="error" th:if="${error}" th:text="${error}"></p>
@@ -41,7 +38,9 @@
                 </thead>
                 <tbody>
                     <tr th:each="l, stat : ${lecturers}">
-                        <td th:text="${stat.count}">1</td>
+                        <!-- Số thứ tự phải cộng offset của các trang trước (page.number * page.size),
+                             nếu chỉ dùng stat.count thì mỗi trang đều bắt đầu lại từ 1. -->
+                        <td th:text="${page.number * page.size + stat.count}">1</td>
                         <td><code th:text="${l.lecturerCode}">GV001</code></td>
                         <td th:text="${l.user.fullName}">Nguyễn Văn A</td>
                         <td th:text="${l.academicDegree != null ? l.academicDegree : '—'}">Tiến sĩ</td>
@@ -58,6 +57,33 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Phân trang: dùng component .pagination có sẵn trong components.css.
+             Giữ nguyên departmentId khi chuyển trang, nếu không bộ lọc sẽ bị mất.
+             Chỉ hiện tối đa 9 số trang quanh trang hiện tại để không dồn hết
+             khi bảng có hàng trăm trang. -->
+        <nav th:if="${page != null and page.totalPages > 1}" class="pagination" aria-label="Phân trang hồ sơ giảng viên">
+            <span class="info"
+                  th:text="'Hiển thị ' + (page.number * page.size + 1) + '–'
+                            + (page.number * page.size + lecturers.size()) + ' trong ' + page.totalElements"></span>
+            <div class="pages">
+                <a class="page-link"
+                   th:classappend="${page.first} ? 'is-disabled'"
+                   th:href="@{/admin/profiles/lecturers(departmentId=${selectedDepartment},page=${page.number - 1})}">&larr; Trước</a>
+                <a class="page-link"
+                   th:each="n : ${#numbers.sequence(
+                        page.number <= 4 ? 0 : page.number - 4,
+                        page.totalPages - 5 <= page.number ? page.totalPages - 1 : page.number + 4)}"
+                   th:classappend="${page.number == n} ? 'is-current'"
+                   th:href="@{/admin/profiles/lecturers(departmentId=${selectedDepartment},page=${n})}"
+                   th:text="${n + 1}">1</a>
+                <a class="page-link"
+                   th:classappend="${page.last} ? 'is-disabled'"
+                   th:href="@{/admin/profiles/lecturers(departmentId=${selectedDepartment},page=${page.number + 1})}">Sau &rarr;</a>
+            </div>
+        </nav>
     </div>
+</main>
+
 </body>
 </html>

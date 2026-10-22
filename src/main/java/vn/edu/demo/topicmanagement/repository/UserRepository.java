@@ -50,4 +50,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
             order by u.fullName
             """)
     List<User> findAllEnabledLecturers();
+
+    /**
+     * Tài khoản quản trị viên đang hoạt động, dùng làm đầu mối liên hệ cho người dùng.
+     * <p>Chỉ lấy tài khoản còn {@code enabled} để tránh hiển thị SĐT của admin đã bị vô hiệu hoá.
+     * Nếu có nhiều admin thì lấy tài khoản tạo sớm nhất (đầu danh sách).
+     */
+    @Query("""
+            select u from User u
+            where u.enabled = true
+              and exists (select 1 from u.roles r where r.code = 'ADMIN')
+            order by u.id asc
+            """)
+    List<User> findEnabledAdmins();
 }

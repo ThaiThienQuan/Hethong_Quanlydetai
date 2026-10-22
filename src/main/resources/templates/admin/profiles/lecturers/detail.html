@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Xem chi tiết giảng viên</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Xem chi tiết giảng viên')}"></head>
 <body class="app-page">
-    <div th:replace="~{fragments/nav :: nav}"></div>
-    <div class="box narrow">
-        <h2>Chi tiết hồ sơ giảng viên</h2>
-        <a th:href="@{/admin/profiles/lecturers}">&larr; Quay lại danh sách</a>
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main"><div class="box narrow">
+        <div class="box-head">
+            <h2>Chi tiết hồ sơ giảng viên</h2>
+            <div class="box-head-actions">
+                <a class="back-link" th:href="@{/admin/profiles/lecturers}">&larr; Quay lại danh sách</a>
+            </div>
+        </div>
 
         <div class="detail-card">
             <dl class="detail-list">
@@ -42,5 +42,7 @@
             <a th:href="@{/admin/profiles/lecturers}" class="btn secondary">Đóng</a>
         </div>
     </div>
+</main>
+
 </body>
 </html>

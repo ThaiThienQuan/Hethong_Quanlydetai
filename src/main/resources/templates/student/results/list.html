@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Kết quả đề tài</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<head th:replace="~{fragments/layout :: head('Kết quả đề tài')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box xwide">
-    <h2>Kết quả của tôi</h2>
-    <a th:href="@{/}">&larr; Trang chủ</a>
+<main id="main-content" class="app-main"><div class="box xwide">
+    <div class="box-head">
+        <h2>Kết quả của tôi</h2>
+    </div>
     <p class="error" th:if="${error}" th:text="${error}"></p>
 
-    <form method="get" th:action="@{/student/results}" style="margin:1rem 0">
+    <form method="get" th:action="@{/student/results}" class="filter-bar">
         <label>Tra cứu theo đợt</label>
         <select name="periodId" onchange="this.form.submit()">
             <option value="">-- Tất cả các đợt tôi tham gia --</option>
             <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}"
                     th:selected="${selectedPeriodId != null and selectedPeriodId == p.id}"></option>
         </select>
-        <noscript><button type="submit">Xem</button></noscript>
+        <noscript><button class="btn btn-secondary btn-sm" type="submit">Xem</button></noscript>
     </form>
 
     <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
@@ -47,5 +48,7 @@
     <p><small>Bạn chỉ xem được kết quả <b>đã công bố</b> của nhóm mình.
         Điểm thành phần của từng giảng viên không hiển thị mặc định.</small></p>
 </div>
+</main>
+
 </body>
 </html>

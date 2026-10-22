@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Trợ giúp &amp; liên hệ')}"></head>
+<body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main"><div class="box">
+    <div class="box-head">
+        <h2>Trợ giúp &amp; liên hệ</h2>
+    </div>
+
+    <!-- THÔNG TIN LIÊN HỆ ADMIN -->
+    <h3>Liên hệ quản trị viên</h3>
+    <p class="desc">
+        Mọi yêu cầu về mật khẩu (quên mật khẩu, đổi mật khẩu, thêm mật khẩu, tài khoản bị khoá)
+        đều do Admin xử lý. Liên hệ theo một trong các cách dưới đây.
+    </p>
+    <div th:replace="~{fragments/contact :: contact}"></div>
+
+    <!-- CÁC TÌNH HUỐNG THƯỜNG GẶP -->
+    <h3>Các tình huống thường gặp</h3>
+    <div class="table-scroll" role="region" tabindex="0" aria-label="Hướng dẫn xử lý tình huống"><table>
+        <thead>
+        <tr><th>Tình huống</th><th>Cách xử lý</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Quên mật khẩu</td>
+            <td>Liên hệ Admin theo thông tin ở trên để được đặt lại mật khẩu mặc định. Sau khi đặt lại,
+                bạn đăng nhập và tự đổi mật khẩu tại trang <a th:href="@{/account/password}">Đổi mật khẩu</a>.</td>
+        </tr>
+        <tr>
+            <td>Tài khoản bị khoá tạm</td>
+            <td>Hệ thống tự mở khoá sau 15 phút kể từ lần đăng nhập sai thứ 5. Nếu vẫn bị khoá,
+                liên hệ Admin để mở khoá ngay.</td>
+        </tr>
+        <tr>
+            <td>Đổi mật khẩu</td>
+            <td>Đăng nhập rồi vào <a th:href="@{/account/password}">Đổi mật khẩu</a>. Cần nhớ mật khẩu hiện tại
+                và mật khẩu mới phải có ít nhất 8 ký tự, gồm cả chữ và số.</td>
+        </tr>
+        <tr>
+            <td>Cần thêm mật khẩu cho vai trò khác</td>
+            <td>Liên hệ Admin kèm tên đăng nhập và mã sinh viên / mã giảng viên của tài khoản cần thêm.</td>
+        </tr>
+        <tr>
+            <td>Chưa có hồ sơ sinh viên / giảng viên</td>
+            <td>Liên hệ Admin kèm mã số để được bổ sung hồ sơ. Thông báo sẽ hiện khi bạn mở màn hình
+                tương ứng.</td>
+        </tr>
+        </tbody>
+    </table></div>
+
+    <!-- KÊNH HỖ TRỢ KHÁC -->
+    <h3>Kênh hỗ trợ khác</h3>
+    <div class="notice">
+        <svg class="ui-icon" aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+        <div>
+            Thông báo chung của nhà trường và khoa được đăng tại trang
+            <a th:href="@{/announcements}">Thông báo</a>. Trước khi liên hệ Admin,
+            bạn có thể kiểm tra trang này để biết đã có thông báo nào liên quan chưa.
+        </div>
+    </div>
+    <a class="btn btn-secondary" th:href="@{/announcements}">
+        <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+        Xem thông báo
+    </a>
+</div>
+</main>
+
+</body>
+</html>

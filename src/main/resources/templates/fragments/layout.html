@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<!--
+  UniResearch – layout dùng chung.
+  · head(pageTitle)  : <head th:replace="~{fragments/layout :: head('Tên trang')}"></head>
+  · nav              : khung trang duy nhất (sidebar + topbar). Trang dùng:
+                        <div th:replace="~{fragments/nav :: nav}"></div>
+                        <main class="app-main"> ...nội dung... </main>
+  Nội dung chi tiết của từng trang nằm trong <main class="app-main"> để CSS grid
+  của <body> đặt sidebar / topbar / main đúng vị trí.
+-->
+
+<!-- ================= HEAD DÙNG CHUNG ================= -->
+<head th:fragment="head(pageTitle)">
+  <title th:text="${pageTitle} + ' | UniResearch'">UniResearch</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="application-name" content="UniResearch">
+  <meta name="description" content="UniResearch – Hệ thống quản lý đề tài sinh viên, Khoa Công nghệ Thông tin. Quản lý đề tài – kết nối tri thức.">
+  <meta name="color-scheme" content="light dark">
+  <!-- Nội dung theme-color do theme.js điền từ token --theme-color (không hardcode mã màu ở HTML) -->
+  <meta name="theme-color" content="">
+  <link rel="icon" th:href="@{/img/favicon.svg}" type="image/svg+xml">
+  <link rel="stylesheet" th:href="@{/css/theme.css}">
+  <link rel="stylesheet" th:href="@{/css/layout.css}">
+  <link rel="stylesheet" th:href="@{/css/components.css}">
+  <link rel="stylesheet" th:href="@{/css/pages.css}">
+  <!-- theme.js nạp ĐỒNG BỘ (không defer) trước CSS để gán data-theme, tránh nhấp nháy (FOUC) -->
+  <script th:src="@{/js/theme.js}"></script>
+  <!-- ui.js nạp ở ĐÂY (head dùng chung) chứ không nhét thủ công vào từng template:
+       nó bắt các sự kiện của khung chung (menu người dùng, menu đổi giao diện,
+       thu gọn sidebar, hộp xác nhận, hiện mật khẩu, bảng dạng thẻ trên mobile...).
+       Nếu chỉ nhúng ở một vài trang thì những trang còn lại sẽ mất hết các
+       chức năng này. `defer` đảm bảo script chạy sau khi DOM dựng xong. -->
+  <script defer th:src="@{/js/ui.js}"></script>
+</head>
+
+<!-- ================= KHUNG TRANG DUY NHẤT ================= -->
+<div th:fragment="nav" class="app-frame">
+  <div class="sidebar-backdrop" data-sidebar-close aria-hidden="true"></div>
+
+  <aside id="app-sidebar" class="app-sidebar" aria-label="Menu chính">
+    <div class="sidebar-brand">
+      <a class="brand" th:href="@{/}" aria-label="UniResearch – Trang chủ">
+        <span class="brand-logo">
+          <svg class="ui-icon" aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3 2.5 7.5 12 12l9.5-4.5L12 3Z"/><path d="M6.5 9.8V15c0 1.6 2.5 3 5.5 3s5.5-1.4 5.5-3V9.8"/><path d="M21 8v5"/>
+            <circle cx="18.5" cy="18.5" r="3"/><path d="m20.8 20.8 2.2 2.2"/>
+          </svg>
+        </span>
+        <span class="brand-name">Uni<span class="accent">Research</span><small>ACADEMIC WORKSPACE</small></span>
+      </a>
+      <button class="sidebar-close" type="button" aria-label="Đóng menu" data-sidebar-close>
+        <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Điều hướng chính">
+      <!-- TỔNG QUAN -->
+      <section class="sidebar-group">
+        <h2 class="sidebar-label">Tổng quan</h2>
+        <a class="sidebar-link" th:href="@{/}">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>
+          <span>Tổng quan</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/topics}">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h5"/></svg>
+          <span>Danh sách đề tài</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/announcements}">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+          <span>Thông báo</span>
+        </a>
+      </section>
+
+      <!-- QUY TRÌNH ĐỀ TÀI -->
+      <section class="sidebar-group" sec:authorize="hasAnyRole('ADMIN','TRUONG_KHOA','GIANG_VIEN','SINH_VIEN')">
+        <h2 class="sidebar-label">Quy trình đề tài</h2>
+        <a class="sidebar-link" th:href="@{/periods}" sec:authorize="hasRole('TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+          <span>Đợt đăng ký</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/head/topics}" sec:authorize="hasRole('TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m8 12 3 3 5-6"/></svg>
+          <span>Duyệt đề tài &amp; GVHD</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/lecturer/topics}" sec:authorize="hasRole('GIANG_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h5"/></svg>
+          <span>Đề tài của tôi</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/student/groups}" sec:authorize="hasRole('SINH_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19v-1a4 4 0 0 1 4-4h3a4 4 0 0 1 4 4v1"/><path d="M16 5.3a3.2 3.2 0 0 1 0 5.4"/></svg>
+          <span>Nhóm của tôi</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/student/registrations}" sec:authorize="hasRole('SINH_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2.5"/><rect x="9" y="2" width="6" height="4" rx="1.5"/><path d="M9 12h6M9 16h6"/></svg>
+          <span>Đăng ký đề tài</span>
+        </a>
+      </section>
+
+      <!-- PHẢN BIỆN & CHẤM ĐIỂM -->
+      <section class="sidebar-group" sec:authorize="hasAnyRole('TRUONG_KHOA','GIANG_VIEN')">
+        <h2 class="sidebar-label">Phản biện &amp; chấm điểm</h2>
+        <a class="sidebar-link" th:href="@{/head/reviewers}" sec:authorize="hasRole('TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <span>Phân công phản biện</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/head/councils}" sec:authorize="hasRole('TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7M4 10h16M6 10v9M10 10v9M14 10v9M18 10v9M3 21h18"/></svg>
+          <span>Hội đồng đánh giá</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/lecturer/reviews}" sec:authorize="hasRole('GIANG_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5 4 4M4 20l4-.7L20 7a2.8 2.8 0 0 0-4-4L3.7 15.3 3 20Z"/></svg>
+          <span>Nhiệm vụ phản biện</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/lecturer/council-work}" sec:authorize="hasRole('GIANG_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M7 17v-5M12 17V8M17 17v-7"/></svg>
+          <span>Chấm điểm hội đồng</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/head/results}" sec:authorize="hasRole('TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="m8.5 12-2 9 5.5-3 5.5 3-2-9"/></svg>
+          <span>Công bố kết quả</span>
+        </a>
+      </section>
+
+      <!-- THÔNG TIN -->
+      <section class="sidebar-group" sec:authorize="hasAnyRole('TRUONG_KHOA','GIANG_VIEN','SINH_VIEN')">
+        <h2 class="sidebar-label">Thông tin</h2>
+        <a class="sidebar-link" th:href="@{/lecturer/reports}" sec:authorize="hasRole('GIANG_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2.5H6.5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8.5l-6-6Z"/><path d="M13.5 2.5v6h6M8.5 13.5h7M8.5 17.5h5"/></svg>
+          <span>Báo cáo hướng dẫn</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/lecturer/registrations}" sec:authorize="hasRole('GIANG_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2.5"/><rect x="9" y="2" width="6" height="4" rx="1.5"/><path d="m9 15 2 2 4-4"/></svg>
+          <span>Duyệt đăng ký nhóm</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/student/reports}" sec:authorize="hasRole('SINH_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3.5m-5 5 5-5 5 5M4 15.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3.5"/></svg>
+          <span>Nộp báo cáo</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/student/results}" sec:authorize="hasRole('SINH_VIEN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="m8.5 12-2 9 5.5-3 5.5 3-2-9"/></svg>
+          <span>Kết quả của tôi</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/head/emails}" sec:authorize="hasRole('TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 7.5 9 6 9-6"/></svg>
+          <span>Nhật ký email</span>
+        </a>
+      </section>
+
+      <!-- DANH MỤC & QUẢN TRỊ -->
+      <section class="sidebar-group" sec:authorize="hasAnyRole('ADMIN','TRUONG_KHOA')">
+        <h2 class="sidebar-label">Danh mục &amp; quản trị</h2>
+        <a class="sidebar-link" th:href="@{/admin/users}" sec:authorize="hasRole('ADMIN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Quản lý tài khoản</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/roles}" sec:authorize="hasRole('ADMIN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><path d="M12 3c1.2 0 2.4.6 3 1.5A4.5 4.5 0 0 1 21 12a4.5 4.5 0 0 1-4.5 4.5H7a4.5 4.5 0 0 1-3-8.3C4.6 7.6 6.4 6 8.5 6H12Z"/></svg>
+          <span>Vai trò &amp; phân quyền</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/admin/departments}" sec:authorize="hasAnyRole('ADMIN','TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5Z"/><path d="M9.5 22v-8h5v8"/></svg>
+          <span>Bộ môn</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/admin/profiles/lecturers}" sec:authorize="hasAnyRole('ADMIN','TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Hồ sơ giảng viên</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/admin/profiles/students}" sec:authorize="hasAnyRole('ADMIN','TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <span>Hồ sơ sinh viên</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/admin/announcements}" sec:authorize="hasRole('ADMIN')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+          <span>Quản lý thông báo</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/head/announcements}" sec:authorize="hasRole('TRUONG_KHOA')">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+          <span>Thông báo khoa</span>
+        </a>
+      </section>
+
+      <!-- CÁ NHÂN -->
+      <section class="sidebar-group">
+        <h2 class="sidebar-label">Cá nhân</h2>
+        <a class="sidebar-link" th:href="@{/account/profile}">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>
+          <span>Hồ sơ cá nhân</span>
+        </a>
+        <a class="sidebar-link" th:href="@{/account/password}">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 8.5-8.5 2 2-3 3 2 2-3 3-2-2-3 3"/></svg>
+          <span>Đổi mật khẩu</span>
+        </a>
+      </section>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="sidebar-footer-mark">
+        <svg class="ui-icon" aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 22 8-4V6l-8-4-8 4v12l8 4Z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <div>
+        <strong>UniResearch</strong>
+        <small>Secure · Spring Boot</small>
+      </div>
+    </div>
+  </aside>
+
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" type="button" data-sidebar-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Mở menu">
+        <svg class="ui-icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <button class="sidebar-collapse" type="button" data-sidebar-collapse aria-label="Thu gọn hoặc mở rộng menu" aria-expanded="true" title="Thu gọn menu">
+        <svg class="ui-icon" aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18 6 15l3-3M15 6l3 3-3 3"/></svg>
+      </button>
+      <div class="topbar-location">
+        <small>KHÔNG GIAN LÀM VIỆC <span class="topbar-slash">/</span> <span id="current-page-crumb">Tổng quan</span></small>
+        <strong id="current-page-title">Tổng quan</strong>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <span class="role-pill">
+        <svg class="ui-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 22 8-4V6l-8-4-8 4v12l8 4Z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span sec:authorize="hasRole('ADMIN')">Quản trị viên</span>
+        <span sec:authorize="hasRole('TRUONG_KHOA')">Trưởng khoa</span>
+        <span sec:authorize="hasRole('GIANG_VIEN')">Giảng viên</span>
+        <span sec:authorize="hasRole('SINH_VIEN')">Sinh viên</span>
+      </span>
+
+      <!-- Nút chuyển theme: Sáng / Tối / Theo hệ thống -->
+      <div class="theme-menu">
+        <button class="theme-trigger" type="button" data-theme-menu-toggle aria-expanded="false" aria-haspopup="true" aria-label="Đổi giao diện sáng, tối hoặc theo hệ thống" title="Đổi giao diện">
+          <svg class="ui-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <g class="ico-sun"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></g>
+            <g class="ico-moon" hidden><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></g>
+          </svg>
+        </button>
+        <div class="theme-menu-list" data-theme-menu role="menu" aria-label="Chọn giao diện">
+          <button type="button" role="menuitemradio" data-theme-set="light" aria-checked="false">
+            <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+            Sáng
+          </button>
+          <button type="button" role="menuitemradio" data-theme-set="dark" aria-checked="false">
+            <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>
+            Tối
+          </button>
+          <button type="button" role="menuitemradio" data-theme-set="system" aria-checked="false">
+            <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8.5 20.5h7M12 16.5v4"/></svg>
+            Theo hệ thống
+          </button>
+        </div>
+      </div>
+
+      <!-- Menu người dùng (chứa nút Đăng xuất POST + CSRF) -->
+      <div class="user-menu">
+        <button class="user-menu-trigger" type="button" data-user-menu-toggle aria-expanded="false" aria-haspopup="true">
+          <span class="profile-avatar" sec:authentication="name" th:text="${#strings.substring(#strings.toUpperCase(#authentication.name), 0, 1)}">U</span>
+          <span class="profile-name" sec:authentication="name">Tài khoản</span>
+          <svg class="ui-icon chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="user-menu-list" data-user-menu role="menu" aria-label="Menu người dùng">
+          <a th:href="@{/account/profile}" role="menuitem">
+            <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>
+            Hồ sơ cá nhân
+          </a>
+          <a th:href="@{/account/password}" role="menuitem">
+            <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 8.5-8.5 2 2-3 3 2 2-3 3-2-2-3 3"/></svg>
+            Đổi mật khẩu
+          </a>
+          <div class="sep" role="separator"></div>
+          <form th:action="@{/logout}" method="post" class="logout-form">
+            <button type="submit" class="danger" role="menuitem">
+              <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg>
+              Đăng xuất
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+</body>
+</html>

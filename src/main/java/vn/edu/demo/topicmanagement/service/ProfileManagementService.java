@@ -1,6 +1,8 @@
 package vn.edu.demo.topicmanagement.service;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,15 +39,18 @@ public class ProfileManagementService {
     /**
      * open-in-view=false nên phải fetch join user/department ngay trong service,
      * nếu không view sẽ lỗi LazyInitializationException.
+     *
+     * Phân trang ở tầng DB (Page) thay vì cắt list trong bộ nhớ: bảng lecturers
+     * có thể vài nghìn dòng, cắt sau khi load toàn bộ vừa chậm vừa tốn bộ nhớ.
      */
     @Transactional(readOnly = true)
-    public List<Lecturer> findAllLecturers() {
-        return lecturerRepository.findAllForProfileList(null);
+    public Page<Lecturer> findAllLecturers(int page, int size) {
+        return lecturerRepository.findAllForProfileList(null, pageableOf(page, size));
     }
 
     @Transactional(readOnly = true)
-    public List<Lecturer> findLecturersByDepartment(Long departmentId) {
-        return lecturerRepository.findAllForProfileList(departmentId);
+    public Page<Lecturer> findLecturersByDepartment(Long departmentId, int page, int size) {
+        return lecturerRepository.findAllForProfileList(departmentId, pageableOf(page, size));
     }
 
     @Transactional(readOnly = true)
@@ -86,8 +91,8 @@ public class ProfileManagementService {
     // ======================= STUDENT PROFILES =======================
 
     @Transactional(readOnly = true)
-    public List<Student> findAllStudents() {
-        return studentRepository.findAllForProfileList();
+    public Page<Student> findAllStudents(int page, int size) {
+        return studentRepository.findAllForProfileList(pageableOf(page, size));
     }
 
     @Transactional(readOnly = true)
@@ -124,6 +129,14 @@ public class ProfileManagementService {
     }
 
     // ======================= HELPERS =======================
+
+    /**
+     * Chống lỗi 500 do tham số page tay trong URL (?page=-3, ?page=abc).
+     * PageRequest.of âm thường sẽ ném IllegalArgumentException.
+     */
+    private static PageRequest pageableOf(int page, int size) {
+        return PageRequest.of(Math.max(page, 0), Math.max(size, 1));
+    }
 
     @Transactional(readOnly = true)
     public List<Department> getActiveDepartments() {

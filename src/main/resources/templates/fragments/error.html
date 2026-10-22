@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  UniResearch – trang lỗi dùng chung (403 / 404 / 500).
+  Dùng: <div th:replace="~{fragments/error :: errorPage('404', 'Không tìm thấy trang', '...', '...')}"></div>
+-->
+<div th:fragment="errorPage(code, title, message, hint)" class="error-page">
+  <svg class="illust" viewBox="0 0 160 160" role="img" aria-label="Minh họa trang lỗi" fill="none">
+    <circle cx="80" cy="80" r="62" stroke="var(--primary)" stroke-width="2" opacity=".18"/>
+    <circle cx="80" cy="80" r="46" stroke="var(--accent)" stroke-width="2" opacity=".22" stroke-dasharray="6 8"/>
+    <g stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M44 66 80 46l36 20"/>
+      <path d="M52 72v38h56V72"/>
+      <path d="M70 110V88h20v22"/>
+    </g>
+    <g stroke="var(--danger)" stroke-width="3.4" stroke-linecap="round">
+      <path d="M104 40v18"/>
+      <path d="M104 66h.01"/>
+    </g>
+    <text x="80" y="140" text-anchor="middle" font-family="var(--font-sans)" font-size="17" font-weight="800" fill="var(--text-muted)">UNIRESEARCH</text>
+  </svg>
+
+  <h1 th:text="${code}">404</h1>
+  <h1 class="error-title" th:text="${title}">Không tìm thấy trang</h1>
+  <p th:text="${message}">Đường dẫn không tồn tại hoặc dữ liệu bạn cần đã bị xóa.</p>
+  <p class="error-hint" th:if="${hint != null}" th:text="${hint}"></p>
+
+  <div class="error-actions">
+    <a th:href="@{/}" class="btn btn-primary">
+      <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Về trang Tổng quan
+    </a>
+    <a href="javascript:history.back()" class="btn">Quay lại trang trước</a>
+  </div>
+</div>
+</body>
+</html>

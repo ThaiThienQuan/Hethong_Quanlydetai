@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Không tìm thấy trang</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Không tìm thấy trang')}"></head>
 <body>
-<div class="box">
-    <h2>Không tìm thấy trang hoặc dữ liệu</h2>
-    <p>Đường dẫn không tồn tại hoặc dữ liệu bạn cần đã bị xóa.</p>
-    <a th:href="@{/}">Về trang chủ</a>
-</div>
+<div th:replace="~{fragments/error :: errorPage('404', 'Không tìm thấy trang hoặc dữ liệu',
+     'Đường dẫn bạn truy cập không tồn tại, hoặc dữ liệu bạn cần đã bị xóa khỏi hệ thống.',
+     'Hãy kiểm tra lại địa chỉ, hoặc quay về Tổng quan để tiếp tục.')}"></div>
 </body>
 </html>

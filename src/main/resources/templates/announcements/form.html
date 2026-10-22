@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${pageTitle}">Sửa thông báo</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box formbox">
-    <h2 th:text="${pageTitle}">Sửa thông báo</h2>
-    <a th:href="@{${backUrl}}">← Quay lại quản lý thông báo</a>
+<main id="main-content" class="app-main"><div class="box formbox">
+    <div class="box-head">
+        <h2 th:text="${pageTitle}">Sửa thông báo</h2>
+        <div class="box-head-actions">
+            <a class="back-link" th:href="@{${backUrl}}">← Quay lại quản lý thông báo</a>
+        </div>
+    </div>
     <form th:action="@{${action}}" th:object="${announcementForm}" method="post">
         <label>Tiêu đề</label>
         <input th:field="*{title}" maxlength="500" required>
@@ -23,8 +23,10 @@
             <option th:each="scope : ${scopeOptions}" th:value="${scope}" th:text="${scope}"></option>
         </select>
         <div class="field-error" th:errors="*{scope}"></div>
-        <button type="submit">Lưu thông báo</button>
+        <button class="btn btn-primary" type="submit">Lưu thông báo</button>
     </form>
 </div>
+</main>
+
 </body>
 </html>

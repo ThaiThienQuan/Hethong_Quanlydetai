@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Phân công giảng viên hướng dẫn</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Phân công giảng viên hướng dẫn')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box formbox">
-    <h2>Phân công / Thay đổi GVHD</h2>
-    <a th:href="@{/head/topics}">&larr; Về danh sách duyệt đề tài</a>
+<main id="main-content" class="app-main"><div class="box formbox">
+    <div class="box-head">
+        <h2>Phân công / Thay đổi GVHD</h2>
+        <div class="box-head-actions">
+            <a class="back-link" th:href="@{/head/topics}">&larr; Về danh sách duyệt đề tài</a>
+        </div>
+    </div>
 
     <p class="error" th:if="${error}" th:text="${error}"></p>
     <p><strong>Đề tài:</strong> <span th:text="${info.topicTitle}"></span></p>
@@ -34,9 +34,11 @@
                     th:text="${lecturer.fullName + ' (' + lecturer.lecturerCode + ')'}"></option>
         </select>
         <p class="desc">Chỉ giảng viên đang hoạt động được chọn. Hai GVHD phải khác nhau; không được là người đang phản biện hoặc chấm đề tài này. Đề tài đã có kết quả hội đồng không thể đổi GVHD.</p>
-        <button type="submit">Lưu phân công GVHD</button>
-        <a th:href="@{/head/topics}" style="margin-left:12px">Hủy</a>
+        <button class="btn btn-primary" type="submit">Lưu phân công GVHD</button>
+        <a th:href="@{/head/topics}" class="btn btn-secondary">Hủy</a>
     </form>
 </div>
+</main>
+
 </body>
 </html>

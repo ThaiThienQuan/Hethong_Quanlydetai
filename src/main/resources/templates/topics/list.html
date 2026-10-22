@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Danh sách đề tài</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Danh sách đề tài')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box wide">
-    <h2>Danh sách đề tài đã công bố</h2>
-    <a th:href="@{/}">&larr; Về trang chủ</a>
+<main id="main-content" class="app-main"><div class="box wide">
+    <div class="box-head">
+        <h2>Danh sách đề tài đã công bố</h2>
+    </div>
 
     <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
         <thead>
@@ -26,9 +23,7 @@
                 </td>
                 <td th:text="${t.departmentName}">Bộ môn</td>
                 <td th:text="${t.createdByLecturerName}">GV</td>
-                <td>
-                    <span th:if="${t.id != null}" th:text="${'#' + t.id}">1</span>
-                </td>
+                <td th:text="${t.createdAt != null ? #temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm') : '—'}">Ngày tạo</td>
             </tr>
             <tr th:if="${#lists.isEmpty(topics)}">
                 <td colspan="5">Chưa có đề tài nào được công bố.</td>
@@ -36,5 +31,7 @@
         </tbody>
     </table></div>
 </div>
+</main>
+
 </body>
 </html>

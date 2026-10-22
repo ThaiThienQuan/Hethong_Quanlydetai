@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Nhiệm vụ phản biện</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<head th:replace="~{fragments/layout :: head('Nhiệm vụ phản biện')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box xwide">
-    <h2>Nhiệm vụ phản biện</h2>
-    <a th:href="@{/}">&larr; Trang chủ</a>
+<main id="main-content" class="app-main"><div class="box xwide">
+    <div class="box-head">
+        <h2>Nhiệm vụ phản biện</h2>
+    </div>
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
     <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
@@ -61,7 +62,7 @@
                                   placeholder="Nhập nhận xét cho đề tài này..."></textarea>
                         <label>Lý do ghi đè quá hạn (chỉ admin)</label>
                         <input name="overrideReason" maxlength="500" placeholder="Để trống nếu trong hạn">
-                        <button type="submit" th:text="${task.submitted} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
+                        <button class="btn btn-primary" type="submit" th:text="${task.submitted} ? 'Cập nhật điểm' : 'Gửi điểm'"></button>
                     </form>
                     <p th:if="${task.supervisor}">Bạn là GVHD của đề tài này nên không thể chấm.</p>
                     <p th:if="${task.overdue && !task.canSubmit && !task.supervisor}">Đã quá hạn (liên hệ admin nếu cần ghi đè).</p>
@@ -74,5 +75,7 @@
         </table>
     </div>
 </div>
+</main>
+
 </body>
 </html>

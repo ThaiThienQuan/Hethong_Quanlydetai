@@ -1,16 +1,14 @@
 package vn.edu.demo.topicmanagement.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import vn.edu.demo.topicmanagement.entity.Department;
 import vn.edu.demo.topicmanagement.entity.Lecturer;
 import vn.edu.demo.topicmanagement.entity.Student;
 import vn.edu.demo.topicmanagement.service.ProfileManagementService;
-
-import java.util.List;
 
 /**
  * Quản lý hồ sơ GV và SV (mục 5.1b).
@@ -20,6 +18,9 @@ import java.util.List;
 @RequestMapping("/admin/profiles")
 @PreAuthorize("hasAnyRole('ADMIN','TRUONG_KHOA')")
 public class ProfileController {
+
+    /** Số hồ sơ hiển thị mỗi trang (mục 5.1b: danh sách có phân trang). */
+    private static final int PAGE_SIZE = 10;
 
     private final ProfileManagementService profileService;
 
@@ -32,14 +33,14 @@ public class ProfileController {
     @GetMapping("/lecturers")
     public String listLecturers(
             @RequestParam(required = false) Long departmentId,
+            @RequestParam(defaultValue = "0") int page,
             Model model) {
-        List<Lecturer> lecturers;
-        if (departmentId != null) {
-            lecturers = profileService.findLecturersByDepartment(departmentId);
-        } else {
-            lecturers = profileService.findAllLecturers();
-        }
-        model.addAttribute("lecturers", lecturers);
+        Page<Lecturer> result = (departmentId != null)
+                ? profileService.findLecturersByDepartment(departmentId, page, PAGE_SIZE)
+                : profileService.findAllLecturers(page, PAGE_SIZE);
+
+        model.addAttribute("lecturers", result.getContent());
+        model.addAttribute("page", result);
         model.addAttribute("departments", profileService.getActiveDepartments());
         model.addAttribute("selectedDepartment", departmentId);
         return "admin/profiles/lecturers/list";
@@ -80,8 +81,10 @@ public class ProfileController {
     // ======================= STUDENTS =======================
 
     @GetMapping("/students")
-    public String listStudents(Model model) {
-        model.addAttribute("students", profileService.findAllStudents());
+    public String listStudents(@RequestParam(defaultValue = "0") int page, Model model) {
+        Page<Student> result = profileService.findAllStudents(page, PAGE_SIZE);
+        model.addAttribute("students", result.getContent());
+        model.addAttribute("page", result);
         return "admin/profiles/students/list";
     }
 

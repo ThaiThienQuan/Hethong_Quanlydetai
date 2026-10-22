@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * Xử lý lỗi tập trung (mục 7.8 - "trang lỗi 403/404/500 thân thiện, không lộ stack trace").
@@ -61,6 +62,16 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleAccessDenied(AccessDeniedException e) {
         return "error/403";
+    }
+
+    /**
+     * Đường dẫn không tồn tại (gõ sai URL) → trang 404 thay vì trang lỗi chung 500.
+     * Chỉ đổi mã HTTP + template trả về, không đụng nghiệp vụ.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleNoResource(NoResourceFoundException e) {
+        return "error/404";
     }
 
     /** Sai thông tin đăng nhập → về trang đăng nhập. */

@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Nhật ký email kết quả</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<head th:replace="~{fragments/layout :: head('Nhật ký email kết quả')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box xwide">
-    <h2>Nhật ký email kết quả</h2>
-    <a th:href="@{/head/results}">&larr; Kết quả chờ công bố</a>
+<main id="main-content" class="app-main"><div class="box xwide">
+    <div class="box-head">
+        <h2>Nhật ký email kết quả</h2>
+        <div class="box-head-actions">
+            <a class="back-link" th:href="@{/head/results}">&larr; Kết quả chờ công bố</a>
+        </div>
+    </div>
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
 
@@ -18,7 +21,7 @@
     </p>
     <p>Có <strong th:text="${failedCount}"></strong> email đang lỗi.</p>
 
-    <form method="get" th:action="@{/head/emails}">
+    <form method="get" th:action="@{/head/emails}" class="filter-bar">
         <label>Trạng thái</label>
         <select name="status">
             <option value="">-- Tất cả --</option>
@@ -32,7 +35,7 @@
             <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name}"
                     th:selected="${periodId != null and periodId == p.id}"></option>
         </select>
-        <button type="submit">Lọc</button>
+        <button class="btn btn-secondary btn-sm" type="submit">Lọc</button>
     </form>
 
     <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu">
@@ -59,7 +62,7 @@
                 <td>
                     <form th:if="${log.status != 'SENT'}"
                           th:action="@{/head/emails/{id}/resend(id=${log.id})}" method="post">
-                        <button type="submit">Gửi lại</button>
+                        <button class="btn btn-soft-primary btn-sm" type="submit">Gửi lại</button>
                     </form>
                 </td>
             </tr>
@@ -70,14 +73,16 @@
 
     <form th:if="${failedCount > 0}" th:action="@{/head/emails/resend-failed}" method="post"
           onsubmit="return confirm('Gửi lại toàn bộ email đang lỗi?');">
-        <button type="submit">Gửi lại tất cả email lỗi</button>
+        <button class="btn btn-primary" type="submit">Gửi lại tất cả email lỗi</button>
     </form>
 
-    <p th:if="${page.totalPages > 1}" style="margin-top:1rem">
+    <p th:if="${page.totalPages > 1}" class="u-mt-4">
         <span th:text="'Trang ' + ${page.number + 1} + '/' + ${page.totalPages}"></span>
         <a th:if="${page.hasPrevious()}" th:href="@{/head/emails(status=${status},periodId=${periodId},page=${page.number})}">&larr; Trước</a>
         <a th:if="${page.hasNext()}" th:href="@{/head/emails(status=${status},periodId=${periodId},page=${page.number + 2})}">Sau &rarr;</a>
     </p>
 </div>
+</main>
+
 </body>
 </html>

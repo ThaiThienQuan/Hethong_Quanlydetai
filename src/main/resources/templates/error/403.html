@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Không có quyền truy cập</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Không có quyền truy cập')}"></head>
 <body>
-<div class="box">
-    <h2>Không có quyền truy cập</h2>
-    <p class="error">Vai trò của bạn không được phép vào trang này.</p>
-    <a th:href="@{/}">&larr; Về trang chủ</a>
-</div>
+<div th:replace="~{fragments/error :: errorPage('403', 'Bạn không có quyền truy cập',
+     'Vai trò của bạn không được phép mở màn hình này. Nếu cần quyền truy cập, vui lòng liên hệ quản trị viên của hệ thống.',
+     'Bạn vẫn có thể dùng các chức năng khác dành cho vai trò của mình.')}"></div>
 </body>
 </html>

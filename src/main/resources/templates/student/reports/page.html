@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Nộp báo cáo đề tài</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Nộp báo cáo đề tài')}"></head>
 <body class="app-page">
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<div class="box wide">
-    <h2>Nộp báo cáo đề tài</h2>
-    <a th:href="@{/}">&larr; Về trang chủ</a>
+<main id="main-content" class="app-main"><div class="box wide">
+    <div class="box-head">
+        <h2>Nộp báo cáo đề tài</h2>
+    </div>
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
 
@@ -29,7 +26,7 @@
                   th:action="@{/student/reports}" method="post" enctype="multipart/form-data">
                 <label>Chọn lại báo cáo</label>
                 <input type="file" name="file" accept=".pdf,.doc,.docx" required>
-                <button type="submit">Khôi phục báo cáo</button>
+                <button class="btn btn-secondary" type="submit">Khôi phục báo cáo</button>
             </form>
         </section>
         <section th:if="${!reportView.hasReport() and reportView.registrationStatus.name() == 'APPROVED' and reportView.groupLeader}">
@@ -37,7 +34,7 @@
             <form th:action="@{/student/reports}" method="post" enctype="multipart/form-data">
                 <label>Chọn báo cáo</label>
                 <input type="file" name="file" accept=".pdf,.doc,.docx" required>
-                <button type="submit">Nộp báo cáo</button>
+                <button class="btn btn-primary" type="submit">Nộp báo cáo</button>
             </form>
         </section>
         <p th:if="${!reportView.hasReport() and reportView.registrationStatus.name() == 'APPROVED' and !reportView.groupLeader}">
@@ -48,5 +45,7 @@
         </p>
     </section>
 </div>
+</main>
+
 </body>
 </html>

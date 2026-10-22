@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản lý bộ môn</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Quản lý bộ môn')}"></head>
 <body class="app-page">
-    <div th:replace="~{fragments/nav :: nav}"></div>
-    <div class="box wide">
-        <h2>Quản lý bộ môn</h2>
-        <a th:href="@{/}">&larr; Về trang chủ</a>
-        <a class="btn" th:href="@{/admin/departments/new}">+ Thêm bộ môn</a>
+<a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<main id="main-content" class="app-main"><div class="box wide">
+        <div class="box-head">
+            <h2>Quản lý bộ môn</h2>
+            <div class="box-head-actions">
+                <a class="btn btn-primary" th:href="@{/admin/departments/new}">
+                    <svg class="ui-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Thêm bộ môn
+                </a>
+            </div>
+        </div>
 
         <p class="ok" th:if="${message}" th:text="${message}"></p>
         <p class="error" th:if="${error}" th:text="${error}"></p>
@@ -42,13 +44,15 @@
                             </span>
                         </td>
                         <td class="actions">
-                            <a th:href="@{/admin/departments/{id}/edit(id=${d.id})}">Sửa</a>
-                            <form th:action="@{/admin/departments/{id}/toggle(id=${d.id})}" method="post" style="display:inline">
-                                <button type="submit" th:text="${d.status == 'ACTIVE'} ? 'Hủy' : 'Kích hoạt'">Đổi</button>
+                            <a class="btn btn-soft-primary btn-sm" th:href="@{/admin/departments/{id}/edit(id=${d.id})}">Sửa</a>
+                            <form th:action="@{/admin/departments/{id}/toggle(id=${d.id})}" method="post" class="form-inline">
+                                <button class="btn btn-sm" type="submit"
+                                        th:classappend="${d.status == 'ACTIVE'} ? 'btn-soft-warning' : 'btn-soft-success'"
+                                        th:text="${d.status == 'ACTIVE'} ? 'Hủy' : 'Kích hoạt'">Đổi</button>
                             </form>
                             <form th:action="@{/admin/departments/{id}/delete(id=${d.id})}" method="post"
-                                  onsubmit="return confirm('Xóa vĩnh viễn bộ môn này?');" style="display:inline">
-                                <button type="submit">Xóa</button>
+                                  onsubmit="return confirm('Xóa vĩnh viễn bộ môn này?');" class="form-inline">
+                                <button class="btn btn-soft-danger btn-sm" type="submit">Xóa</button>
                             </form>
                         </td>
                     </tr>
@@ -59,5 +63,7 @@
             </table>
         </div>
     </div>
+</main>
+
 </body>
 </html>
