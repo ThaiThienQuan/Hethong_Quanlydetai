@@ -657,6 +657,14 @@ textarea.is-invalid {
 .box form.inline { display: inline-block; margin: 2px; }
 .box form.inline button { margin: 1px; }
 
+/* Khối ô nhập có thể ẩn/hiện theo loại đợt (mục 5.2) */
+.field-block { grid-column: 1 / -1; }
+.field-block > label { margin-top: 14px; }
+.field-block > input,
+.field-block > select { margin: 4px 0 0; }
+.field-block > .field-error { margin: 4px 0 0; }
+.field-block.is-hidden { display: none !important; }
+
 @media (min-width: 768px) {
   .box.formbox form:not(.inline) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
   .box.formbox form:not(.inline) > label,

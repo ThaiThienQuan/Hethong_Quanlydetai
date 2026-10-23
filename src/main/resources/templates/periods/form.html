@@ -25,15 +25,61 @@
         <div class="field-error" th:errors="*{studentStart}"></div>
         <label>SV đăng ký đến</label><input type="datetime-local" th:field="*{studentEnd}" required>
         <div class="field-error" th:errors="*{studentEnd}"></div>
-        <label>Hạn GVPB nộp điểm (chỉ TLCN/KLTN)</label><input type="datetime-local" th:field="*{reviewDeadline}">
-        <div class="field-error" th:errors="*{reviewDeadline}"></div>
-        <label>Ngày báo cáo hội đồng (chỉ KLTN)</label><input type="datetime-local" th:field="*{defenseDate}">
-        <div class="field-error" th:errors="*{defenseDate}"></div>
+        <div class="field-block" data-applies-to="TLCN,KLTN">
+            <label>Hạn GVPB nộp điểm</label>
+            <input type="datetime-local" th:field="*{reviewDeadline}">
+            <div class="field-error" th:errors="*{reviewDeadline}"></div>
+        </div>
+        <div class="field-block" data-applies-to="KLTN">
+            <label>Ngày báo cáo hội đồng</label>
+            <input type="datetime-local" th:field="*{defenseDate}">
+            <div class="field-error" th:errors="*{defenseDate}"></div>
+        </div>
         <p class="desc">Đợt mới được tạo ở trạng thái nháp. Sau khi kiểm tra thông tin, Trưởng khoa có thể mở đợt từ danh sách.</p>
         <button class="btn btn-primary" type="submit" th:text="${editing} ? 'Lưu thay đổi' : 'Tạo đợt'">Tạo đợt</button>
     </form>
 </div>
 </main>
+
+<!-- Ẩn/hiện "Hạn GVPB" và "Ngày báo cáo hội đồng" theo loại đợt (mục 5.2):
+     hạn GVPB chỉ có ở TLCN/KLTN, ngày báo cáo hội đồng chỉ có ở KLTN.
+     Backend vẫn kiểm tra lại nên gửi giá trị thừa cũng bị từ chối. -->
+<script th:inline="javascript">
+    (function () {
+        var typeSelect = document.getElementById('type');
+        var optionalFields = Array.prototype.slice.call(
+                document.querySelectorAll('[data-applies-to]'));
+
+        function syncOptionalFields() {
+            var type = typeSelect ? typeSelect.value : '';
+            optionalFields.forEach(function (block) {
+                var applies = (block.getAttribute('data-applies-to') || '').split(',');
+                var allowed = !!(type && applies.indexOf(type) >= 0);
+                var input = block.querySelector('input');
+                if (allowed) {
+                    block.classList.remove('is-hidden');
+                    block.removeAttribute('aria-hidden');
+                    if (input) {
+                        input.disabled = false;
+                        input.removeAttribute('aria-hidden');
+                    }
+                } else {
+                    // Xoá giá trị để không gửi mốc thời gian không hợp lệ lên server.
+                    block.classList.add('is-hidden');
+                    block.setAttribute('aria-hidden', 'true');
+                    if (input) {
+                        input.value = '';
+                        input.disabled = true;
+                        input.setAttribute('aria-hidden', 'true');
+                    }
+                }
+            });
+        }
+
+        if (typeSelect) typeSelect.addEventListener('change', syncOptionalFields);
+        syncOptionalFields();
+    })();
+</script>
 
 </body>
 </html>

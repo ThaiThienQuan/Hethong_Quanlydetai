@@ -69,8 +69,7 @@ public class RegistrationPeriodController {
                          BindingResult result, Model model, Authentication authentication, RedirectAttributes redirect) {
         // Keep the form in create mode if validation fails and Thymeleaf renders it again.
         model.addAttribute("editing", false);
-        Map<String, String> errors = periodService.checkRules(form);
-        errors.forEach((field, message) -> result.rejectValue(field, "rule", message));
+        addRuleErrors(form, result);
         if (result.hasErrors()) return "periods/form";
         periodService.create(form, authentication.getName());
         redirect.addFlashAttribute("message", "Đã tạo đợt ở trạng thái nháp.");
@@ -80,8 +79,7 @@ public class RegistrationPeriodController {
     @PostMapping("/{id}/edit")
     public String update(@PathVariable Long id, @Valid @ModelAttribute("periodForm") RegistrationPeriodForm form,
                          BindingResult result, Model model, RedirectAttributes redirect) {
-        Map<String, String> errors = periodService.checkRules(form);
-        errors.forEach((field, message) -> result.rejectValue(field, "rule", message));
+        addRuleErrors(form, result);
         if (result.hasErrors()) {
             model.addAttribute("editing", true);
             model.addAttribute("periodId", id);
@@ -94,6 +92,19 @@ public class RegistrationPeriodController {
             redirect.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/periods";
+    }
+
+    /**
+     * Gắn lỗi luật nghiệp vụ vào đúng ô trên form (không gán tất cả vào "tên đợt" như trước).
+     * Ô đã có lỗi Bean Validation thì không gán thêm để tránh nhân đôi thông báo.
+     */
+    private void addRuleErrors(RegistrationPeriodForm form, BindingResult result) {
+        Map<String, String> errors = periodService.checkRules(form);
+        errors.forEach((field, message) -> {
+            if (!result.hasFieldErrors(field)) {
+                result.rejectValue(field, "rule", message);
+            }
+        });
     }
 
     @PostMapping("/{id}/open")

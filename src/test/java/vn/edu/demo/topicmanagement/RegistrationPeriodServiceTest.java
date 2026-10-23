@@ -7,11 +7,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import vn.edu.demo.topicmanagement.dto.RegistrationPeriodForm;
 import vn.edu.demo.topicmanagement.entity.PeriodStatus;
 import vn.edu.demo.topicmanagement.entity.PeriodType;
 import vn.edu.demo.topicmanagement.entity.RegistrationPeriod;
@@ -468,6 +470,81 @@ class RegistrationPeriodServiceTest {
             IllegalStateException ex = assertThrows(IllegalStateException.class,
                     () -> service.update(updated));
             assertTrue(ex.getMessage().contains("mốc thời gian"));
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 5.2 — checkRules: lỗi phải được gán đúng ô trên form
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("5.2 — checkRules: gán lỗi đúng field")
+    class CheckRulesFieldMapping {
+
+        private RegistrationPeriodForm form(PeriodType type, LocalDateTime ls, LocalDateTime le,
+                                            LocalDateTime ss, LocalDateTime se,
+                                            LocalDateTime review, LocalDateTime council) {
+            RegistrationPeriodForm f = new RegistrationPeriodForm();
+            f.setName("Đợt test");
+            f.setType(type);
+            f.setLecturerStart(ls);
+            f.setLecturerEnd(le);
+            f.setStudentStart(ss);
+            f.setStudentEnd(se);
+            f.setReviewDeadline(review);
+            f.setDefenseDate(council);
+            return f;
+        }
+
+        @Test
+        @DisplayName("REJECT — GV kết thúc trước bắt đầu -> lỗi ở lecturerEnd")
+        void errorOnLecturerEnd() {
+            Map<String, String> errors = service.checkRules(form(PeriodType.MON_HOC,
+                    NOW.plusDays(1), NOW.minusDays(1),
+                    NOW.plusDays(2), NOW.plusDays(8),
+                    null, null));
+            assertTrue(errors.containsKey("lecturerEnd"));
+            assertFalse(errors.containsKey("name"));
+        }
+
+        @Test
+        @DisplayName("REJECT — SV bắt đầu trước khi GV kết thúc -> lỗi ở studentStart")
+        void errorOnStudentStart() {
+            Map<String, String> errors = service.checkRules(form(PeriodType.MON_HOC,
+                    NOW.minusDays(2), NOW.plusDays(1),
+                    NOW, NOW.plusDays(8),
+                    null, null));
+            assertTrue(errors.containsKey("studentStart"));
+        }
+
+        @Test
+        @DisplayName("REJECT — MON_HOC có hạn GVPB -> lỗi ở reviewDeadline")
+        void errorOnReviewDeadline() {
+            Map<String, String> errors = service.checkRules(form(PeriodType.MON_HOC,
+                    NOW.minusDays(2), NOW.minusDays(1),
+                    NOW.plusDays(1), NOW.plusDays(8),
+                    NOW.plusDays(10), null));
+            assertTrue(errors.containsKey("reviewDeadline"));
+        }
+
+        @Test
+        @DisplayName("REJECT — TLCN có ngày báo cáo hội đồng -> lỗi ở defenseDate")
+        void errorOnDefenseDate() {
+            Map<String, String> errors = service.checkRules(form(PeriodType.TLCN,
+                    NOW.minusDays(2), NOW.minusDays(1),
+                    NOW.plusDays(1), NOW.plusDays(8),
+                    NOW.plusDays(10), NOW.plusDays(15)));
+            assertTrue(errors.containsKey("defenseDate"));
+        }
+
+        @Test
+        @DisplayName("SUCCESS — KLTN hợp lệ -> không có lỗi")
+        void noErrorForValidKltn() {
+            Map<String, String> errors = service.checkRules(form(PeriodType.KLTN,
+                    NOW.minusDays(2), NOW.minusDays(1),
+                    NOW.plusDays(1), NOW.plusDays(8),
+                    NOW.plusDays(10), NOW.plusDays(15)));
+            assertTrue(errors.isEmpty(), "Lỗi không mong đợi: " + errors);
         }
     }
 

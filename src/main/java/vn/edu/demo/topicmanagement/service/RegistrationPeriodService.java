@@ -305,19 +305,87 @@ private final RegistrationPeriodRepository periodRepository;
         return f;
     }
 
+    /**
+     * Kiểm tra luật nghiệp vụ và trả về lỗi theo đúng ô trên form.
+     *
+     * <p>Trước đây mọi lỗi đều bị gán vào ô "name" (tên đợt) nên thông báo hiện sai chỗ.
+     * Nay mỗi lỗi được gán về field tương ứng: {@code type}, {@code lecturerStart},
+     * {@code lecturerEnd}, {@code studentStart}, {@code studentEnd},
+     * {@code reviewDeadline}, {@code defenseDate}.
+     */
     public Map<String, String> checkRules(RegistrationPeriodForm form) {
         Map<String, String> errors = new java.util.LinkedHashMap<>();
-        try {
-            if (form == null) throw new IllegalArgumentException("Thiếu dữ liệu đợt.");
-            if (form.getName() == null || form.getName().isBlank())
-                throw new IllegalArgumentException("Tên đợt không được trống.");
-            RegistrationPeriod tmp = toEntity(form);
-            validateTimes(tmp);
-            validateOptionalDeadlines(tmp);
-        } catch (IllegalArgumentException e) {
-            errors.put("name", e.getMessage());
+        if (form == null) {
+            errors.put("name", "Thiếu dữ liệu đợt.");
+            return errors;
         }
+        if (form.getName() == null || form.getName().isBlank()) {
+            errors.put("name", "Tên đợt không được trống.");
+        }
+        if (form.getType() == null) {
+            errors.put("type", "Vui lòng chọn loại đợt.");
+            return errors;
+        }
+        RegistrationPeriod tmp = toEntity(form);
+        checkTimes(tmp, errors);
+        checkOptionalDeadlines(tmp, errors);
         return errors;
+    }
+
+    /** Bắt đầu &lt; kết thúc mỗi giai đoạn; giai đoạn SV bắt đầu sau khi giai đoạn GV kết thúc. */
+    private void checkTimes(RegistrationPeriod period, Map<String, String> errors) {
+        LocalDateTime ls = period.getLecturerStartAt();
+        LocalDateTime le = period.getLecturerEndAt();
+        LocalDateTime ss = period.getStudentStartAt();
+        LocalDateTime se = period.getStudentEndAt();
+
+        if (ls == null) errors.put("lecturerStart", "Vui lòng nhập thời gian bắt đầu cho giảng viên.");
+        if (le == null) errors.put("lecturerEnd", "Vui lòng nhập thời gian kết thúc cho giảng viên.");
+        if (ss == null) errors.put("studentStart", "Vui lòng nhập thời gian bắt đầu cho sinh viên.");
+        if (se == null) errors.put("studentEnd", "Vui lòng nhập thời gian kết thúc cho sinh viên.");
+
+        if (ls != null && le != null && !le.isAfter(ls)) {
+            errors.put("lecturerEnd",
+                    "Thời gian giảng viên: thời gian kết thúc phải sau thời gian bắt đầu.");
+        }
+        if (ss != null && se != null && !se.isAfter(ss)) {
+            errors.put("studentEnd",
+                    "Thời gian sinh viên: thời gian kết thúc phải sau thời gian bắt đầu.");
+        }
+        if (le != null && ss != null && ss.isBefore(le)) {
+            errors.put("studentStart",
+                    "Giai đoạn sinh viên phải bắt đầu sau khi giai đoạn giảng viên kết thúc.");
+        }
+    }
+
+    /**
+     * Hạn chót GVPB chỉ có ở TLCN/KLTN, ngày báo cáo hội đồng chỉ có ở KLTN;
+     * đồng thời phải đúng thứ tự thời gian.
+     */
+    private void checkOptionalDeadlines(RegistrationPeriod period, Map<String, String> errors) {
+        PeriodType type = period.getPeriodType();
+        LocalDateTime review = period.getReviewDeadline();
+        LocalDateTime council = period.getCouncilReportDate();
+
+        if (review != null && !type.allowsReviewDeadline()) {
+            errors.put("reviewDeadline",
+                    "Hạn chót giảng viên phản biện chỉ áp dụng cho đợt TLCN hoặc KLTN, không áp dụng cho "
+                            + type.getDisplayName() + ".");
+        }
+        if (council != null && !type.allowsCouncilReportDate()) {
+            errors.put("defenseDate",
+                    "Ngày báo cáo hội đồng chỉ áp dụng cho đợt KLTN, không áp dụng cho "
+                            + type.getDisplayName() + ".");
+        }
+        if (review != null && period.getStudentEndAt() != null
+                && !review.isAfter(period.getStudentEndAt())) {
+            errors.put("reviewDeadline",
+                    "Hạn chót giảng viên phản biện phải sau ngày kết thúc đăng ký của sinh viên.");
+        }
+        if (council != null && review != null && !council.isAfter(review)) {
+            errors.put("defenseDate",
+                    "Ngày báo cáo hội đồng phải sau hạn chót giảng viên phản biện.");
+        }
     }
 
     @Transactional

@@ -30,7 +30,12 @@
             <label>Tên hội đồng</label>
             <input th:field="*{councilName}" required maxlength="150">
             <label>Ngày báo cáo</label>
-            <input type="datetime-local" th:field="*{reportDate}">
+            <!-- Đợt KLTN: ngày báo cáo lấy theo ngày báo cáo hội đồng của đợt (mục 5.6),
+                 nên không cho Trưởng khoa sửa. -->
+            <input type="datetime-local" th:field="*{reportDate}" th:readonly="${detail.council.kltn}">
+            <p class="desc" th:if="${detail.council.kltn}">
+                Đợt KLTN: ngày báo cáo được lấy tự động theo ngày báo cáo hội đồng của đợt.
+            </p>
             <!-- periodId giữ nguyên đợt của hội đồng, không cho đổi. -->
             <input type="hidden" th:field="*{periodId}">
             <button class="btn btn-primary" type="submit">Lưu thay đổi</button>

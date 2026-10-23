@@ -136,9 +136,11 @@ public class CouncilService {
         // Mã hội đồng do hệ thống cấp, không lấy từ form (form không còn ô nhập mã).
         council.setCouncilCode(generateCouncilCode(period));
         council.setCouncilName(form.getCouncilName() == null ? "" : form.getCouncilName().trim());
-        // Mặc định ngày báo cáo: form trước; KLTN thì lấy theo period.councilReportDate (mục 5.6).
+        // Ngày báo cáo (mục 5.6): đợt KLTN thì LUÔN lấy theo ngày báo cáo hội đồng của đợt,
+        // không nhận giá trị từ form (form chỉ hiển thị read-only). Đợt TLCN thì do
+        // Trưởng khoa nhập.
         LocalDateTime reportDate = form.getReportDate();
-        if (reportDate == null && period.getPeriodType() == PeriodType.KLTN) {
+        if (period.getPeriodType() == PeriodType.KLTN) {
             reportDate = period.getCouncilReportDate();
         }
         council.setReportDate(reportDate);
@@ -219,6 +221,10 @@ public class CouncilService {
             council.setCouncilName(form.getCouncilName().trim());
         }
         LocalDateTime reportDate = form.getReportDate();
+        // Đợt KLTN: ngày báo cáo luôn theo ngày báo cáo hội đồng của đợt.
+        if (council.getPeriod() != null && council.getPeriod().getPeriodType() == PeriodType.KLTN) {
+            reportDate = council.getPeriod().getCouncilReportDate();
+        }
         if (reportDate != null) {
             council.setReportDate(reportDate);
         }
@@ -522,7 +528,9 @@ public class CouncilService {
                 council.getCouncilCode(),
                 council.getCouncilName(),
                 council.getPeriod() == null ? null : council.getPeriod().getName(),
-                council.getReportDate(), null, council.getStatus(), memberNames, topicNames);
+                council.getReportDate(), null, council.getStatus(), memberNames, topicNames,
+                council.getPeriod() != null
+                        && council.getPeriod().getPeriodType() == PeriodType.KLTN);
     }
 
     private Council getCouncil(Long id) {

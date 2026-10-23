@@ -20,7 +20,10 @@
         <label>Đợt TLCN/KLTN</label>
         <select th:field="*{periodId}" required>
             <option value="">-- Chọn đợt --</option>
-            <option th:each="p : ${periods}" th:value="${p.id}" th:text="${p.name + ' (' + p.periodType.displayName + ')'}"></option>
+            <option th:each="p : ${periods}" th:value="${p.id}"
+                    th:data-period-type="${p.periodType.name()}"
+                    th:data-council-report-date="${p.councilReportDate != null ? #temporals.format(p.councilReportDate, 'yyyy-MM-dd HH:mm') : ''}"
+                    th:text="${p.name + ' (' + p.periodType.displayName + ')'}"></option>
         </select>
         <div class="field-error" th:errors="*{periodId}"></div>
         <label>Ngày báo cáo hội đồng</label>
@@ -58,26 +61,60 @@
     (function () {
         var periodSelect = document.getElementById('periodId');
         var preview = document.getElementById('previewCouncilCode');
+        var reportDateInput = document.getElementById('reportDate');
         var url = /*[[@{/head/councils/preview-code}]]*/ '';
+        var autoFilled = '';
+
+        /* Đợt KLTN: ngày báo cáo hội đồng lấy theo ngày báo cáo hội đồng của đợt
+           (mục 5.6). Ô nhập được khoá lại để không ghi đè giá trị của đợt.
+           Đợt TLCN: ngày do Trưởng khoa tự nhập. */
+        function syncReportDate() {
+            if (!periodSelect || !reportDateInput) return;
+            var option = periodSelect.options[periodSelect.selectedIndex];
+            var type = option ? option.getAttribute('data-period-type') : null;
+            var periodDate = option ? option.getAttribute('data-council-report-date') : null;
+            if (type === 'KLTN') {
+                // data-council-report-date dạng "yyyy-MM-dd HH:mm" -> datetime-local cần "yyyy-MM-ddTHH:mm"
+                var auto = periodDate ? periodDate.replace(' ', 'T') : '';
+                reportDateInput.value = auto;
+                autoFilled = auto;
+                reportDateInput.readOnly = true;
+            } else {
+                // Chỉ xoá giá trị do chính script điền vào, không xoá giá trị người dùng nhập.
+                if (autoFilled && reportDateInput.value === autoFilled) reportDateInput.value = '';
+                autoFilled = '';
+                reportDateInput.readOnly = false;
+            }
+        }
 
         function refresh() {
             var periodId = periodSelect ? periodSelect.value : '';
             if (!periodId) {
-                preview.value = '';
-                preview.placeholder = 'Chọn đợt TLCN/KLTN để xem mã';
+                if (preview) {
+                    preview.value = '';
+                    preview.placeholder = 'Chọn đợt TLCN/KLTN để xem mã';
+                }
+                syncReportDate();
                 return;
             }
             fetch(url + '?periodId=' + encodeURIComponent(periodId),
                   { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function (r) { return r.ok ? r.text() : ''; })
                 .then(function (code) {
+                    if (!preview) return;
                     preview.value = (code || '').trim();
                     if (!code) preview.placeholder = 'Không xem trước được mã, hệ thống sẽ tự cấp khi tạo';
                 })
-                .catch(function () { preview.placeholder = 'Không xem trước được mã, hệ thống sẽ tự cấp khi tạo'; });
+                .catch(function () {
+                    if (preview) preview.placeholder = 'Không xem trước được mã, hệ thống sẽ tự cấp khi tạo';
+                });
         }
 
-        if (periodSelect) periodSelect.addEventListener('change', refresh);
+        if (periodSelect) periodSelect.addEventListener('change', function () {
+            syncReportDate();
+            refresh();
+        });
+        syncReportDate();
         refresh();
     })();
 </script>
