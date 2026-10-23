@@ -15,7 +15,9 @@
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
 
-    <form th:action="@{${action}}" th:object="${userForm}" method="post">
+    <!-- data-editing: khi SỬA thì các ô hồ sơ không bắt buộc (dữ liệu cũ có thể thiếu) -->
+    <form th:action="@{${action}}" th:object="${userForm}" method="post"
+          th:attr="data-editing=${editing}">
 
         <label>Tên đăng nhập</label>
         <!-- Khi SỬA (editing = true): chỉ xem, không đổi được -->
@@ -31,7 +33,7 @@
         <div class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
 
         <label>Email</label>
-        <input type="text" th:field="*{email}">
+        <input type="email" th:field="*{email}">
         <div class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
 
         <label>Số điện thoại</label>
@@ -50,28 +52,37 @@
         </div>
         <div class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
 
-        <label>Mã sinh viên <small>(chỉ nhập cho Sinh viên)</small></label>
-        <input type="text" th:field="*{studentCode}">
-        <div class="field-error" th:if="${#fields.hasErrors('studentCode')}" th:errors="*{studentCode}"></div>
+        <!-- ======= HỒ SƠ THEO VAI TRÒ =======
+             Mỗi nhóm ô gắn data-roles="..." (danh sách mã vai trò được phép hiện).
+             ui.js ẩn/hiện nhóm tương ứng với vai trò đang chọn trong ô "Vai trò".
+             Khi SỬA, vai trò không đổi được và hồ sơ SV/GV được quản lý ở màn hình
+             "Hồ sơ sinh viên / Hồ sơ giảng viên" nên các nhóm ô này đều ẩn. -->
+        <div class="form-profile-group" data-roles="SINH_VIEN" hidden>
+            <label>Mã sinh viên</label>
+            <input type="text" id="studentCodePreview" th:value="${nextStudentCode}" readonly
+                   placeholder="Hệ thống sẽ cấp mã khi lưu">
 
-        <label>Lớp <small>(chỉ nhập cho Sinh viên)</small></label>
-        <input type="text" th:field="*{className}" placeholder="Ví dụ: IT17201">
-        <div class="field-error" th:if="${#fields.hasErrors('className')}" th:errors="*{className}"></div>
+            <label>Lớp</label>
+            <input type="text" th:field="*{className}" placeholder="Ví dụ: IT17201">
+            <div class="field-error" th:if="${#fields.hasErrors('className')}" th:errors="*{className}"></div>
 
-        <label>Ngành học <small>(chỉ nhập cho Sinh viên)</small></label>
-        <input type="text" th:field="*{major}" placeholder="Ví dụ: Hệ thống thông tin">
-        <div class="field-error" th:if="${#fields.hasErrors('major')}" th:errors="*{major}"></div>
+            <label>Ngành học</small></label>
+            <input type="text" th:field="*{major}" placeholder="Ví dụ: Hệ thống thông tin">
+            <div class="field-error" th:if="${#fields.hasErrors('major')}" th:errors="*{major}"></div>
+        </div>
 
-        <label>Mã giảng viên <small>(chỉ nhập cho Giảng viên / Trưởng khoa)</small></label>
-        <input type="text" th:field="*{lecturerCode}">
-        <div class="field-error" th:if="${#fields.hasErrors('lecturerCode')}" th:errors="*{lecturerCode}"></div>
+        <div class="form-profile-group" data-roles="GIANG_VIEN,TRUONG_KHOA" hidden>
+            <label>Mã giảng viên</small></label>
+            <input type="text" id="lecturerCodePreview" th:value="${nextLecturerCode}" readonly
+                   placeholder="Hệ thống sẽ cấp mã khi lưu">
 
-        <label>Bộ môn <small>(Admin có thể bỏ trống)</small></label>
-        <select th:field="*{departmentId}">
-            <option value="">-- Chọn bộ môn --</option>
-            <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}">Bộ môn</option>
-        </select>
-        <div class="field-error" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
+            <label>Bộ môn</small></label>
+            <select th:field="*{departmentId}">
+                <option value="">-- Chọn bộ môn --</option>
+                <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}">Bộ môn</option>
+            </select>
+            <div class="field-error" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
+        </div>
 
         <button class="btn btn-primary" type="submit">Lưu</button>
     </form>
@@ -81,8 +92,8 @@
         <h3>Thao tác quản trị</h3>
 
         <form th:action="@{/admin/users/{id}/reset-password(id=${userId})}" method="post"
-              onsubmit="return confirm('Đặt lại mật khẩu tài khoản này về mật khẩu mặc định?');">
-            <label>Đặt lại mật khẩu <small>(về mật khẩu mặc định, người dùng tự đổi sau khi đăng nhập)</small></label>
+              data-confirm-message="Đặt lại mật khẩu tài khoản này về mật khẩu mặc định?">
+            <label>Đặt lại mật khẩu</label>
             <button class="btn btn-secondary" type="submit">Đặt lại</button>
         </form>
 

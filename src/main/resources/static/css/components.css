@@ -665,6 +665,16 @@ textarea.is-invalid {
 .field-block > .field-error { margin: 4px 0 0; }
 .field-block.is-hidden { display: none !important; }
 
+/* Nhóm ô nhập theo vai trò (form tạo tài khoản của Admin) - chỉ hiện nhóm
+   tương ứng với vai trò đang chọn, do ui.js điều khiển qua [data-roles]. */
+.form-profile-group { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr; gap: 0; }
+.form-profile-group[hidden] { display: none !important; }
+.form-profile-group > label { margin-top: 14px; }
+.form-profile-group > label:first-of-type { margin-top: 14px; }
+.form-profile-group > input,
+.form-profile-group > select { margin: 4px 0 0; }
+.form-profile-group > .field-error { margin: 4px 0 0; }
+
 @media (min-width: 768px) {
   .box.formbox form:not(.inline) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
   .box.formbox form:not(.inline) > label,
@@ -673,6 +683,11 @@ textarea.is-invalid {
   .box.formbox form:not(.inline) > textarea,
   .box.formbox form:not(.inline) > .field-error { grid-column: 1 / -1; }
   .box.formbox form:not(.inline) > .btn { grid-column: 1 / -1; }
+  .form-profile-group { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+  .form-profile-group > label,
+  .form-profile-group > input,
+  .form-profile-group > select,
+  .form-profile-group > .field-error { grid-column: 1 / -1; }
 }
 
 /* Ô nhập nhỏ gọn trong ô thao tác của bảng */
@@ -687,6 +702,19 @@ td.actions { white-space: nowrap; }
 td.actions > form { display: inline-flex; align-items: center; gap: 4px; margin: 3px 4px 0 0; vertical-align: middle; }
 td.actions > form button { margin: 0 !important; }
 td.actions > a { display: inline-flex; align-items: center; margin: 3px 4px 0 0; vertical-align: middle; }
+
+/* Ghi chú nhỏ trong ô thao tác: thay cho nút khi thao tác không thực hiện được
+   (ví dụ "Mở lại" bị chặn vì đợt đã có hội đồng phản biện). */
+.muted-note {
+  display: inline-block;
+  max-width: 240px;
+  margin: 3px 4px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--text-muted, #5A6285);
+  font-style: italic;
+  white-space: normal;
+}
 
 /* ===== Ô thao tác chia nhiều dòng (action-stack) =====
    Bảng duyệt đề tài có nhiều hành động trong 1 ô (Duyệt / Từ chối / Công bố /

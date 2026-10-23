@@ -72,7 +72,7 @@
     </div>
 
     <form th:if="${failedCount > 0}" th:action="@{/head/emails/resend-failed}" method="post"
-          onsubmit="return confirm('Gửi lại toàn bộ email đang lỗi?');">
+          data-confirm-message="Gửi lại toàn bộ email đang lỗi?">
         <button class="btn btn-primary" type="submit">Gửi lại tất cả email lỗi</button>
     </form>
 

@@ -34,4 +34,7 @@ public interface CouncilRepository extends JpaRepository<Council, Long> {
     List<Council> findByPeriodIdOrderByIdDesc(Long periodId);
 
     long countByStatus(CouncilStatus status);
+
+    /** Số hội đồng thuộc một đợt - dùng để cảnh báo "đợt đã có hội đồng". */
+    long countByPeriodId(Long periodId);
 }

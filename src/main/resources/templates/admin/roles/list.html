@@ -44,7 +44,7 @@
                             <a class="btn btn-soft-primary btn-sm" th:href="@{/roles/{id}/permissions(id=${r.id})}">Phân quyền</a>
                             <a class="btn btn-soft-primary btn-sm" th:href="@{/roles/{id}/edit(id=${r.id})}" th:if="${!r.system}">Sửa</a>
                             <form th:action="@{/roles/{id}/delete(id=${r.id})}" method="post"
-                                  onsubmit="return confirm('Xóa vai trò này? Người dùng đang dùng vai trò này sẽ mất quyền tương ứng.');"
+                                  data-confirm-message="Xóa vai trò này? Người dùng đang dùng vai trò này sẽ mất quyền tương ứng."
                                   th:if="${!r.system}">
                                 <button class="btn btn-soft-danger btn-sm" type="submit">Xóa</button>
                             </form>

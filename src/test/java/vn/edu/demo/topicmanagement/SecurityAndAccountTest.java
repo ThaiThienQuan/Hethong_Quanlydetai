@@ -27,6 +27,7 @@ import vn.edu.demo.topicmanagement.repository.RoleRepository;
 import vn.edu.demo.topicmanagement.repository.StudentRepository;
 import vn.edu.demo.topicmanagement.repository.UserRepository;
 import vn.edu.demo.topicmanagement.service.LoginAttemptService;
+import vn.edu.demo.topicmanagement.service.ProfileCodeService;
 import vn.edu.demo.topicmanagement.service.UserAccountService;
 
 /**
@@ -55,7 +56,9 @@ class SecurityAndAccountTest {
         lecturerRepository = mock(LecturerRepository.class);
         props = new AppProperties();
         service = new UserAccountService(userRepository, roleRepository, departmentRepository,
-                studentRepository, lecturerRepository, mock(org.springframework.security.crypto.password.PasswordEncoder.class));
+                studentRepository, lecturerRepository,
+                new ProfileCodeService(studentRepository, lecturerRepository),
+                mock(org.springframework.security.crypto.password.PasswordEncoder.class));
         attemptService = new LoginAttemptService(userRepository, props);
     }
 
@@ -158,7 +161,8 @@ class SecurityAndAccountTest {
                     mock(org.springframework.security.crypto.password.PasswordEncoder.class);
             when(enc.matches("oldpass", u.getPasswordHash())).thenReturn(true);
             UserAccountService svc = new UserAccountService(userRepository, roleRepository, departmentRepository,
-                    studentRepository, lecturerRepository, enc);
+                    studentRepository, lecturerRepository,
+                    new ProfileCodeService(studentRepository, lecturerRepository), enc);
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                     () -> svc.changeOwnPassword("sv01", form("oldpass", "Ab1", "Ab1")));
@@ -174,7 +178,8 @@ class SecurityAndAccountTest {
                     mock(org.springframework.security.crypto.password.PasswordEncoder.class);
             when(enc.matches("oldpass", u.getPasswordHash())).thenReturn(true);
             UserAccountService svc = new UserAccountService(userRepository, roleRepository, departmentRepository,
-                    studentRepository, lecturerRepository, enc);
+                    studentRepository, lecturerRepository,
+                    new ProfileCodeService(studentRepository, lecturerRepository), enc);
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                     () -> svc.changeOwnPassword("sv01", form("oldpass", "Abcdefgh", "Abcdefgh")));
@@ -190,7 +195,8 @@ class SecurityAndAccountTest {
                     mock(org.springframework.security.crypto.password.PasswordEncoder.class);
             when(enc.matches("sai", u.getPasswordHash())).thenReturn(false);
             UserAccountService svc = new UserAccountService(userRepository, roleRepository, departmentRepository,
-                    studentRepository, lecturerRepository, enc);
+                    studentRepository, lecturerRepository,
+                    new ProfileCodeService(studentRepository, lecturerRepository), enc);
 
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                     () -> svc.changeOwnPassword("sv01", form("sai", "Abcdef12", "Abcdef12")));

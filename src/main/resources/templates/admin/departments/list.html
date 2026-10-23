@@ -51,7 +51,7 @@
                                         th:text="${d.status == 'ACTIVE'} ? 'Hủy' : 'Kích hoạt'">Đổi</button>
                             </form>
                             <form th:action="@{/admin/departments/{id}/delete(id=${d.id})}" method="post"
-                                  onsubmit="return confirm('Xóa vĩnh viễn bộ môn này?');" class="form-inline">
+                                  data-confirm-message="Xóa vĩnh viễn bộ môn này?" class="form-inline">
                                 <button class="btn btn-soft-danger btn-sm" type="submit">Xóa</button>
                             </form>
                         </td>

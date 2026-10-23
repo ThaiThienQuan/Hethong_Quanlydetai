@@ -80,11 +80,11 @@
             và chưa nằm trong hội đồng nào khác.
         </p>
         <form th:action="@{/head/councils/{id}/activate(id=${detail.council.id})}" method="post"
-              onsubmit="return confirm('Kích hoạt hội đồng? Sau khi kích hoạt chỉ gỡ thành viên khi đảm bảo ≥3 người, không làm mất chủ tịch/thư ký.');">
+              data-confirm-message="Kích hoạt hội đồng? Sau khi kích hoạt chỉ gỡ thành viên khi đảm bảo ≥3 người, không làm mất chủ tịch/thư ký.">
             <button class="btn btn-primary" type="submit">Kiểm tra điều kiện và kích hoạt (DRAFT → READY)</button>
         </form>
         <form th:action="@{/head/councils/{id}/delete(id=${detail.council.id})}" method="post"
-              onsubmit="return confirm('Xóa hội đồng này? Chỉ xóa được khi chưa có phân công chấm.');">
+              data-confirm-message="Xóa hội đồng này? Chỉ xóa được khi chưa có phân công chấm.">
             <button class="btn btn-soft-danger" type="submit">Xóa hội đồng</button>
         </form>
     </section>
@@ -113,7 +113,7 @@
                     <form th:if="${detail.council.status.name() != 'FINISHED'}"
                           th:action="@{/head/councils/{id}/members/{memberId}/remove(id=${detail.council.id},memberId=${m.memberId})}"
                           method="post" class="form-inline"
-                          onsubmit="return confirm('Gỡ giảng viên này khỏi hội đồng?');">
+                          data-confirm-message="Gỡ giảng viên này khỏi hội đồng?">
                         <button class="btn btn-soft-danger btn-sm" type="submit">Gỡ</button>
                     </form>
                 </td>
@@ -148,7 +148,7 @@
                     <form th:if="${detail.council.status.name() == 'DRAFT'}"
                           th:action="@{/head/councils/{id}/topics/{topicId}/remove(id=${detail.council.id},topicId=${tv.topicId})}"
                           method="post" class="form-inline"
-                          onsubmit="return confirm('Gỡ đề tài này khỏi hội đồng nháp?');">
+                          data-confirm-message="Gỡ đề tài này khỏi hội đồng nháp?">
                         <button class="btn btn-soft-danger btn-sm" type="submit">Gỡ</button>
                     </form>
                 </td>

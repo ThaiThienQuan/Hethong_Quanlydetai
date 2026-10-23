@@ -148,6 +148,11 @@ END;
 
 /* =====================================================================
    3. HỒ SƠ GIẢNG VIÊN (id = số thứ tự, user = id + 2) VÀ SINH VIÊN (user = id + 10)
+   ---------------------------------------------------------------------
+   Mã GV/SV ở đây được đánh số LIÊN TỤC đúng theo cơ chế hệ thống tự cấp
+   (ProfileCodeService): GV001..GV008, SV23001..SV23024.
+   Nhờ vậy khi Admin tạo tài khoản mới, hệ thống cấp tiếp SV23025, GV009...
+   và không bao giờ trùng mã đang có.
    ===================================================================== */
 INSERT INTO lecturers (id, user_id, lecturer_code, academic_degree, department_id) VALUES
 (1,  3, 'GV001', 'TS',     1),   -- gv01  KHMT
@@ -610,78 +615,411 @@ ORDER BY v.council_id, v.topic_id;
 /* =====================================================================
    11. KỊCH BẢN DEMO - THỨ TỰ THỰC HIỆN (đọc khi trình bày)
 
-   ĐĂNG NHẬP: mọi tài khoản mật khẩu 123456
-     admin · truongkhoa · gv01..gv08 · sv01..sv24  (sv24 bị khóa)
+   ⚠ BẢN NÀY VIẾT THEO ĐÚNG TRẠNG THÁI "MỚI NẠP" (chỉ HT_QLDT.sql + tệp này).
+     Đã đối chiếu từng bước với mã nguồn và với dữ liệu thật trong DB, nên mọi
+     thông điệp ghi sau đây là thông điệp THẬT do service ném ra.
+     Nếu đã nạp thêm HT_QLDT_03_du_lieu_mau_xep_de_tai.sql thì xem mục "BIẾN THỂ"
+     ở cuối phần này.
 
-   ── GIAI ĐOẠN 1: GV đề xuất đề tài  (đợt 1, đang mở cho GV) ─────────────
-     1. Đăng nhập gv01 → Đề xuất đề tài mới, lưu  -> trạng thái "Chờ duyệt"
-     2. Đăng nhập truongkhoa → Đề tài → lọc "Chờ duyệt"
-        · Duyệt đề tài t1, t2, t5        -> trạng thái "Đã duyệt"
-        · Từ chối đề tài (thử với đề tài mới) -> phải nhập lý do
-     3. Công bố danh sách đề tài (đề tài t3 đã duyệt sẵn nhưng chưa công bố)
+   ────────────────────────────────────────────────────────────────────
+   ĐĂNG NHẬP - mọi tài khoản mật khẩu: 123456
+     admin · truongkhoa · gv01..gv08 · sv01..sv24      (sv24 cố ý bị KHÓA)
+     Tài khoản KHÔNG được đăng nhập: sv24 (đã khóa); sai mật khẩu 5 lần
+     liên tiếp sẽ bị khóa tạm 15 phút.
 
-   ── GIAI ĐOẠN 2: SV lập nhóm và đăng ký  (đợt 2, đang mở cho SV) ─────────
-     4. Đăng nhập sv06 (chưa có nhóm) → Lập nhóm "Môn học mới" (g3 sẵn có)
-        · Thêm thành viên tối đa 3 người (app.group.max-size = 3)
-     5. Nhóm trưởng chọn 1 đề tài đã công bố → Đăng ký
-        · Thử đăng ký lần thứ hai  -> phải bị từ chối
-     6. Đăng nhập gv03 (GVHD của t7) → Xác nhận đăng ký của nhóm g2
-     7. Nhóm g4 từng bị từ chối → thử đăng ký lại đề tài TLCN-26-003
+   ────────────────────────────────────────────────────────────────────
+   CHUẨN BỊ - làm trước khi trình bày
+   ────────────────────────────────────────────────────────────────────
+     · Đợt 1 đang mở cho GV đến +10 ngày, đợt 2 đang mở cho SV đến +9 ngày,
+       đợt 3 còn hạn nộp điểm đến +8 ngày. Mọi mốc tính theo @now lúc nạp file
+       nên đợt luôn đúng giai đoạn, không phải sửa tay.
+     · TỆP BÁO CÁO: báo cáo trong DB trỏ tới thư mục storage/reports/demo
+       (tệp .pdf). Nếu thư mục này chưa có tệp thì mọi nút "Tải báo cáo" báo
+       "Không tìm thấy tệp báo cáo". Phải chép tệp PDF thật vào đó trước.
+     · app.mail.enabled=false (mặc định) nên khi công bố kết quả, các dòng
+       email_logs ghi trạng thái SKIPPED chứ không gửi thật. Muốn gửi thật thì
+       bật Mailpit: $env:MAIL_ENABLED="true"; $env:MAIL_HOST="localhost"
 
-   ── GIAI ĐOẠN 3: Nộp báo cáo ────────────────────────────────────────────
-     8. Nhóm trưởng g1 (đăng nhập sv01) → Nộp báo cáo (đã được chấp thuận ở giai đoạn 2)
-     9. Thành viên KHÔNG phải trưởng (sv02) → không thấy nút nộp báo cáo
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 1 - GIẢNG VIÊN ĐỀ XUẤT ĐỀ TÀI  (đợt 1 · MON_HOC · đang mở cho GV)
+   ════════════════════════════════════════════════════════════════════
+   Mục tiêu: thấy đề tài đi từ "Chờ duyệt" → "Đã duyệt" → "Đã công bố".
 
-   ── GIAI ĐOẠN 4: Lập hội đồng phản biện  (đợt 3) ────────────────────────
-    10. truongkhoa → Hội đồng: c1 (5 GV, hợp lệ) và c2 (3 GV, hợp lệ)
-        · c3 chỉ có 2 GV  -> thử xếp đề tài sẽ bị chặn, phải bổ sung thành viên
-        · Đề tài t14 chưa vào hội đồng nào -> xếp t14 vào hội đồng
+     1. Đăng nhập gv01 → Đề xuất đề tài → điền đủ → Lưu  → trạng thái "Chờ duyệt"
+        · Bộ môn KHÔNG chọn được: hệ thống tự lấy bộ môn của GV (gv01 = KHMT).
+          Gửi bộ môn khác sẽ báo "Bạn chỉ được đề xuất đề tài thuộc bộ môn của mình."
+        · Bộ môn không có GV nào (MMT, id 4) KHÔNG xuất hiện trong danh sách.
+        · Mã đề tài do hệ thống cấp: KHMT-DA26-006 (mã bộ môn + mã đợt, trong đó
+          loại MON_HOC viết tắt "DA" + 2 số năm + số thứ tự 3 số). Có xem trước mã.
+        · Mô tả dưới 20 ký tự sẽ bị DB chặn (chk_topics_description) → lỗi 500.
 
-   ── GIAI ĐOẠN 5: Phân công người chấm ────────────────────────────────────
-    11. truongkhoa → Phân công chấm cho t11, t12, t13
-        · GVHD của đề tài sẽ KHÔNG xuất hiện trong danh sách chọn
+2. Sửa đề xuất rồi gửi duyệt lại: gv01 → Đề xuất đề tài → mở đề tài vừa tạo
+       → Sửa → đổi nội dung → Gửi lại. Trạng thái quay về "Chờ duyệt".
 
-   ── GIAI ĐOẠN 6: GV nhập điểm ────────────────────────────────────────────
-    12. Đăng nhập gv06 → Nhập điểm cho đề tài KLTN-26-101
-        (đây là phần công việc CÒN DỞ trong dữ liệu demo)
-    13. Đăng nhập gv01, gv02 → xem phân công của mình (t12)
-        · Chức năng tổng hợp của GV không phải chủ tịch hội đồng sẽ bị từ chối
+     3. Đăng nhập truongkhoa → Đề tài → lọc Trạng thái = "Chờ duyệt"
+        · Duyệt từng đề tài → "Đã duyệt". Trong dữ liệu có sẵn 3 đề tài PENDING:
+          DA-MH-26-001, DA-MH-26-002, DA-MH-26-005.
+        · Bấm Từ chối mà không gõ lý do → "Vui lòng nhập lý do từ chối."
+          Gõ lý do rồi từ chối → "Bị từ chối" kèm lý do hiển thị.
+        · Bấm Duyệt/Từ chối với đề tài không ở trạng thái chờ duyệt →
+          "Chỉ duyệt đề tài đang chờ duyệt." / "Chỉ từ chối đề tài đang chờ duyệt."
 
-   ── GIAI ĐOẠN 7: Chủ tịch tổng hợp ───────────────────────────────────────
-    14. Đăng nhập gv02 (chủ tịch hội đồng A) → Tổng hợp kết quả đề tài KLTN-26-102
-        (đủ điểm) -> điểm cuối = trung bình cộng
-    15. Thử tổng hợp đề tài KLTN-26-101 -> bị chặn "chưa đủ điểm"
-        (đúng vì gv06 vừa mới nhập ở bước 12 thì đã đủ)
+     4. Phân công / đổi GVHD (tab Giảng viên hướng dẫn của một đề tài)
+        · Chỉ sửa được khi đề tài còn PENDING, hoặc APPROVED mà chưa công bố.
+          Đã công bố → "Đề tài đã công bố nên không thể đổi giảng viên hướng dẫn."
+        · Đề tài đã bị từ chối → "Đề tài đã bị từ chối nên không thể phân công lại
+          giảng viên hướng dẫn."
+        · Hai GVHD không được trùng nhau: "Hai giảng viên hướng dẫn phải là hai người
+          khác nhau." (tối đa 2 người)
+        · Danh sách ứng viên GVHD thứ hai đã loại sẵn GV đang hướng dẫn đề tài khác
+          trong cùng đợt (tránh trùng).
 
-   ── GIAI ĐOẠN 8: Trưởng khoa công bố kết quả ─────────────────────────────
-    16. truongkhoa → Tổng hợp & công bố → Công bố đề tài KLTN-26-103
-        (đã tổng hợp sẵn 9,00 nhưng CHƯA công bố)
-        → hệ thống gửi email riêng cho từng SV trong nhóm
-    17. → Nhật ký email: xem số email đã gửi; có 1 email FAILED của sv05
-        để demo nút "Gửi lại"
+     5. Công bố danh sách đề tài: chọn Đợt = "Đồ án môn học HK1 2026-2027"
+        → Công bố theo đợt. Lệnh này công bố TẤT CẢ đề tài APPROVED chưa công bố
+        của đợt đó (trong dữ liệu có sẵn DA-MH-26-003 đã duyệt nhưng chưa công bố).
+        Bấm Công bố lần 2 → "Đề tài này đã được công bố."
 
-   ── GIAI ĐOẠN 9: Sinh viên xem kết quả ────────────────────────────────────
-    18. Đăng nhập sv01 (có nhóm ở đợt 2 và đợt 4) → Kết quả của tôi
-        · Lọc theo đợt -> xem kết quả của từng đợt
-        · Chọn một đợt không tham gia (ví dụ đợt 3) -> bị chặn 403
-    19. Đăng nhập sv07 (chỉ có nhóm ở đợt 2, chưa có kết quả)
-        → xác nhận không thấy kết quả của nhóm khác
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 2 - SINH VIÊN LẬP NHÓM  (đợt 2 · TLCN · đang mở cho SV)
+   ════════════════════════════════════════════════════════════════════
+   Mục tiêu: nhóm trưởng tạo nhóm, thêm thành viên, chuẩn bị đăng ký đề tài.
 
-   ── PHỤ: các chức năng quản trị ──────────────────────────────────────────
-    20. admin → Quản lý tài khoản: tạo, sửa, khóa/mở khóa, đặt lại mật khẩu
-        · Đăng nhập sv24 (đã khóa) -> bị chặn
-    21. admin → Vai trò & phân quyền
-    22. admin → Bộ môn: thử XÓA bộ môn MMT (id 4, không có dữ liệu tham chiếu)
-        · Thử xóa một bộ môn đang có giảng viên -> phải bị chặn
-    23. truongkhoa → Thông báo: tạo, công bố, thu hồi
+     6. Đăng nhập sv13 (chưa có nhóm ở đợt 2) → Nhóm sinh viên → Tạo nhóm
+        · sv13 là nhóm trưởng ngay. Mã nhóm do hệ thống sinh (G_<timestamp>).
+        · Nhóm tự gắn vào đợt đang mở cho SV là đợt 2.
+        · Bấm Tạo nhóm lần nữa → "Bạn đã tham gia nhóm trong đợt này."
 
-   ── PHỤ: quy tắc nghiệp vụ nên thử trực tiếp để phản biện khi báo cáo ────
-    a. Thêm người thứ 4 vào một nhóm            -> phải bị từ chối (tối đa 3)
-    b. Cho một sinh viên lập/tham gia nhóm thứ 2  -> phải bị từ chối
-    c. Phân công GVHD chấm đề tài mình hướng dẫn -> phải bị từ chối
-    d. Gán 3 GVHD cho một đề tài                -> phải bị từ chối (tối đa 2)
-    e. Xếp cùng một đề tài vào 2 hội đồng      -> phải bị từ chối
-    f. Nhập điểm ngoài khoảng 0-10              -> phải bị từ chối
-    g. Công bố kết quả 2 lần                    -> phải bị từ chối
-    h. Sinh viên xem kết quả của nhóm khác      -> phải bị từ chối (403)
+     7. Nhóm trưởng sv13 → Thêm thành viên: sv14, rồi sv15  → nhóm đủ 3/3 người
+        · Danh sách ứng viên là các SV CHƯA có nhóm ở đợt 2: sv14..sv23
+          (sv01..sv12 đã vào nhóm g1..g6, sv13 là chính nhóm trưởng).
+        · Vượt 3 người → "Nhóm đã đủ tối đa 3 thành viên."
+        · Thêm SV đã có nhóm ở đợt 2 → "Sinh viên này đã thuộc một nhóm khác trong
+          đợt đăng ký hiện tại."
+        · Gỡ nhóm trưởng → "Không thể gỡ nhóm trưởng. Hãy dùng chức năng Chuyển
+          quyền nhóm trưởng."
+        · Chuyển quyền nhóm trưởng cho sv14 được, nhưng chỉ khi nhóm CHƯA đăng ký
+          đề tài. Sau khi đăng ký, mọi thao tác thành viên bị khoá: "Chỉ thay đổi
+          thành viên nhóm được trước khi nhóm đăng ký đề tài."
+
+8. Nhóm trưởng sv13 → Đăng ký đề tài → chọn "TLCN-26-002 - Hồ sơ bệnh án điện tử"
+       → Gửi đăng ký. Trạng thái: CHỜ DUYỆT.
+       · Danh sách chỉ hiện đề tài ĐÃ CÔNG BỐ + CÙNG ĐỢT với nhóm + chưa có nhóm
+         nào được DUYỆT. Ra 4 đề tài: TLCN-26-002, -003, -004, -005.
+         "TLCN-26-001" KHÔNG xuất hiện (đã có nhóm g1 được duyệt).
+       · TLCN-26-002 VẪN xuất hiện dù nhóm MediRecord (g2) đang đăng ký nó ở
+         trạng thái CHỜ DUYỆT — vì hệ thống chỉ ẩn đề tài đã có nhóm được DUYỆT.
+         Đây chính là tình huống để demo quy tắc ở bước 9.
+       · Gửi đăng ký lần thứ hai: form biến mất, màn hình hiện "Nhóm đã có đăng ký
+         đang hiệu lực, không thể gửi thêm." (không phải lỗi).
+       · Đăng ký còn CHỜ DUYỆT thì nhóm trưởng bấm "Hủy đăng ký" được. Sau khi GVHD
+         duyệt thì không hủy được: "Chỉ hủy được khi đăng ký còn chờ duyệt (PENDING)."
+       ⚠ Thứ tự đúng: bước 8 (đăng ký) phải xong trước bước 9 (GVHD duyệt).
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 3 - GVHD XÁC NHẬN ĐĂNG KÝ
+   ════════════════════════════════════════════════════════════════════
+9. Đăng nhập gv03 (là GVHD của TLCN-26-002) → Đăng ký chờ duyệt
+       · Sẽ thấy HAI đăng ký chờ duyệt của cùng đề tài TLCN-26-002:
+         nhóm MediRecord (g2, có sẵn trong dữ liệu) và nhóm của sv13 (bước 8).
+         ⚠ Trước khi bấm, hãy xác nhận với khách / giảng viên để tránh nhầm.
+       · Chấp thuận đăng ký của nhóm sv13 → nhóm chuyển APPROVED, đăng ký chuyển
+         ĐÃ DUYỆT, và hệ thống TỰ TỪ CHỐI đăng ký PENDING còn lại của cùng đề tài
+         với lý do "Đề tài đã được duyệt cho nhóm khác."
+         Xem lại: đăng ký của nhóm MediRecord giờ mang trạng thái BỊ TỪ CHỐI
+         kèm lý do trên → đây là bằng chứng rõ nhất của quy tắc "một đề tài chỉ
+         thuộc một nhóm", tự động thực hiện trong cùng transaction.
+       · Nếu ngược lại, bấm Chấp thuận cho nhóm MediRecord thì nhóm sv13 mới bị
+         từ chối và vẫn ở trạng thái DRAFT, vẫn đăng ký lại được.
+       · GV KHÔNG phải GVHD của đề tài mà bấm duyệt → "Chỉ giảng viên hướng dẫn
+         đề tài này mới chấp thuận hoặc từ chối được." (cả GVHD chính lẫn GVHD
+         thứ hai đều có quyền)
+       · Bấm Từ chối mà không gõ lý do → "Vui lòng nhập lý do từ chối."
+         Từ chối xong thì nhóm trở về DRAFT và được đăng ký đề tài khác.
+
+    10. Nhóm từng bị từ chối đăng ký lại: đăng nhập sv08 (nhóm Scrumboard đã bị
+        từ chối ở TLCN-26-003) → Đăng ký đề tài → chọn lại "TLCN-26-003"
+        → Gửi đăng ký. Lần này được chấp nhận vì đăng ký cũ đã REJECTED nên không
+        còn ràng buộc "mỗi nhóm chỉ có một đăng ký hiệu lực".
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 4 - NHÓM TRƯỞNG NỘP BÁO CÁO  (đợt 2)
+   ════════════════════════════════════════════════════════════════════
+    11. Đăng nhập sv13 (nhóm vừa được gv03 duyệt) → Nộp báo cáo → chọn tệp
+        (PDF/DOC/DOCX, tối đa 10 MB) → Nộp báo cáo.
+        · Nhóm chuyển SUBMITTED; bản cũ (nếu có) tự chuyển SUPERSEDED.
+        · Nộp lần hai → "Nhóm đã nộp báo cáo cho đề tài này."
+        · Chọn sai định dạng (vd .txt) → "Chỉ nhận tệp PDF, DOC hoặc DOCX."
+        · Chọn tệp > 10 MB → "Tệp báo cáo không được vượt quá 10 MB."
+        · Đăng ký chưa được duyệt → "Chỉ nộp báo cáo sau khi đăng ký đề tài được duyệt."
+
+    12. Đăng nhập sv14 (thành viên, KHÔNG phải trưởng) → Nộp báo cáo
+        · Giao diện hiện "Nhóm trưởng chưa nộp báo cáo. Chỉ nhóm trưởng mới được
+          nộp tệp." — không có form nộp.
+        · Cố POST thẳng vào /student/reports → "Chỉ nhóm trưởng mới được nộp báo cáo."
+
+    13. Thành viên tải được báo cáo của nhóm: sv14 → bấm "Tải báo cáo đã nộp".
+        SV ngoài nhóm bị chặn: "Chỉ thành viên trong nhóm mới được tải báo cáo."
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 5 - TRƯỞNG KHOA LẬP HỘI ĐỒNG PHẢN BIỆN  (đợt 3 · KLTN)
+   ════════════════════════════════════════════════════════════════════
+   Trong dữ liệu có sẵn:
+     HD-KLTN-26-A   READY     5 GV   2 đề tài (KLTN-26-101, KLTN-26-102)
+     HD-KLTN-26-B   READY     3 GV   1 đề tài (KLTN-26-103)
+     HD-KLTN-26-C   DRAFT     2 GV   0 đề tài   ← cố ý THIẾU thành viên
+     HD-TLCN-25-D   FINISHED  3 GV   3 đề tài (đợt 4, đã công bố kết quả)
+
+    14. Đăng nhập truongkhoa → Hội đồng. Mã hội đồng do hệ thống cấp:
+        HD-KLTN26-001, HD-KLTN26-002... Ngày báo cáo của hội đồng KLTN LUÔN lấy
+        theo ngày báo cáo hội đồng của đợt (ô này chỉ để xem, không nhập tay được).
+
+    15. Mở HD-KLTN-26-C (DRAFT) → bấm "Kích hoạt hội đồng" khi chưa đủ điều kiện
+        · Dưới 3 GV → "Hội đồng phải có từ 3 đến 5 giảng viên (hiện có 2)."
+        · Đủ người nhưng thiếu thư ký → "Hội đồng phải có đúng một chủ tịch và
+          một thư ký."
+        · Đủ người mà chưa xếp đề tài → "Hãy xếp ít nhất một đề tài vào hội đồng."
+        ⚠ Số thành viên KHÔNG được kiểm tra lúc xếp đề tài mà chỉ kiểm tra khi
+          Kích hoạt. Đừng nói "xếp đề tài vào hội đồng thiếu người sẽ bị chặn".
+
+    16. Thêm thành viên vào HD-KLTN-26-C: GV005 + vai trò MEMBER → đủ 3 GV.
+        · Thêm thành viên thứ 6 → "Một hội đồng có tối đa 5 giảng viên."
+        · Thêm 2 người cùng làm CHAIRMAN → "Hội đồng chỉ có một chủ tịch."
+          (tương tự với thư ký — ràng buộc này do DB chặn uq_council_members_one_chair)
+        · Thêm trùng một GV đã có trong hội đồng → "Giảng viên này đã ở trong hội đồng."
+
+    17. Xếp đề tài vào hội đồng
+        · Ở đợt 3, sau khi chỉ nạp tệp này thì KHÔNG còn đề tài nào đủ điều kiện:
+          KLTN-26-101..103 đã nằm trong hội đồng A/B, còn KLTN-26-104 (nhóm
+          AdmissionBot) thì CHƯA NỘP BÁO CÁO nên không đưa vào phản biện được.
+        · Muốn có đề tài để xếp thì nạp thêm
+          database\HT_QLDT_03_du_lieu_mau_xep_de_tai.sql (xem mục BIẾN THỂ).
+        · Cố xếp đề tài đã thuộc hội đồng khác → "Đề tài này đã thuộc một hội đồng khác."
+        · Đề tài ở đợt khác → "Đề tài phải thuộc đúng đợt của hội đồng."
+        · Đề tài chưa nộp báo cáo → "Đề tài chưa có báo cáo được nộp - không đưa
+          vào phản biện."
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 6 - PHÂN CÔNG NGƯỜI CHẤM  (hội đồng phải READY)
+   ════════════════════════════════════════════════════════════════════
+    18. Mở HD-KLTN-26-A → bấm "Phân công chấm" ở từng đề tài. Dữ liệu đã có sẵn:
+          KLTN-26-101 (GVHD gv01, gv02) chấm: gv03 8,50 · gv04 8,00 · gv06 CHƯA CHẤM
+          KLTN-26-102 (GVHD gv03)           chấm: gv02 7,00 · gv04 7,50 · gv06 8,00
+          KLTN-26-103 (GVHD gv05, gv06)     chấm: gv08 9,00 · gv07 8,50 · gv04 9,50
+        · Danh sách chọn KHÔNG hiện GVHD và không hiện người đề xuất đề tài — đây
+          là cách demo quy tắc "GVHD không được chấm đề tài mình hướng dẫn".
+        · Chọn GV đã được phân công → "Giảng viên này đã được phân công chấm đề tài này."
+        · Chọn GV không thuộc hội đồng → "Giảng viên không thuộc hội đồng này; chỉ có
+          thể chọn GV trong hội đồng."
+        · Hội đồng còn DRAFT → "Chỉ phân công khi hội đồng đã ở trạng thái READY."
+        · Nút Gỡ bị khoá (mờ) với phân công đã có điểm: "Phân công đã có điểm; không
+          thể gỡ."
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 7 - GIẢNG VIÊN NHẬP ĐIỂM  (công việc CÒN DỞ trong dữ liệu demo)
+   ════════════════════════════════════════════════════════════════════
+    19. Đăng nhập gv06 → Chấm điểm hội đồng. Sẽ thấy KLTN-26-101 với bảng điểm
+        "2/3 đã nộp" và KLTN-26-102 đã đủ 3/3.
+        · Nhập Điểm thành phần (0-10) + Nhận xét (bắt buộc) → Gửi điểm.
+        · Nhập 11 hoặc -1 → "Điểm phải nằm trong khoảng 0 đến 10." (form chặn ngay,
+          service vẫn kiểm tra lần nữa).
+        · Để trống nhận xét → "Vui lòng nhập nhận xét (bắt buộc)."
+        · Còn hạn thì GV sửa được điểm của mình. Quá hạn (+8 ngày) thì bị chặn
+          "Đã quá hạn nộp điểm phản biện." (trừ admin được ghi đè kèm lý do, và
+          thao tác đó được ghi vào nhật ký hệ thống EVALUATION_SUBMIT_OVERDUE).
+
+    20. Demo quy tắc "GVHD không được chấm đề tài mình hướng dẫn": đăng nhập gv01
+        (GVHD chính của KLTN-26-101) → mở Chấm điểm hội đồng → mục KLTN-26-101
+        hiện "Bạn không thể chấm đề tài này." thay vì form nhập điểm.
+
+    21. Bảng điểm + tải báo cáo: mỗi đề tài có link "Tải báo cáo đề tài" (GV được
+        phân công hoặc GVHD đều tải được; GV khác bị 403 "Bạn không được phân công
+        xem báo cáo này."). Nếu tệp chưa có trên đĩa sẽ báo "Không tìm thấy tệp
+        báo cáo trong kho lưu trữ."
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 8 - CHỦ TỊCH HỘI ĐỒNG TỔNG HỢP  (trước khi Trưởng khoa công bố)
+   ════════════════════════════════════════════════════════════════════
+    22. Đăng nhập gv02 (CHỦ TỊCH hội đồng A) → Chấm điểm hội đồng
+        · KLTN-26-102 đã đủ 3/3 điểm → có nút "Tổng hợp kết quả". Gõ nhận xét
+          tổng hợp rồi bấm → điểm cuối = TRUNG BÌNH CỘNG
+          (7,00 + 7,50 + 8,00) / 3 = 7,50 → ĐẠT (ngưỡng app.passing-score = 5,00).
+        · KẾT QUẢ ĐẠT/KHÔNG ĐẠT do hệ thống tự quyết, không nhập tay được.
+        · Muốn demo "chưa đủ điểm" thì làm TRƯỚC bước 19: lúc đó KLTN-26-101 mới
+          có 2/3 điểm nên nút Tổng hợp KHÔNG HIỆN (dòng "Bảng điểm thành phần
+          (2/3 đã nộp)"). Sau khi gv06 nộp điểm thì đủ 3/3 và nút mới xuất hiện;
+          điểm cuối lúc đó = (8,50 + 8,00 + <điểm của gv06>) / 3.
+        · Chưa có phân công nào → "Chưa phân công giảng viên chấm đề tài này."
+        · Cố tổng hợp lại kết quả đã công bố → "Kết quả đã công bố thì không thể
+          tổng hợp lại." Trước khi công bố thì tổng hợp lại được (để sửa điểm).
+
+    23. Demo phân quyền chủ tịch: đăng nhập gv04 (THƯ KÝ hội đồng A) → thấy bảng điểm
+        của KLTN-26-102 nhưng KHÔNG có nút Tổng hợp. Gọi thẳng
+        POST /lecturer/council-work/{id}/finalize sẽ nhận 403
+        "Chỉ chủ tịch hội đồng được tổng hợp."
+        GV không thuộc hội đồng → 403 "Bạn không thuộc hội đồng này."
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 9 - TRƯỞNG KHOA CÔNG BỐ KẾT QUẢ  + GỬI EMAIL
+   ════════════════════════════════════════════════════════════════════
+    24. Đăng nhập truongkhoa → Kết quả → chọn đợt 3. Sẵn có KLTN-26-103 (CI/CD tự
+        động) đã tổng hợp 9,00 ĐẠT nhưng CHƯA công bố.
+        · Bấm "Công bố" → hệ thống gửi email RIÊNG cho từng SV trong nhóm
+          (nhóm AutoPipeline gồm sv18, sv19, sv20 — kể cả thành viên không phải
+          nhóm trưởng).
+        · Sau khi công bố, kết quả bị KHÓA: chủ tịch không tổng hợp lại được nữa.
+        · Bấm Công bố lần 2 → "Kết quả này đã được công bố."
+        · Có thể bấm "Công bố cả hội đồng" để công bố gọn một lần cho cả hội đồng.
+        · Chưa có GV chủ tịch tổng hợp → "Chủ tịch cần tổng hợp kết quả trước khi
+          công bố."
+        · Khi mọi đề tài của hội đồng đã công bố thì hội đồng tự chuyển FINISHED.
+
+    25. Nhật ký email: đăng nhập truongkhoa → Nhật ký email
+        · Trong dữ liệu có sẵn 7 dòng của đợt 4 (TLCN HK2 2025-2026), trong đó dòng
+          của sv05 cố ý FAILED ("Không kết nối được máy chủ SMTP (timeout).", đã thử
+          3 lần) → dùng để demo nút "Gửi lại".
+        · Bấm "Gửi lại": attempt_count tăng 1; vẫn FAILED nếu SMTP chưa bật.
+        · Bấm "Gửi lại" trên dòng đã SENT → "Email này đã gửi thành công, không cần
+          gửi lại."
+        · Với app.mail.enabled=false (mặc định) thì các dòng mới ghi SKIPPED với ghi
+          chú "Cấu hình app.mail.enabled=false nên không gửi thật".
+        · Một kết quả + một sinh viên chỉ có ĐÚNG 1 dòng nhật ký (UNIQUE), nên gửi
+          lại không tạo dòng trùng.
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 10 - SINH VIÊN XEM KẾT QUẢ
+   ════════════════════════════════════════════════════════════════════
+    26. Đăng nhập sv01 → Kết quả của tôi. sv01 có nhóm ở cả đợt 2 (EduCode) và đợt 4
+        (MoneyTrack) nên bộ chọn đợt hiện đúng 2 đợt đó. Kết quả đã công bố của sv01
+        là của đợt 4.
+        · Lọc theo đợt → xem kết quả của từng đợt mình tham gia.
+        · Chọn đợt khác → 403 "Bạn không tham gia đợt được chọn nên không được xem kết
+          quả của đợt đó." (Bộ chọn đợt lấy từ group_members, KHÔNG tin tham số URL;
+          gọi thẳng /student/results?periodId=... cũng bị 403.)
+        · Xem API: /api/my/results và /api/my/results/periods (trả JSON).
+
+    27. Đăng nhập sv10 (chỉ có nhóm ở đợt 2, chưa có kết quả được công bố) → Kết quả
+        của tôi hiện danh sách rỗng. Xác nhận không thấy kết quả của nhóm khác (đó là
+        bản chất của màn hình: chỉ trả kết quả ĐÃ CÔNG BỐ của chính nhóm mình).
+
+   ════════════════════════════════════════════════════════════════════
+   GIAI ĐOẠN 11 - CÁC CHỨC NĂNG QUẢN TRỊ
+   ════════════════════════════════════════════════════════════════════
+    28. admin → Quản lý tài khoản (/admin/users)
+        · Tạo tài khoản: nếu chọn Giảng viên/Trưởng khoa thì BẮT BUỘC chọn bộ môn;
+          nếu chọn Sinh viên thì BẮT BUỘC nhập lớp và ngành.
+        · Mã sinh viên / mã giảng viên do hệ thống TỰ CẤP và hiển thị xem trước
+          trên form (SV23025, GV009...) — không nhập tay nên không thể trùng.
+        · Để trống email → "Vui lòng nhập email" (cột NOT NULL + UNIQUE).
+          Trùng email → "Email đã được dùng cho tài khoản khác."
+          Mật khẩu dưới 6 ký tự → "Mật khẩu tối thiểu 6 ký tự".
+        · Sửa tài khoản: để trống mật khẩu = giữ mật khẩu cũ.
+        · Khóa/mở khóa: không khóa được chính mình ("Không thể khóa chính tài khoản đang
+          đăng nhập.") và không khóa được tài khoản quản trị cuối cùng ("Không thể
+          khóa tài khoản quản trị cuối cùng của hệ thống.").
+        · Đặt lại mật khẩu: về mật khẩu mặc định 123456, mở khoá tạm và xoá bộ đếm
+          đăng nhập sai.
+        · Gán vai trò: không tự đổi vai trò của mình; không bỏ ADMIN của tài khoản
+          admin cuối cùng.
+        · Đăng nhập sv24 (đã khóa) → bị từ chối, quay về /login kèm thông báo lỗi.
+
+    29. admin → Đổi mật khẩu của chính mình (/account/password)
+        · Sai mật khẩu hiện tại → "Mật khẩu hiện tại không chính xác."
+        · Mật khẩu mới dưới 8 ký tự / thiếu chữ / thiếu số → bị chặn với thông báo riêng.
+        · Xác nhận không khớp → "Mật khẩu mới nhập lại không khớp."
+        · Đổi xong thì bộ đếm sai và trạng thái khoá tạm được xoá.
+
+    30. admin → Vai trò & phân quyền (/roles)
+        · Vai trò gốc có cờ hệ thống: không xoá được.
+        · Gỡ quyền của một vai trò → giao diện mất ngay các chức năng tương ứng, vì
+          SecurityConfig khai báo quyền theo đúng mã trong bảng role_permissions.
+
+    31. admin → Bộ môn (/admin/departments)
+        · Thêm bộ môn mới, sửa, bật/tắt hoạt động.
+        · Xoá bộ môn MMT (id 4, cố ý không có GV/đề tài nào tham chiếu) → XOÁ ĐƯỢC.
+        · Xoá bộ môn đang có giảng viên → bị chặn: "Không thể xoá bộ môn vì đang được
+          sử dụng bởi giảng viên hoặc đề tài. Hãy chuyển trạng thái sang
+          'Không hoạt động'."
+        · Thêm bộ môn trùng mã → "Mã bộ môn đã tồn tại."
+
+    32. admin → Hồ sơ GV / SV (/admin/profiles): xem và sửa hồ sơ. Email không xoá
+        được, chỉ đổi được sang email khác.
+
+    33. truongkhoa → Đợt đăng ký (/periods)
+        · Đợt nháp NCKH (id 5) dùng để demo Tạo / Sửa / Xoá và Mở đợt.
+        · Sửa hoặc xoá đợt đã có đề tài → "Đợt đã có đề tài nên không được sửa hoặc xoá."
+        · Xoá đợt đã công bố → "Chỉ xoá được đợt ở trạng thái nháp."
+        · Đặt hạn nộp điểm phản biện cho đợt Đồ án môn học → "Hạn chót giảng viên
+          phản biện chỉ áp dụng cho đợt TLCN hoặc KLTN, không áp dụng cho đợt
+          Đồ án môn học."
+        · Ngày báo cáo hội đồng cho đợt không phải KLTN → "Ngày báo cáo hội đồng chỉ
+          áp dụng cho đợt KLTN, không áp dụng cho đợt ..."
+        · Giai đoạn SV bắt đầu sớm hơn khi giai đoạn GV kết thúc → "Giai đoạn sinh
+          viên phải bắt đầu sau khi giai đoạn giảng viên kết thúc."
+        · Đợt đã đóng và đã có hội đồng → "Đợt đã có hội đồng phản biện nên không mở
+          lại được."
+
+    34. truongkhoa → Thông báo
+        · Tạo thông báo ở trạng thái nháp → Công bố → Thu hồi được.
+        · Chọn vai trò nhận: bỏ chọn hết = gửi cho tất cả vai trò.
+
+   ════════════════════════════════════════════════════════════════════
+   CÁC QUY TẮC NGHIỆP VỤ NÊN THỬ TRỰC TIẾP KHI PHẢN BIỆN
+   (thông điệp dưới đây là câu chữ thật trong mã nguồn)
+   ════════════════════════════════════════════════════════════════════
+     a. Thêm người thứ 4 vào nhóm             → "Nhóm đã đủ tối đa 3 thành viên."
+     b. SV lập nhóm thứ 2 trong cùng đợt     → "Bạn đã tham gia nhóm trong đợt này."
+     c. Thêm SV đã có nhóm vào nhóm khác     → "Sinh viên này đã thuộc một nhóm khác
+                                                 trong đợt đăng ký hiện tại."
+     d. Gỡ chính nhóm trưởng                 → "Không thể gỡ nhóm trưởng..."
+     e. Gán 3 GVHD cho một đề tài            → tối đa 2 (MAX_SUPERVISORS); form chỉ có
+                                                 1 ô "GVHD thứ hai"
+     f. GVHD chấm đề tài mình hướng dẫn      → "GVHD (kể cả đồng hướng dẫn) không được
+                                                 chấm đề tài mình hướng dẫn."
+     g. Người đề xuất chấm đề tài của mình    → "Người đề xuất đề tài không được chấm
+                                                 đề tài đó."
+     h. GV không thuộc hội đồng được phân công → "Giảng viên không thuộc hội đồng này..."
+     i. Xếp cùng một đề tài vào 2 hội đồng  → "Đề tài này đã thuộc một hội đồng khác."
+     j. Kích hoạt hội đồng dưới 3 GV         → "Hội đồng phải có từ 3 đến 5 giảng viên
+                                                 (hiện có 2)."
+     k. Nhập điểm ngoài khoảng 0-10           → "Điểm phải nằm trong khoảng 0 đến 10."
+     l. Nộp báo cáo khi đề tài chưa được duyệt → "Chỉ nộp báo cáo sau khi đăng ký đề tài
+                                                 được duyệt."
+     m. Công bố kết quả 2 lần                → "Kết quả này đã được công bố."
+     n. Tổng hợp lại kết quả đã công bố      → "Kết quả đã công bố thì không thể tổng
+                                                 hợp lại."
+     o. GV không phải chủ tịch tổng hợp       → 403 "Chỉ chủ tịch hội đồng được tổng hợp."
+     p. SV xem kết quả của đợt không tham gia → 403 "Bạn không tham gia đợt được chọn nên
+                                                 không được xem kết quả của đợt đó."
+     q. SV không trong nhóm tải báo cáo      → 403 "Chỉ thành viên trong nhóm mới được
+                                                 tải báo cáo."
+     r. GV không liên quan tải báo cáo      → 403 "Bạn không được phân công xem báo cáo này."
+     s. Đăng nhập sai 5 lần liên tiếp        → tài khoản bị khoá tạm 15 phút
+                                                 (app.security.max-failed-attempts)
+
+   ════════════════════════════════════════════════════════════════════
+   BIẾN THỂ - NẾU ĐÃ NẠP THÊM HT_QLDT_03_du_lieu_mau_xep_de_tai.sql
+   ════════════════════════════════════════════════════════════════════
+   Tệp đó bổ sung 4 đề tài ở ĐỢT 3 (KLTN-26-105..108) với đầy đủ nhóm, đăng ký đã
+   duyệt và báo cáo đã nộp. Khi đó bước 17 có việc để làm:
+
+    · Mở HD-KLTN-26-C (DRAFT), hoàn tất 3 GV + 1 chủ tịch + 1 thư ký
+      (thêm GV005 làm MEMBER là được, vì gv01/gv03 đã là chủ tịch/thư ký).
+    · Bấm "Xếp đề tài" → DANH SÁCH SẼ HIỆN 4 đề tài KLTN-26-105..108. Mỗi đề tài
+      có GVHD cố ý KHÁC với GVHD của các đề tài cũ (gv01, gv03, gv05, gv08) để còn
+      nhiều giảng viên làm người chấm.
+    · Kích hoạt hội đồng → READY → Phân công chấm → GV nhập điểm → chủ tịch tổng
+      hợp → Trưởng khoa công bố. Đây là vòng tròn khép kín để demo khi không muốn
+      dùng sẵn dữ liệu của đợt 3.
+    · Lưu ý: tệp 03 chỉ tạo DÒNG trong DB, tệp PDF báo cáo của nhóm mới KHÔNG có
+      trên đĩa → bấm "Tải báo cáo" sẽ báo không tìm thấy tệp. Muốn tải được thì
+      chép tệp thật vào app.storage.dir/demo/.
+    · Nếu đã chạy MỤC 3 của tệp 03 (mở nhóm g10 của KLTN-26-104) thì đề tài đó cũng
+      hiện trong danh sách xếp được.
+
+   ════════════════════════════════════════════════════════════════════
+   SAU KHI TRÌNH BÀY - muốn demo lại từ đầu
+   ════════════════════════════════════════════════════════════════════
+     Xoá database rồi nạp lại: database\HT_QLDT.sql rồi tệp này, sau đó
+       powershell -File scripts\reset-passwords.ps1 -Password 123456
+     Mọi dữ liệu đều dựa trên @now = NOW() nên không cần sửa tay mốc thời gian.
    ===================================================================== */

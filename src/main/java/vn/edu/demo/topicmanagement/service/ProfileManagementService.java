@@ -68,9 +68,8 @@ public class ProfileManagementService {
         if (fullName != null && !fullName.isBlank()) {
             user.setFullName(fullName.trim());
         }
-        if (email != null && email.isBlank()) {
-            user.setEmail(null);
-        } else if (email != null) {
+        // users.email NOT NULL -> không cho xoá, chỉ cho đổi sang email khác.
+        if (email != null && !email.isBlank() && !email.trim().equalsIgnoreCase(user.getEmail())) {
             user.setEmail(email.trim());
         }
         if (phone != null && phone.isBlank()) {
@@ -110,9 +109,8 @@ public class ProfileManagementService {
         if (fullName != null && !fullName.isBlank()) {
             user.setFullName(fullName.trim());
         }
-        if (email != null && email.isBlank()) {
-            user.setEmail(null);
-        } else if (email != null) {
+        // users.email NOT NULL -> không cho xoá, chỉ cho đổi sang email khác.
+        if (email != null && !email.isBlank() && !email.trim().equalsIgnoreCase(user.getEmail())) {
             user.setEmail(email.trim());
         }
         if (phone != null && phone.isBlank()) {

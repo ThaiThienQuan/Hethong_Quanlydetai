@@ -17,6 +17,14 @@ public interface LecturerRepository extends JpaRepository<Lecturer, Long> {
 
     boolean existsByLecturerCode(String lecturerCode);
 
+    /**
+     * Số thứ tự lớn nhất trong mã giảng viên dạng {@code GV<digits>} (vd GV001 -> 1).
+     * Dùng để cấp mã mới mà không trùng mã cũ. Trả về null khi chưa có mã dạng này.
+     */
+    @Query(value = "SELECT MAX(CAST(SUBSTRING(lecturer_code, 3) AS UNSIGNED)) "
+            + "FROM lecturers WHERE lecturer_code REGEXP '^GV[0-9]+$'", nativeQuery = true)
+    Long findMaxLecturerCodeNumber();
+
     long countByDepartmentId(Long departmentId);
 
     /** Danh sách GV theo bộ môn, dùng cho bộ lọc trong màn hình hồ sơ GV. */

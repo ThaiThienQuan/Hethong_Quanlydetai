@@ -24,7 +24,7 @@
                 <td th:text="${c.reportDate != null ? #temporals.format(c.reportDate, 'dd/MM/yyyy HH:mm') : '—'}"></td>
                 <td>
                     <form th:action="@{/head/results/council/{id}/publish-all(id=${c.id})}" method="post"
-                          onsubmit="return confirm('Công bố toàn bộ kết quả đang chờ của hội đồng này?');">
+                          data-confirm-message="Công bố toàn bộ kết quả đang chờ của hội đồng này?">
                         <button class="btn btn-primary" type="submit">Công bố cả hội đồng</button>
                     </form>
                 </td>
@@ -47,7 +47,7 @@
                 <td th:text="${row.councilComment}"></td>
                 <td>
                     <form th:action="@{/head/results/{id}/publish(id=${row.councilTopicId})}" method="post"
-                          onsubmit="return confirm('Công bố kết quả này cho sinh viên?');">
+                          data-confirm-message="Công bố kết quả này cho sinh viên?">
                         <button class="btn btn-soft-success btn-sm" type="submit">Công bố</button>
                     </form>
                 </td>

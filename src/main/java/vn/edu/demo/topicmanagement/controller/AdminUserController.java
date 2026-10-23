@@ -73,7 +73,17 @@ public class AdminUserController {
     public String newForm(Model model) {
         model.addAttribute("userForm", new UserForm());
         setFormInfo(model, "/admin/users/new", "Tạo tài khoản mới", false);
+        addCodePreviews(model);
         return "admin/users/form";
+    }
+
+    /**
+     * Mã SV/GV do hệ thống cấp tự động -> hiển thị trước mã sẽ được cấp cho Admin xem.
+     * Luôn gán lại (kể cả khi form có lỗi) để ô mã không bị trống.
+     */
+    private void addCodePreviews(Model model) {
+        model.addAttribute("nextStudentCode", accountService.previewStudentCode());
+        model.addAttribute("nextLecturerCode", accountService.previewLecturerCode());
     }
 
     @PostMapping("/new")
@@ -82,6 +92,7 @@ public class AdminUserController {
         addRuleErrors(form, null, result);
         if (result.hasErrors()) {
             setFormInfo(model, "/admin/users/new", "Tạo tài khoản mới", false);
+            addCodePreviews(model);
             return "admin/users/form";
         }
         accountService.create(form);
@@ -96,6 +107,7 @@ public class AdminUserController {
         model.addAttribute("userForm", accountService.getFormForEdit(id));
         model.addAttribute("userId", id);
         setFormInfo(model, "/admin/users/" + id + "/edit", "Sửa tài khoản", true);
+        addCodePreviews(model);
         return "admin/users/form";
     }
 
@@ -105,6 +117,7 @@ public class AdminUserController {
         addRuleErrors(form, id, result);
         if (result.hasErrors()) {
             setFormInfo(model, "/admin/users/" + id + "/edit", "Sửa tài khoản", true);
+            addCodePreviews(model);
             return "admin/users/form";
         }
         accountService.update(id, form);

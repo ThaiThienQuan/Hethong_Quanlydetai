@@ -472,12 +472,8 @@ public class DashboardService {
     // =====================================================================================
 
     private String phaseLabel(RegistrationPeriod period) {
-        return switch (period.currentPhase()) {
-            case "CHUA_MO" -> "Chưa mở";
-            case "GIAO_VIEN_DANG_KY" -> "Giảng viên đăng ký";
-            case "SINH_VIEN_DANG_KY" -> "Sinh viên đăng ký";
-            default -> "Đã đóng";
-        };
+        // Dùng chung nhãn giai đoạn với bảng /periods để hai màn hình không lệch nhau.
+        return period.getCurrentPhaseLabel();
     }
 
     private String window(LocalDateTime from, LocalDateTime to) {

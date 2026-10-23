@@ -177,15 +177,24 @@ public class RegistrationPeriod {
     /**
      * Giai đoạn hiện tại tính theo giờ máy chủ: CHUA_MO / GIAO_VIEN_DANG_KY /
      * SINH_VIEN_DANG_KY / DA_DONG. Dùng cho màn hình danh sách và thanh tiến trình.
+     *
+     * <p>Lưu ý: bảng quản lý đợt dùng {@code RegistrationPeriodService.findAllForList()}
+     * nên giai đoạn hiện tại được tính theo {@code Clock} đã tiêm (kiểm thử kiểm soát
+     * được thời gian). Các màn hình khác gọi trực tiếp các hàm này nên vẫn dùng
+     * giờ hệ thống.
      */
     public String currentPhase() {
+        return currentPhase(LocalDateTime.now());
+    }
+
+    /** Giai đoạn hiện tại tại một mốc thời gian cho trước - dùng để kiểm thử. */
+    public String currentPhase(LocalDateTime now) {
         if (status == PeriodStatus.CLOSED) {
             return "DA_DONG";
         }
         if (status == PeriodStatus.DRAFT) {
             return "CHUA_MO";
         }
-        LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(lecturerStartAt)) {
             return "CHUA_MO";
         }
@@ -196,6 +205,19 @@ public class RegistrationPeriod {
             return "SINH_VIEN_DANG_KY";
         }
         return "DA_DONG";
+    }
+
+    /**
+     * Giai đoạn hiện tại ở dạng nhãn tiếng Việt, dùng chung cho bảng "đợt đang mở"
+     * ở dashboard và bảng quản lý đợt (mục 5.2).
+     */
+    public String getCurrentPhaseLabel() {
+        return switch (currentPhase()) {
+            case "CHUA_MO" -> "Chưa mở";
+            case "GIAO_VIEN_DANG_KY" -> "Giảng viên đăng ký";
+            case "SINH_VIEN_DANG_KY" -> "Sinh viên đăng ký";
+            default -> "Đã đóng";
+        };
     }
 
     /** GV chỉ đề xuất đề tài được trong đúng khung thời gian giai đoạn 1. */

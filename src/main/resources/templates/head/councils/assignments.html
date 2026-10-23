@@ -38,7 +38,7 @@
                 <td>
                     <form th:action="@{/head/councils/{id}/topics/{ctId}/assignments/{aId}/remove(id=${view.councilId},ctId=${view.councilTopicId},aId=${a.assignmentId})}"
                           method="post" class="form-inline"
-                          onsubmit="return confirm('Gỡ phân công này?');">
+                          data-confirm-message="Gỡ phân công này?">
                         <button class="btn btn-soft-danger btn-sm" type="submit" th:disabled="${a.submitted}">Gỡ</button>
                     </form>
                 </td>

@@ -17,6 +17,15 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     boolean existsByStudentCode(String studentCode);
 
+    /**
+     * Số thứ tự lớn nhất trong mã sinh viên dạng {@code SV<digits>} (vd SV23001 -> 23001).
+     * Dùng để cấp mã mới mà không trùng mã cũ. Trả về null khi chưa có mã dạng này.
+     * Native query vì cần SUBSTRING + CAST trong MySQL.
+     */
+    @Query(value = "SELECT MAX(CAST(SUBSTRING(student_code, 3) AS UNSIGNED)) "
+            + "FROM students WHERE student_code REGEXP '^SV[0-9]+$'", nativeQuery = true)
+    Long findMaxStudentCodeNumber();
+
     long countByMajor(String major);
 
     /**

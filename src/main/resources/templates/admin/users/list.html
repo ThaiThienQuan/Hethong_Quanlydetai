@@ -64,7 +64,7 @@
                                 th:text="${u.status != null and u.status.name() == 'ACTIVE'} ? 'Khóa' : 'Mở khóa'">Khóa</button>
                     </form>
                     <form th:action="@{/admin/users/{id}/delete(id=${u.id})}" method="post"
-                          onsubmit="return confirm('Xóa vĩnh viễn tài khoản này? Nếu tài khoản đã gắn với dữ liệu, hệ thống sẽ từ chối xóa.');">
+                          data-confirm-message="Xóa vĩnh viễn tài khoản này? Nếu tài khoản đã gắn với dữ liệu, hệ thống sẽ từ chối xóa.">
                         <button class="btn btn-soft-danger btn-sm" type="submit">Xóa</button>
                     </form>
                 </td>

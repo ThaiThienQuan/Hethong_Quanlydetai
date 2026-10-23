@@ -15,7 +15,7 @@
             <td th:text="${row.deadline != null ? #temporals.format(row.deadline, 'dd/MM/yyyy HH:mm') : '—'}"></td>
             <td><div th:each="assignee : ${row.assignees}">
                 <span th:text="${assignee.fullName + (assignee.submitted ? ' (đã nộp điểm)' : ' (chưa nộp điểm)')}"></span>
-                <form th:if="${!assignee.submitted}" th:action="@{/head/reviewers/{registrationId}/{assignmentId}/remove(registrationId=${row.registrationId},assignmentId=${assignee.assignmentId})}" method="post" class="form-inline" onsubmit="return confirm('Gỡ phân công phản biện này?');">
+                <form th:if="${!assignee.submitted}" th:action="@{/head/reviewers/{registrationId}/{assignmentId}/remove(registrationId=${row.registrationId},assignmentId=${assignee.assignmentId})}" method="post" class="form-inline" data-confirm-message="Gỡ phân công phản biện này?">
                     <button class="btn btn-soft-danger btn-sm" type="submit">Gỡ</button>
                 </form>
             </div></td>

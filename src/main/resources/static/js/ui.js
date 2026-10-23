@@ -236,13 +236,44 @@
   }
 
   var pendingForm = null;
+
+  /* ------------------------------------------------------------------
+     HỘP XÁC NHẬN — gom cả 2 nguồn khai báo:
+       · data-confirm-message="..."   (cách mới, khuyến nghị)
+       · onsubmit="return confirm('...')"  (cách cũ, vẫn hỗ trợ)
+     Vấn đề của cách cũ: handler inline được gắn TRỰC TIẾP vào phần tử form nên nó
+     chạy TRƯỚC listener bubble ở tầng `document`. Kết quả native confirm() của
+     trình duyệt hiện trước (hộp thoại "localhost nói" của Chrome), rồi hộp xác
+     nhận tùy biến mới mở -> người dùng phải bấm OK hai lần.
+     Cách sửa: listener ở pha CAPTURE của `document` chạy trước mọi handler inline,
+     nên ta gỡ handler inline và chuyển nội dung câu hỏi sang data-confirm-message.
+  ------------------------------------------------------------------ */
   doc.addEventListener('submit', function (e) {
     var form = e.target;
-    if (!form.getAttribute('onsubmit')) return;
-    var msg = form.getAttribute('data-confirm-message') ||
-              form.getAttribute('data-confirm') ||
-              (form.getAttribute('onsubmit').match(/confirm\((['"])(.*?)\1/) || [])[2] ||
-              'Bạn có chắc chắn muốn thực hiện thao tác này?';
+    if (!form || !form.getAttribute) return;
+
+    var inline = form.getAttribute('onsubmit');
+    if (inline) {
+      var m = inline.match(/confirm\((['"])(.*?)\1/);
+      if (m) {
+        // Chuyển câu hỏi sang data-confirm-message để dùng lại, rồi vô hiệu hoá
+        // handler inline để native confirm() không bao giờ hiện.
+        if (!form.getAttribute('data-confirm-message')) {
+          form.setAttribute('data-confirm-message', m[2]);
+        }
+        form.removeAttribute('onsubmit');
+        form.onsubmit = null;
+      }
+    }
+  }, true);
+
+  doc.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form || !form.getAttribute) return;
+
+    var msg = form.getAttribute('data-confirm-message') || form.getAttribute('data-confirm');
+    if (!msg) return;   // form không yêu cầu xác nhận -> submit bình thường
+
     e.preventDefault();
     pendingForm = form;
     openConfirm(msg, form.getAttribute('data-confirm-title') || 'Xác nhận thao tác');
@@ -341,6 +372,59 @@
       if (e.target === back && back === openModal) closeOpenModal();
     });
   });
+
+  /* ------------------------------------------------------------------
+     11. FORM TẠO/SỬA TÀI KHOẢN - ẨN/HIỆN Ô HỒ SƠ THEO VAI TRÒ
+     Mỗi nhóm ô gắn data-roles="SINH_VIEN" hoặc "GIANG_VIEN,TRUONG_KHOA".
+     Ô "Vai trò" điều khiển nhóm nào được hiện; không chọn vai trò -> ẩn hết.
+     Khi SỬA, vai trò ẩn cố định nên nhóm tương ứng luôn hiện.
+  ------------------------------------------------------------------ */
+  function setupRoleProfileGroups() {
+    var form = doc.querySelector('form[data-editing]');
+    if (!form) return;
+    var groups = Array.prototype.slice.call(form.querySelectorAll('[data-roles]'));
+    if (!groups.length) return;
+
+    var roleSelect = form.querySelector('select[name="role"]');
+    var roleHidden = form.querySelector('input[name="role"]');
+
+    function currentRole() {
+      if (roleSelect) return (roleSelect.value || '').trim();
+      if (roleHidden) return (roleHidden.value || '').trim();
+      return '';
+    }
+
+    function apply() {
+      var role = currentRole();
+      // Sửa tài khoản: vai trò không đổi được và hồ sơ SV/GV được quản lý ở màn
+      // hình "Hồ sơ sinh viên / Hồ sơ giảng viên" -> ẩn hết các nhóm ô này.
+      if (!roleSelect) {
+        groups.forEach(function (g) {
+          g.hidden = true;
+          g.querySelectorAll('input, select, textarea').forEach(function (input) {
+            input.disabled = true;
+          });
+        });
+        return;
+      }
+      groups.forEach(function (g) {
+        var allowed = (g.getAttribute('data-roles') || '')
+          .split(',')
+          .map(function (s) { return s.trim(); })
+          .filter(Boolean);
+        var show = role !== '' && allowed.indexOf(role) !== -1;
+        g.hidden = !show;
+        // Ẩn luôn các input bên trong để trình duyệt không gửi giá trị cũ (studentCode/lecturerCode...).
+        g.querySelectorAll('input, select, textarea').forEach(function (input) {
+          input.disabled = !show;
+        });
+      });
+    }
+
+    if (roleSelect) roleSelect.addEventListener('change', apply);
+    apply();
+  }
+  setupRoleProfileGroups();
 
   /* ------------------------------------------------------------------
      10. CHỐNG BẤM ĐÚP KHI GỬI FORM

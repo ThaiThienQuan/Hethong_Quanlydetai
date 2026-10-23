@@ -549,6 +549,74 @@ class RegistrationPeriodServiceTest {
     }
 
     // -------------------------------------------------------------------------
+    // 5.2 — reopen: chỉ mở lại được khi còn thời gian đăng ký và chưa có hội đồng
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("5.2 — reopen: CLOSED -> PUBLISHED có điều kiện")
+    class Reopen {
+
+        @Test
+        @DisplayName("SUCCESS — CLOSED còn thời gian SV và chưa có hội đồng -> PUBLISHED")
+        void reopenClosedWithinStudentWindow() {
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.CLOSED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),   // SV còn đang mở
+                    NOW.plusDays(10), null);
+            when(periodRepository.findById(20L)).thenReturn(Optional.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L)).thenReturn(java.util.List.of());
+
+            assertDoesNotThrow(() -> service.reopen(20L));
+            verify(periodRepository).save(argThat(r -> r.getStatus() == PeriodStatus.PUBLISHED));
+        }
+
+        @Test
+        @DisplayName("REJECT — CLOSED đã qua khung thời gian SV (đợt quá hạn)")
+        void rejectReopenAfterStudentWindow() {
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.CLOSED,
+                    NOW.minusDays(20), NOW.minusDays(19),
+                    NOW.minusDays(18), NOW.minusDays(11),  // SV đã kết thúc
+                    NOW.minusDays(5), null);
+            when(periodRepository.findById(20L)).thenReturn(Optional.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L)).thenReturn(java.util.List.of());
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> service.reopen(20L));
+            assertTrue(ex.getMessage().contains("qua khung thời gian"));
+        }
+
+        @Test
+        @DisplayName("REJECT — CLOSED đã có hội đồng phản biện")
+        void rejectReopenWhenCouncilExists() {
+            RegistrationPeriod p = period(PeriodType.KLTN, PeriodStatus.CLOSED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),
+                    NOW.plusDays(10), NOW.plusDays(15));
+            when(periodRepository.findById(20L)).thenReturn(Optional.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L))
+                    .thenReturn(java.util.List.of(new vn.edu.demo.topicmanagement.entity.Council()));
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> service.reopen(20L));
+            assertTrue(ex.getMessage().contains("hội đồng"));
+        }
+
+        @Test
+        @DisplayName("REJECT — đợt đang PUBLISHED thì không dùng mở lại")
+        void rejectReopenPublished() {
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.PUBLISHED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),
+                    NOW.plusDays(10), null);
+            when(periodRepository.findById(20L)).thenReturn(Optional.of(p));
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> service.reopen(20L));
+            assertTrue(ex.getMessage().contains("đã đóng"));
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // 5.2 — delete: only when no topics exist
     // -------------------------------------------------------------------------
 
@@ -563,6 +631,121 @@ class RegistrationPeriodServiceTest {
             IllegalStateException ex = assertThrows(IllegalStateException.class,
                     () -> service.delete(20L));
             assertTrue(ex.getMessage().contains("đã có đề tài"));
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 5.2 — findAllForList: ngày hội đồng + lý do không mở lại được
+    // -------------------------------------------------------------------------
+
+    @Nested
+    @DisplayName("5.2 — findAllForList: ngày hội đồng và trạng thái mở lại")
+    class FindAllForList {
+
+        /** Tạo một hội đồng giả với ngày báo cáo cho trước. */
+        private vn.edu.demo.topicmanagement.entity.Council council(LocalDateTime reportDate) {
+            vn.edu.demo.topicmanagement.entity.Council c =
+                    new vn.edu.demo.topicmanagement.entity.Council();
+            c.setReportDate(reportDate);
+            return c;
+        }
+
+        @Test
+        @DisplayName("SUCCESS — đợt KLTN lấy ngày hội đồng từ chính đợt")
+        void kltnUsesPeriodCouncilDate() {
+            RegistrationPeriod p = period(PeriodType.KLTN, PeriodStatus.CLOSED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),
+                    NOW.plusDays(10), NOW.plusDays(15));   // council date trên đợt
+            when(periodRepository.findAllByOrderByIdDesc()).thenReturn(java.util.List.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L))
+                    .thenReturn(java.util.List.of(council(NOW.plusDays(15))));
+
+            var views = service.findAllForList();
+            assertEquals(1, views.size());
+            assertEquals(NOW.plusDays(15), views.get(0).getCouncilDate());
+        }
+
+        @Test
+        @DisplayName("SUCCESS — đợt TLCN lấy ngày hội đồng từ hội đồng đã lập")
+        void tlcnUsesCouncilReportDate() {
+            // Đợt TLCN không được có council_report_date (ràng buộc CSDL chk_period_council_type),
+            // nhưng cột "Ngày hội đồng" phải hiện ngày của hội đồng đã lập.
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.CLOSED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),
+                    NOW.plusDays(10), null);
+            when(periodRepository.findAllByOrderByIdDesc()).thenReturn(java.util.List.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L))
+                    .thenReturn(java.util.List.of(council(NOW.plusDays(12))));
+
+            var views = service.findAllForList();
+            assertEquals(NOW.plusDays(12), views.get(0).getCouncilDate());
+            assertEquals(1L, views.get(0).getCouncilCount());
+        }
+
+        @Test
+        @DisplayName("SUCCESS — đợt chưa có hội đồng thì ngày hội đồng là null")
+        void noCouncilMeansNoCouncilDate() {
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.CLOSED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),
+                    NOW.plusDays(10), null);
+            when(periodRepository.findAllByOrderByIdDesc()).thenReturn(java.util.List.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L))
+                    .thenReturn(java.util.List.of());
+
+            var views = service.findAllForList();
+            assertNull(views.get(0).getCouncilDate());
+            assertEquals(0L, views.get(0).getCouncilCount());
+        }
+
+        @Test
+        @DisplayName("SUCCESS — đợt CLOSED đã có hội đồng thì báo không mở lại được")
+        void closedWithCouncilIsNotReopenable() {
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.CLOSED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),
+                    NOW.plusDays(10), null);
+            when(periodRepository.findAllByOrderByIdDesc()).thenReturn(java.util.List.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L))
+                    .thenReturn(java.util.List.of(council(NOW.plusDays(12))));
+
+            var view = service.findAllForList().get(0);
+            assertFalse(view.isReopenable());
+            assertTrue(view.getReopenBlockedReason().contains("hội đồng"));
+        }
+
+        @Test
+        @DisplayName("SUCCESS — đợt CLOSED quá hạn thì báo không mở lại được")
+        void closedPastWindowIsNotReopenable() {
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.CLOSED,
+                    NOW.minusDays(20), NOW.minusDays(19),
+                    NOW.minusDays(18), NOW.minusDays(11),
+                    NOW.minusDays(5), null);
+            when(periodRepository.findAllByOrderByIdDesc()).thenReturn(java.util.List.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L))
+                    .thenReturn(java.util.List.of());
+
+            var view = service.findAllForList().get(0);
+            assertFalse(view.isReopenable());
+            assertTrue(view.getReopenBlockedReason().contains("khung thời gian"));
+        }
+
+        @Test
+        @DisplayName("SUCCESS — đợt CLOSED còn hạn và chưa có hội đồng thì mở lại được")
+        void closedWithinWindowIsReopenable() {
+            RegistrationPeriod p = period(PeriodType.TLCN, PeriodStatus.CLOSED,
+                    NOW.minusDays(5), NOW.minusDays(4),
+                    NOW.minusDays(3), NOW.plusDays(3),
+                    NOW.plusDays(10), null);
+            when(periodRepository.findAllByOrderByIdDesc()).thenReturn(java.util.List.of(p));
+            when(councilRepository.findByPeriodIdOrderByIdDesc(20L))
+                    .thenReturn(java.util.List.of());
+
+            var view = service.findAllForList().get(0);
+            assertTrue(view.isReopenable());
+            assertNull(view.getReopenBlockedReason());
         }
     }
 }

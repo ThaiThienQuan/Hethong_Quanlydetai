@@ -44,7 +44,7 @@
                 <td class="actions">
                     <a th:if="${row.editable}" th:href="@{/lecturer/topics/{id}/edit(id=${row.id})}">Sửa</a>
                     <form th:if="${row.editable}" th:action="@{/lecturer/topics/{id}/delete(id=${row.id})}" method="post" class="form-inline"
-                          onsubmit="return confirm('Bạn chắc chắn muốn xóa đề tài này?');">
+                          data-confirm-message="Bạn chắc chắn muốn xóa đề tài này?">
                         <button class="btn btn-soft-danger btn-sm" type="submit">Xóa</button>
                     </form>
                 </td>

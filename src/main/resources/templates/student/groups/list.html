@@ -40,7 +40,7 @@
                         <form th:if="${myGroup.canManageMembers and !m.leader}"
                               th:action="@{/student/groups/{id}/members/{sid}/remove(id=${myGroup.id},sid=${m.studentId})}"
                               method="post" class="form-inline"
-                              onsubmit="return confirm('Gỡ sinh viên này khỏi nhóm? Sinh viên sẽ trở lại danh sách chưa có nhóm.');">
+                              data-confirm-message="Gỡ sinh viên này khỏi nhóm? Sinh viên sẽ trở lại danh sách chưa có nhóm.">
                             <button class="btn btn-soft-danger btn-sm" type="submit">Gỡ khỏi nhóm</button>
                         </form>
                         <span class="desc" th:if="${myGroup.canManageMembers and m.leader}">Không thể gỡ nhóm trưởng</span>

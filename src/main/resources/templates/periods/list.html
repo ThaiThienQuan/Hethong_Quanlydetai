@@ -17,7 +17,7 @@
     <p class="ok" th:if="${message}" th:text="${message}"></p>
     <p class="error" th:if="${error}" th:text="${error}"></p>
     <div class="table-scroll" role="region" tabindex="0" aria-label="Bảng dữ liệu"><table>
-        <thead><tr><th>Tên đợt</th><th>Loại</th><th>Giai đoạn GV</th><th>Giai đoạn SV</th><th>Hạn phản biện</th><th>Ngày hội đồng</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <thead><tr><th>Tên đợt</th><th>Loại</th><th>Giai đoạn GV</th><th>Giai đoạn SV</th><th>Hạn phản biện</th><th>Ngày hội đồng</th><th>Số hội đồng</th><th>Giai đoạn hiện tại</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
         <tbody>
         <tr th:each="p : ${periods}">
             <td th:text="${p.name}">Đợt đăng ký</td>
@@ -25,20 +25,35 @@
             <td><span th:text="${#temporals.format(p.lecturerStartAt, 'dd/MM/yyyy HH:mm')}"></span> – <span th:text="${#temporals.format(p.lecturerEndAt, 'dd/MM/yyyy HH:mm')}"></span></td>
             <td><span th:text="${#temporals.format(p.studentStartAt, 'dd/MM/yyyy HH:mm')}"></span> – <span th:text="${#temporals.format(p.studentEndAt, 'dd/MM/yyyy HH:mm')}"></span></td>
             <td th:text="${p.reviewDeadline != null ? #temporals.format(p.reviewDeadline, 'dd/MM/yyyy HH:mm') : '—'}"></td>
-            <td th:text="${p.councilReportDate != null ? #temporals.format(p.councilReportDate, 'dd/MM/yyyy HH:mm') : '—'}"></td>
-            <td><span class="badge" th:classappend="${'st-' + p.status.name()}" th:text="${p.status}">DRAFT</span></td>
+            <!-- Ngày hội đồng: lấy từ đợt (KLTN) hoặc từ hội đồng đã lập (TLCN).
+                 Trước đây chỉ đọc councilReportDate nên đợt TLCN có hội đồng vẫn hiện "—". -->
+            <td th:text="${p.councilDate != null ? #temporals.format(p.councilDate, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+            <td><span th:if="${p.councilCount > 0}" th:text="${p.councilCount}"></span><span th:if="${p.councilCount == 0}">—</span></td>
+            <!-- Giai đoạn hiện tại suy ra từ trạng thái + giờ máy chủ (mục 5.2). Đợt PUBLISHED
+                 nhưng đã qua student_end_at vẫn hiện "Đã đóng" dù cột Trạng thái là PUBLISHED. -->
+            <td>
+                <span class="badge"
+                      th:classappend="${p.currentPhase == 'CHUA_MO' ? 'st-PENDING'
+                                     : (p.currentPhase == 'DA_DONG' ? 'st-CLOSED' : 'st-OPEN')}"
+                      th:text="${p.currentPhaseLabel}">Đã đóng</span>
+            </td>
+            <td><span class="badge" th:classappend="${'st-' + p.status.name()}" th:text="${p.status.label}">DRAFT</span></td>
             <td class="actions">
                 <a class="btn btn-soft-primary btn-sm" th:if="${p.status.name() == 'DRAFT'}" th:href="@{/periods/{id}/edit(id=${p.id})}">Sửa</a>
                 <form th:if="${p.status.name() == 'DRAFT'}" th:action="@{/periods/{id}/delete(id=${p.id})}" method="post"
-                      onsubmit="return confirm('Xóa đợt nháp này? Chỉ xóa được khi chưa có đề tài hoặc hội đồng liên kết.');">
+                      data-confirm-message="Xóa đợt nháp này? Chỉ xóa được khi chưa có đề tài hoặc hội đồng liên kết.">
                     <button class="btn btn-soft-danger btn-sm" type="submit">Xóa đợt nháp</button>
                 </form>
                 <form th:if="${p.status.name() == 'DRAFT'}" th:action="@{/periods/{id}/open(id=${p.id})}" method="post"><button class="btn btn-soft-success btn-sm" type="submit">Mở đợt</button></form>
                 <form th:if="${p.status.name() == 'PUBLISHED' or p.status.name() == 'OPEN'}" th:action="@{/periods/{id}/close(id=${p.id})}" method="post"><button class="btn btn-soft-warning btn-sm" type="submit">Đóng đợt</button></form>
-                <form th:if="${p.status.name() == 'CLOSED'}" th:action="@{/periods/{id}/reopen(id=${p.id})}" method="post" onsubmit="return confirm('Mở lại đợt này? Chỉ có thể mở khi còn thời gian đăng ký và chưa có hội đồng.');"><button class="btn btn-soft-primary btn-sm" type="submit">Mở lại</button></form>
+                <!-- Nút "Mở lại" chỉ hiện khi đợt thực sự mở lại được. Nếu không, hiện lý do
+                     cụ thể thay vì để người dùng bấm rồi mới nhận thông báo lỗi. -->
+                <form th:if="${p.status.name() == 'CLOSED' and p.reopenable}" th:action="@{/periods/{id}/reopen(id=${p.id})}" method="post"
+                      data-confirm-message="Mở lại đợt này? Chỉ mở lại được khi còn thời gian đăng ký và chưa có hội đồng phản biện nào thuộc đợt."><button class="btn btn-soft-primary btn-sm" type="submit">Mở lại</button></form>
+                <span th:if="${p.status.name() == 'CLOSED' and !p.reopenable}" class="muted-note" th:text="${p.reopenBlockedReason}"></span>
             </td>
         </tr>
-        <tr th:if="${#lists.isEmpty(periods)}"><td colspan="8">Chưa có đợt đăng ký nào.</td></tr>
+        <tr th:if="${#lists.isEmpty(periods)}"><td colspan="10">Chưa có đợt đăng ký nào.</td></tr>
         </tbody>
     </table></div>
 </div>

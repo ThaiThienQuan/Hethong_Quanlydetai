@@ -45,7 +45,7 @@
                 <td th:text="${r.rejectReason}"></td><td th:text="${r.registeredAt != null ? #temporals.format(r.registeredAt, 'dd/MM/yyyy HH:mm') : ''}"></td>
                 <td><form th:if="${myGroup.currentUserLeader and r.status.name() == 'PENDING'}"
                           th:action="@{/student/registrations/{id}/cancel(id=${r.id})}" method="post"
-                          onsubmit="return confirm('Hủy đăng ký đề tài này?');">
+                          data-confirm-message="Hủy đăng ký đề tài này?">
                     <button class="btn btn-soft-danger btn-sm" type="submit">Hủy đăng ký</button></form></td></tr></tbody>
         </table></div>
     </section>

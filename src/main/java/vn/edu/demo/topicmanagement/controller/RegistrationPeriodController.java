@@ -40,7 +40,7 @@ public class RegistrationPeriodController {
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("periods", periodService.findAll());
+        model.addAttribute("periods", periodService.findAllForList());
         return "periods/list";
     }
 

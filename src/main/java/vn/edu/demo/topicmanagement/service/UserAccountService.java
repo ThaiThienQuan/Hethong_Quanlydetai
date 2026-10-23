@@ -44,6 +44,7 @@ public class UserAccountService {
     private final DepartmentRepository departmentRepository;
     private final StudentRepository studentRepository;
     private final LecturerRepository lecturerRepository;
+    private final ProfileCodeService profileCodeService;
     private final PasswordEncoder passwordEncoder;
 
     public UserAccountService(UserRepository userRepository,
@@ -51,12 +52,14 @@ public class UserAccountService {
                               DepartmentRepository departmentRepository,
                               StudentRepository studentRepository,
                               LecturerRepository lecturerRepository,
+                              ProfileCodeService profileCodeService,
                               PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.departmentRepository = departmentRepository;
         this.studentRepository = studentRepository;
         this.lecturerRepository = lecturerRepository;
+        this.profileCodeService = profileCodeService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -171,13 +174,10 @@ public class UserAccountService {
         if (creating && f.getUsername() != null && userRepository.existsByUsername(f.getUsername().trim())) {
             errors.put("username", "Tên đăng nhập đã tồn tại");
         }
-        // Hồ sơ đi kèm: sinh viên cần mã SV + lớp + ngành; giảng viên cần mã GV + bộ môn.
+        // Hồ sơ đi kèm: sinh viên cần lớp + ngành; giảng viên cần bộ môn.
+        // Mã sinh viên / mã giảng viên do hệ thống tự cấp (ProfileCodeService)
+        // nên Admin không nhập tay và không thể tạo mã trùng.
         if (creating && role == UserRole.SINH_VIEN) {
-            if (isBlank(f.getStudentCode())) {
-                errors.put("studentCode", "Vui lòng nhập mã sinh viên");
-            } else if (studentRepository.existsByStudentCode(f.getStudentCode().trim())) {
-                errors.put("studentCode", "Mã sinh viên đã tồn tại");
-            }
             if (isBlank(f.getClassName())) {
                 errors.put("className", "Vui lòng nhập lớp của sinh viên");
             }
@@ -186,23 +186,37 @@ public class UserAccountService {
             }
         }
         if (creating && (role == UserRole.GIANG_VIEN || role == UserRole.TRUONG_KHOA)) {
-            if (isBlank(f.getLecturerCode())) {
-                errors.put("lecturerCode", "Vui lòng nhập mã giảng viên");
-            } else if (lecturerRepository.existsByLecturerCode(f.getLecturerCode().trim())) {
-                errors.put("lecturerCode", "Mã giảng viên đã tồn tại");
-            }
             if (f.getDepartmentId() == null) {
                 errors.put("departmentId", "Vui lòng chọn bộ môn");
             }
         }
         String email = blankToNull(f.getEmail());
-        if (email != null) {
+        if (email == null) {
+            // users.email NOT NULL + UNIQUE -> để trống sẽ gây lỗi 500 khi insert.
+            errors.put("email", "Vui lòng nhập email");
+        } else {
             boolean duplicated = creating
                     ? userRepository.existsByEmail(email)
                     : userRepository.existsByEmailAndIdNot(email, existingId);
             if (duplicated) errors.put("email", "Email đã được dùng cho tài khoản khác");
         }
         return errors;
+    }
+
+    /**
+     * Mã sinh viên sẽ được hệ thống cấp cho tài khoản mới (xem trước trên form).
+     */
+    @Transactional(readOnly = true)
+    public String previewStudentCode() {
+        return profileCodeService.nextStudentCode();
+    }
+
+    /**
+     * Mã giảng viên sẽ được hệ thống cấp cho tài khoản mới (xem trước trên form).
+     */
+    @Transactional(readOnly = true)
+    public String previewLecturerCode() {
+        return profileCodeService.nextLecturerCode();
     }
 
     @Transactional
@@ -230,13 +244,13 @@ public class UserAccountService {
 
         // Tạo hồ sơ đi kèm theo vai trò: sinh viên -> students, giảng viên/TK -> lecturers.
         // Thiếu hồ sơ khiến các màn hình của vai trò đó báo lỗi khi người dùng thao tác.
+        // Mã SV/GV được hệ thống tự cấp để không bao giờ trùng.
         if (f.getRole() == UserRole.SINH_VIEN) {
-            studentRepository.save(new Student(u, f.getStudentCode().trim(),
-                    f.getClassName().trim(), f.getMajor().trim()));
+            profileCodeService.createStudentProfile(u, f.getClassName().trim(), f.getMajor().trim());
         } else if (f.getRole() == UserRole.GIANG_VIEN || f.getRole() == UserRole.TRUONG_KHOA) {
             Department dept = departmentRepository.findById(f.getDepartmentId())
                     .orElseThrow(() -> new IllegalArgumentException("Bộ môn không tồn tại"));
-            lecturerRepository.save(new Lecturer(u, f.getLecturerCode().trim(), dept));
+            profileCodeService.createLecturerProfile(u, dept);
         }
         return u.getId();
     }

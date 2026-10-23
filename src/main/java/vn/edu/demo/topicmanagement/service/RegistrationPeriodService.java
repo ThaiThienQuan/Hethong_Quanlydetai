@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.demo.topicmanagement.dto.PeriodListView;
 import vn.edu.demo.topicmanagement.dto.RegistrationPeriodForm;
+import vn.edu.demo.topicmanagement.entity.Council;
 import vn.edu.demo.topicmanagement.entity.PeriodStatus;
 import vn.edu.demo.topicmanagement.entity.PeriodType;
 import vn.edu.demo.topicmanagement.entity.RegistrationPeriod;
@@ -80,6 +82,107 @@ private final RegistrationPeriodRepository periodRepository;
 
     public List<RegistrationPeriod> findAll() {
         return periodRepository.findAllByOrderByIdDesc();
+    }
+
+    /**
+     * Danh sách đợt cho màn hình quản lý đợt (mục 5.2), đã bổ sung ngày hội đồng và
+     * lý do không mở lại được.
+     *
+     * <p>Ngày hội đồng lấy theo thứ tự ưu tiên: {@code period.councilReportDate} (đợt
+     * KLTN) rồi tới ngày báo cáo của các hội đồng thuộc đợt (đợt TLCN). Trước đây
+     * cột "Ngày hội đồng" chỉ đọc {@code councilReportDate}, nên đợt TLCN đã có hội
+     * đồng vẫn hiện "—" - gây hiểu nhầm là đợt chưa có hội đồng.
+     */
+    @Transactional(readOnly = true)
+    public List<PeriodListView> findAllForList() {
+        LocalDateTime current = now();
+        return periodRepository.findAllByOrderByIdDesc().stream()
+                .map(p -> toListView(p, current))
+                .toList();
+    }
+
+    private PeriodListView toListView(RegistrationPeriod p, LocalDateTime current) {
+        List<Council> councils = councilRepository.findByPeriodIdOrderByIdDesc(p.getId());
+        LocalDateTime councilDate = p.getCouncilReportDate();
+        if (councilDate == null) {
+            // Đợt TLCN không có council_report_date (ràng buộc CSDL chỉ cho KLTN),
+            // nên ngày hội đồng lấy từ hội đồng đã lập cho đợt đó.
+            councilDate = councils.stream()
+                    .map(Council::getReportDate)
+                    .filter(java.util.Objects::nonNull)
+                    .min(LocalDateTime::compareTo)
+                    .orElse(null);
+        }
+        return new PeriodListView(
+                p.getId(),
+                p.getName(),
+                p.getPeriodType(),
+                p.getLecturerStartAt(),
+                p.getLecturerEndAt(),
+                p.getStudentStartAt(),
+                p.getStudentEndAt(),
+                p.getReviewDeadline(),
+                councilDate,
+                p.getStatus(),
+                currentPhase(p, current),
+                currentPhaseLabel(currentPhase(p, current)),
+                councils.size(),
+                reopenBlockedReason(p, councils, current));
+    }
+
+    /**
+     * Giai đoạn hiện tại của đợt, tính theo giờ máy chủ (mục 5.2).
+     *
+     * <p>Trước đây entity tự tính bằng {@code LocalDateTime.now()}, không dùng
+     * {@code Clock} đã tiêm - khiến việc kiểm thử không kiểm soát được thời gian.
+     */
+    private String currentPhase(RegistrationPeriod p, LocalDateTime current) {
+        if (p.getStatus() == PeriodStatus.CLOSED) {
+            return "DA_DONG";
+        }
+        if (p.getStatus() == PeriodStatus.DRAFT) {
+            return "CHUA_MO";
+        }
+        if (current.isBefore(p.getLecturerStartAt())) {
+            return "CHUA_MO";
+        }
+        if (current.isBefore(p.getLecturerEndAt())) {
+            return "GIAO_VIEN_DANG_KY";
+        }
+        if (current.isBefore(p.getStudentEndAt())) {
+            return "SINH_VIEN_DANG_KY";
+        }
+        return "DA_DONG";
+    }
+
+    private String currentPhaseLabel(String phase) {
+        return switch (phase) {
+            case "CHUA_MO" -> "Chưa mở";
+            case "GIAO_VIEN_DANG_KY" -> "Giảng viên đăng ký";
+            case "SINH_VIEN_DANG_KY" -> "Sinh viên đăng ký";
+            default -> "Đã đóng";
+        };
+    }
+
+    /**
+     * Lý do cụ thể vì sao đợt đã đóng không mở lại được, hoặc null nếu mở lại được.
+     *
+     * <p>Trước đây giao diện luôn hiện nút "Mở lại" cho mọi đợt {@code CLOSED}, người
+     * dùng bấm rồi mới nhận thông báo lỗi. Nay giao diện biết trước và hiện lý do
+     * ngay trên bảng.
+     */
+    private String reopenBlockedReason(RegistrationPeriod p, List<Council> councils,
+                                       LocalDateTime current) {
+        if (p.getStatus() != PeriodStatus.CLOSED) {
+            return null;
+        }
+        if (!councils.isEmpty()) {
+            return "Đợt đã có hội đồng phản biện nên không mở lại được.";
+        }
+        if (!current.isBefore(p.getStudentEndAt())) {
+            return "Đợt đã qua khung thời gian đăng ký của sinh viên nên không mở lại được.";
+        }
+        return null;
     }
 
     public RegistrationPeriod getById(Long id) {
@@ -413,33 +516,49 @@ private final RegistrationPeriodRepository periodRepository;
         update(existing);
     }
 
+    /**
+     * Mở đợt ở trạng thái nháp: {@code DRAFT -> PUBLISHED} (nút "Mở đợt").
+     * Chỉ áp dụng cho đợt nháp - đợt đã công bố thì dùng {@link #reopen(Long)}.
+     */
     @Transactional
     public void open(Long id) {
         RegistrationPeriod period = getById(id);
         if (period.getStatus() == PeriodStatus.PUBLISHED) {
             throw new IllegalStateException("Đợt đang mở.");
         }
-        // Cho phép mở lại đợt đã đóng hoặc nháp
+        if (period.getStatus() == PeriodStatus.CLOSED) {
+            throw new IllegalStateException("Đợt đã đóng, dùng nút \"Mở lại\" nếu còn điều kiện.");
+        }
         period.setStatus(PeriodStatus.PUBLISHED);
         validateTimes(period);
         validateOptionalDeadlines(period);
         periodRepository.save(period);
     }
 
+    /**
+     * Mở lại đợt đã đóng: {@code CLOSED -> PUBLISHED} (nút "Mở lại").
+     *
+     * <p>Điều kiện mà hộp thoại xác nhận trên giao diện từng hứa, nay kiểm tra thật ở
+     * service: đợt phải còn thời gian đăng ký và chưa có hội đồng nào thuộc đợt.
+     * Trước đây khối {@code if} bị bỏ rỗng nên mọi đợt CLOSED đều mở lại được,
+     * kể cả đợt đã quá hạn và đã có hội đồng.
+     */
     @Transactional
     public void reopen(Long id) {
-        // reopen = open cho đợt đã đóng
         RegistrationPeriod period = getById(id);
         if (period.getStatus() != PeriodStatus.CLOSED) {
-            // Nếu đang DRAFT thì không cần reopen, chỉ cần publish
-            if (period.getStatus() == PeriodStatus.PUBLISHED) {
-                throw new IllegalStateException("Đợt đang mở, không cần mở lại.");
-            }
+            throw new IllegalStateException("Chỉ mở lại được đợt đã đóng. Trạng thái hiện tại: "
+                    + period.getStatus().getLabel() + ".");
         }
-        LocalDateTime current = now();
-        if (!current.isBefore(period.getStudentStartAt())) {
-            // đã vào giai đoạn SV, vẫn cho mở
+        if (!councilRepository.findByPeriodIdOrderByIdDesc(id).isEmpty()) {
+            throw new IllegalStateException("Đợt đã có hội đồng phản biện nên không mở lại được.");
         }
+        if (!now().isBefore(period.getStudentEndAt())) {
+            throw new IllegalStateException("Đợt đã qua khung thời gian đăng ký của sinh viên nên không mở lại được.");
+        }
+        // Rà lại mốc thời gian trước khi mở lại.
+        validateTimes(period);
+        validateOptionalDeadlines(period);
         period.setStatus(PeriodStatus.PUBLISHED);
         periodRepository.save(period);
     }
